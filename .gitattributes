@@ -1,0 +1,7 @@
+# Mengabaikan ekstensi file tertentu dari statistik bahasa
+*.html linguist-detectable=false
+*.js linguist-detectable=false
+*.css linguist-detectable=false
+
+# Menandai folder web sebagai "vendored" (file bawaan/pihak ketiga)
+web/* linguist-vendored
