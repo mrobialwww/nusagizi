@@ -23,11 +23,13 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.nuzagizi"
         // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.  
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders += mapOf("auth0Domain" to "dev-msiihoq456653nie.au.auth0.com", "auth0Scheme" to "https")
+        // manifestPlaceholders += [auth0Domain: "dev-msiihoq456653nie.au.auth0.com", auth0Scheme: "https"]
     }
 
     buildTypes {
