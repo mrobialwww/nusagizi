@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -18,10 +17,17 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final user = await remoteDataSource.login(email: email, password: password);
-      return Right(user);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      final credentials = await remoteDataSource.login(email, password);
+      final user = credentials.user;
+      return Right(
+        UserEntity(
+          id: user.sub,
+          name: user.name ?? '',
+          email: user.email ?? '',
+        ),
+      );
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
     }
   }
 
@@ -30,18 +36,18 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.logout();
       return const Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, UserEntity>> getCurrentUser() async {
     try {
-      final user = await remoteDataSource.getCurrentUser();
-      return Right(user);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
+      // TODO: implement getCurrentUser logic using auth0
+      return Left(ServerFailure(message: 'Not implemented'));
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
     }
   }
 }

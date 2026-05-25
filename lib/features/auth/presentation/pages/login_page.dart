@@ -1,7 +1,11 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nuzagizi/auth_service.dart';
+import 'package:nuzagizi/core/utils/jwt_utils.dart';
+import 'package:nuzagizi/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:nuzagizi/features/auth/presentation/pages/register_page.dart';
+import 'package:nuzagizi/features/home/presentation/pages/home_page.dart';
+import 'package:nuzagizi/features/onboarding/presentation/pages/onboarding_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,14 +16,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
-  final AuthService _authService = AuthService();
+  final AuthRemoteDataSource _authService = AuthRemoteDataSource();
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  bool _isLogin = true; // true = Sign In mode, false = Sign Up mode
   bool _isLoading = false;
   bool _obscurePassword = true;
 
@@ -46,16 +48,35 @@ class _LoginPageState extends State<LoginPage>
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _usernameController.dispose();
     _animController?.dispose();
     super.dispose();
   }
 
-  void _toggleMode() {
-    _animController?.reverse().then((_) {
-      setState(() => _isLogin = !_isLogin);
-      _animController?.forward();
-    });
+  void _navigateToRegister() {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const RegisterPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
+  }
+
+  void _navigateBasedOnRole(String role) {
+    if (role.isEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const OnboardingPage()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage(role: role)),
+      );
+    }
   }
 
   Future<void> _handleSubmit() async {
@@ -63,32 +84,20 @@ class _LoginPageState extends State<LoginPage>
 
     setState(() => _isLoading = true);
     try {
-      if (_isLogin) {
-        Credentials tokenAuth = await _authService.login(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-        );
+      Credentials tokenAuth = await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
-        token = tokenAuth.accessToken;
+      token = tokenAuth.accessToken;
 
-        await Future.delayed(const Duration(seconds: 1));
-        if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Sign In berhasil!')));
-        }
-      } else {
-        await _authService.register(
-          _emailController.text.trim(),
-          _passwordController.text.trim(),
-          _usernameController.text.trim(),
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        final role = JwtUtils.decodeRole(tokenAuth.accessToken);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Sign In berhasil!')),
         );
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Akun berhasil dibuat!')),
-          );
-          _toggleMode();
-        }
+        _navigateBasedOnRole(role);
       }
     } catch (e) {
       if (mounted) {
@@ -101,24 +110,37 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
+  Future<void> _handleGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      Credentials tokenAuth = await _authService.googleLogin();
+      token = tokenAuth.accessToken;
+
+      if (mounted) {
+        final role = JwtUtils.decodeRole(tokenAuth.accessToken);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil masuk dengan Google!')),
+        );
+        _navigateBasedOnRole(role);
+      }
+    } catch (e) {
+      debugPrint('Login dibatalkan: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal login Google: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
       body: Stack(
         children: [
-          // Background gradient blobs
-          Positioned(
-            top: -100,
-            right: -80,
-            child: _GlowBlob(color: const Color(0xFF6C63FF), size: 300),
-          ),
-          Positioned(
-            bottom: -80,
-            left: -60,
-            child: _GlowBlob(color: const Color(0xFF00C9A7), size: 250),
-          ),
-
           // Content
           SafeArea(
             child: Center(
@@ -162,9 +184,7 @@ class _LoginPageState extends State<LoginPage>
 
                       // Title
                       Text(
-                        _isLogin
-                            ? 'Selamat\nDatang Kembali 👋'
-                            : 'Buat Akun\nBaru ✨',
+                        'Selamat\nDatang Kembali 👋',
                         style: GoogleFonts.outfit(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -174,9 +194,7 @@ class _LoginPageState extends State<LoginPage>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _isLogin
-                            ? 'Masuk untuk melanjutkan perjalananmu $token'
-                            : 'Daftar dan mulai perjalananmu bersama kami',
+                        'Masuk untuk melanjutkan perjalananmu',
                         style: GoogleFonts.outfit(
                           fontSize: 14,
                           color: Colors.white54,
@@ -198,19 +216,6 @@ class _LoginPageState extends State<LoginPage>
                           key: _formKey,
                           child: Column(
                             children: [
-                              // Username field (Sign Up only)
-                              if (!_isLogin) ...[
-                                _buildTextField(
-                                  controller: _usernameController,
-                                  label: 'Username',
-                                  icon: Icons.person_outline_rounded,
-                                  validator: (v) => v == null || v.isEmpty
-                                      ? 'Username wajib diisi'
-                                      : null,
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-
                               // Email
                               _buildTextField(
                                 controller: _emailController,
@@ -258,21 +263,19 @@ class _LoginPageState extends State<LoginPage>
                                 },
                               ),
 
-                              // Forgot Password (Sign In only)
-                              if (_isLogin) ...[
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    'Lupa password?',
-                                    style: GoogleFonts.outfit(
-                                      color: const Color(0xFF6C63FF),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                              // Forgot Password
+                              const SizedBox(height: 12),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'Lupa password?',
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF6C63FF),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              ],
+                              ),
 
                               const SizedBox(height: 28),
 
@@ -320,7 +323,7 @@ class _LoginPageState extends State<LoginPage>
                                             ),
                                           ),
                                           child: Text(
-                                            _isLogin ? 'Sign In' : 'Sign Up',
+                                            'Sign In',
                                             style: GoogleFonts.outfit(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
@@ -336,24 +339,20 @@ class _LoginPageState extends State<LoginPage>
                       ),
 
                       const SizedBox(height: 24),
-
-                      // Toggle mode
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _isLogin
-                                ? 'Belum punya akun? '
-                                : 'Sudah punya akun? ',
+                            'Belum punya akun? ',
                             style: GoogleFonts.outfit(
                               color: Colors.white38,
                               fontSize: 14,
                             ),
                           ),
                           GestureDetector(
-                            onTap: _toggleMode,
+                            onTap: _navigateToRegister,
                             child: Text(
-                              _isLogin ? 'Daftar Sekarang' : 'Masuk',
+                              'Daftar Sekarang',
                               style: GoogleFonts.outfit(
                                 color: const Color(0xFF6C63FF),
                                 fontSize: 14,
@@ -362,6 +361,48 @@ class _LoginPageState extends State<LoginPage>
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'Atau masuk dengan',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white38,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: Colors.white.withOpacity(0.1),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.login),
+                          label: const Text('Masuk dengan Google'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: _isLoading ? null : _handleGoogleLogin,
+                        ),
                       ),
                       const SizedBox(height: 32),
                     ],
@@ -425,105 +466,3 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 }
-
-// Widget glow blob untuk background dekoratif
-class _GlowBlob extends StatelessWidget {
-  final Color color;
-  final double size;
-
-  const _GlowBlob({required this.color, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color.withOpacity(0.15),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.25),
-            blurRadius: 80,
-            spreadRadius: 20,
-          ),
-        ],
-      ),
-    );
-  }
-}
-// class _LoginPageState extends State<LoginPage> {
-//   final _emailController = TextEditingController();
-//   final _passwordController = TextEditingController();
-//   final _formKey = GlobalKey<FormState>();
-
-//   @override
-//   void dispose() {
-//     _emailController.dispose();
-//     _passwordController.dispose();
-//     super.dispose();
-//   }
-
-//   void _onLogin() {
-//     if (_formKey.currentState!.validate()) {
-//       context.read<AuthCubit>().login(
-//         email: _emailController.text.trim(),
-//         password: _passwordController.text.trim(),
-//       );
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Login')),
-//       body: BlocConsumer<AuthCubit, AuthState>(
-//         listener: (context, state) {
-//           if (state is AuthAuthenticated) {
-//             // Navigate to home
-//             // Navigator.pushReplacementNamed(context, Routes.home);
-//           }
-//           if (state is AuthError) {
-//             ScaffoldMessenger.of(
-//               context,
-//             ).showSnackBar(SnackBar(content: Text(state.message)));
-//           }
-//         },
-//         builder: (context, state) {
-//           return Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Form(
-//               key: _formKey,
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   TextFormField(
-//                     controller: _emailController,
-//                     decoration: const InputDecoration(labelText: 'Email'),
-//                     validator: (v) => v!.isEmpty ? 'Email wajib diisi' : null,
-//                   ),
-//                   const SizedBox(height: 16),
-//                   TextFormField(
-//                     controller: _passwordController,
-//                     obscureText: true,
-//                     decoration: const InputDecoration(labelText: 'Password'),
-//                     validator: (v) =>
-//                         v!.isEmpty ? 'Password wajib diisi' : null,
-//                   ),
-//                   const SizedBox(height: 24),
-//                   if (state is AuthLoading)
-//                     const CircularProgressIndicator()
-//                   else
-//                     ElevatedButton(
-//                       onPressed: _onLogin,
-//                       child: const Text('Login'),
-//                     ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
