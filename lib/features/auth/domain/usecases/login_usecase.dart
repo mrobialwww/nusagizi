@@ -1,25 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../core/usecase/usecase.dart';
-import '../entities/user_entity.dart';
-import '../repositories/auth_repository.dart';
+import 'package:nusagizi/core/error/failures.dart';
+import 'package:nusagizi/features/auth/domain/entities/user_entity.dart';
+import 'package:nusagizi/features/auth/domain/repositories/auth_repository.dart';
 
 // AUTH FEATURE - DOMAIN LAYER
 // UseCase: business logic untuk login
-class LoginUseCase extends UseCase<UserEntity, LoginParams> {
-  final AuthRepository repository;
-
-  LoginUseCase(this.repository);
-
-  @override
-  Future<Either<Failure, UserEntity>> call(LoginParams params) async {
-    return await repository.login(
-      email: params.email,
-      password: params.password,
-    );
-  }
-}
 
 class LoginParams extends Equatable {
   final String email;
@@ -29,4 +15,14 @@ class LoginParams extends Equatable {
 
   @override
   List<Object?> get props => [email, password];
+}
+
+class LoginUsecase {
+  final AuthRepository repository;
+
+  LoginUsecase({required this.repository});
+
+  Future<Either<Failure, UserEntity>> call(LoginParams userLogin) async {
+    return await repository.login(userLogin);
+  }
 }

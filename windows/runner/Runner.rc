@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "nuzagizi" "\0"
+            VALUE "FileDescription", "nusagizi" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "nuzagizi" "\0"
+            VALUE "InternalName", "nusagizi" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "nuzagizi.exe" "\0"
-            VALUE "ProductName", "nuzagizi" "\0"
+            VALUE "OriginalFilename", "nusagizi.exe" "\0"
+            VALUE "ProductName", "nusagizi" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

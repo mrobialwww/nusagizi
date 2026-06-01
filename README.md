@@ -1,4 +1,4 @@
-# nuzagizi
+# nusagizi
 
 A new Flutter project.
 
