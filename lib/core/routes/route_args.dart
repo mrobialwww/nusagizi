@@ -1,4 +1,29 @@
-import 'package:nusagizi/features/mother/development/domain/entities/kpsp_question.dart';
+import 'package:nusagizi/features/mother/profile/domain/entities/user_profile_entity.dart';
+import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_cubit.dart';
+import 'package:nusagizi/features/caregiver/profile/domain/entities/caregiver_profile_entity.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Extra untuk navigasi ProfileMotherPage → EditProfilePage
+// Membawa cubit (untuk updateProfile & refresh setelah save)
+// dan data profile yang sudah di-load (untuk pre-fill form tanpa API call ulang)
+// ─────────────────────────────────────────────────────────────────────────────
+class EditProfileExtra {
+  final UserProfileCubit cubit;
+  final UserProfileEntity profile;
+
+  const EditProfileExtra({required this.cubit, required this.profile});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Extra untuk navigasi ProfileCaregiverPage → CaregiverEditProfilePage
+// ─────────────────────────────────────────────────────────────────────────────
+class CaregiverEditProfileExtra {
+  final CaregiverProfileCubit cubit;
+  final CaregiverProfileEntity profile;
+
+  const CaregiverEditProfileExtra({required this.cubit, required this.profile});
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Model untuk extra parameter KPSP Result
@@ -7,14 +32,18 @@ import 'package:nusagizi/features/mother/development/domain/entities/kpsp_questi
 class KpspResultExtra {
   final String childName;
   final String childAge;
-  final List<KpspQuestion> questions;
-  final List<bool> answers;
+  final String reportId;
+  final bool isFromHistory;
+  final String childId;
+  final bool showRetakeButton;
 
   const KpspResultExtra({
     required this.childName,
     required this.childAge,
-    required this.questions,
-    required this.answers,
+    required this.reportId,
+    this.isFromHistory = false,
+    required this.childId,
+    this.showRetakeButton = true,
   });
 }
 
@@ -25,8 +54,15 @@ class KpspResultExtra {
 class KpspAssessmentExtra {
   final String childName;
   final String childAge;
+  final String childId;
+  final String? existingReportId;
 
-  const KpspAssessmentExtra({required this.childName, required this.childAge});
+  const KpspAssessmentExtra({
+    required this.childName,
+    required this.childAge,
+    required this.childId,
+    this.existingReportId,
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -36,25 +72,32 @@ class KpspAssessmentExtra {
 class DevelopmentProfileDetailExtra {
   final String childName;
   final String childAge;
+  final String childId;
+  final String reportId;
   final double motorikHalus;
   final double motorikKasar;
   final double sosialisasi;
   final double bicara;
-  final String motorikHalusStatus;
-  final String motorikKasarStatus;
-  final String sosialisasiStatus;
-  final String bicaraStatus;
 
   const DevelopmentProfileDetailExtra({
     required this.childName,
     required this.childAge,
+    required this.childId,
+    required this.reportId,
     required this.motorikHalus,
     required this.motorikKasar,
     required this.sosialisasi,
     required this.bicara,
-    required this.motorikHalusStatus,
-    required this.motorikKasarStatus,
-    required this.sosialisasiStatus,
-    required this.bicaraStatus,
   });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Model untuk extra parameter Checklist Milestone Page
+// Digunakan saat navigasi dari DevelopmentPage → ChecklistMilestonePage
+// ─────────────────────────────────────────────────────────────────────────────
+class ChecklistMilestoneExtra {
+  final String childId;
+  final String childAge;
+
+  const ChecklistMilestoneExtra({required this.childId, required this.childAge});
 }

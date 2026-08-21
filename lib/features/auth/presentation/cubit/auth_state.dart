@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/user_entity.dart';
+import 'package:nusagizi/features/auth/domain/entities/user_entity.dart';
 
 // AUTH FEATURE - PRESENTATION LAYER
 // Cubit State
@@ -32,6 +32,24 @@ class AuthUnauthenticated extends AuthState {
 
 class AuthRegistered extends AuthState {
   const AuthRegistered();
+}
+
+/// State sinyal bahwa signup Auth0 + pengiriman OTP sudah berhasil.
+/// UI harus navigasi ke layar OTP saat menerima state ini.
+///
+/// [email] dan [password] disimpan sementara di memori untuk dipakai
+/// pada langkah verifikasi OTP dan login definitif. Tidak pernah
+/// ditulis ke disk, log, atau ditampilkan di layar.
+class AuthOtpPending extends AuthState {
+  final String email;
+
+  /// Password hanya di memori — jangan di-log atau tampilkan di UI.
+  final String password;
+
+  const AuthOtpPending({required this.email, required this.password});
+
+  @override
+  List<Object?> get props => [email, password];
 }
 
 class AuthError extends AuthState {

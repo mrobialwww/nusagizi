@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -11,7 +12,7 @@ class AppCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding,
-    this.width = double.infinity,
+    this.width,
     this.borderRadius = 16.0,
     this.backgroundColor = Colors.white,
   });
@@ -19,16 +20,16 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width,
-      padding: padding ?? const EdgeInsets.all(16),
+      width: width ?? double.infinity,
+      padding: padding ?? EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(borderRadius.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12.r,
+            offset: Offset(0, 2.h),
           ),
         ],
       ),

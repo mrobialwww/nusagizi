@@ -4,6 +4,9 @@ import 'package:nusagizi/features/auth/domain/usecases/register_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/google_login_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/check_auth_usecase.dart';
+import 'package:nusagizi/features/auth/domain/usecases/start_registration_usecase.dart';
+import 'package:nusagizi/features/auth/domain/usecases/verify_otp_and_login_usecase.dart';
+import 'package:nusagizi/features/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_state.dart';
 import 'package:nusagizi/features/auth/domain/entities/user_entity.dart';
 
@@ -15,6 +18,9 @@ class AuthCubit extends Cubit<AuthState> {
   final GoogleLoginUsecase googleLoginUseCase;
   final LogoutUsecase logoutUseCase;
   final CheckAuthUsecase checkAuthUseCase;
+  final StartRegistrationUseCase startRegistrationUseCase;
+  final VerifyOtpAndLoginUseCase verifyOtpAndLoginUseCase;
+  final ResendOtpUseCase resendOtpUseCase;
 
   AuthCubit({
     required this.loginUseCase,
@@ -22,6 +28,9 @@ class AuthCubit extends Cubit<AuthState> {
     required this.googleLoginUseCase,
     required this.logoutUseCase,
     required this.checkAuthUseCase,
+    required this.startRegistrationUseCase,
+    required this.verifyOtpAndLoginUseCase,
+    required this.resendOtpUseCase,
   }) : super(const AuthInitial());
 
   Future<void> login({required String email, required String password}) async {
@@ -40,24 +49,65 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  Future<void> register({
+  /// Langkah 1+2: Signup akun baru di Auth0 + kirim OTP ke email.
+  ///
+  /// Jika berhasil, emit [AuthOtpPending] — sinyal untuk UI agar navigasi
+  /// ke layar verifikasi OTP. Password diteruskan via state agar tersedia
+  /// untuk login definitif di [verifyOtpAndLogin] (tidak pernah ditulis ke disk).
+  Future<void> startRegistration({
     required String username,
     required String email,
     required String password,
   }) async {
     emit(const AuthLoading());
 
-    final RegisterParams registerParams = RegisterParams(
+    final params = StartRegistrationParams(
       username: username,
       email: email,
       password: password,
     );
 
-    final result = await registerUseCase.call(registerParams);
+    final result = await startRegistrationUseCase.call(params);
 
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
-      (_) => emit(const AuthRegistered()),
+      (_) => emit(AuthOtpPending(email: email, password: password)),
+    );
+  }
+
+  /// Langkah 3+4+5: Verifikasi OTP → konfirmasi email ke Gin → login definitif.
+  ///
+  /// Jika berhasil, emit [AuthAuthenticated] — GoRouter akan redirect ke role-selection.
+  Future<void> verifyOtpAndLogin({
+    required String email,
+    required String otpCode,
+    required String password,
+  }) async {
+    emit(const AuthLoading());
+
+    final params = VerifyOtpParams(
+      email: email,
+      otpCode: otpCode,
+      password: password,
+    );
+
+    final result = await verifyOtpAndLoginUseCase.call(params);
+
+    result.fold(
+      (failure) => emit(AuthError(message: failure.message)),
+      (user) => emit(AuthAuthenticated(user: user)),
+    );
+  }
+
+  /// Kirim ulang OTP ke email yang sama.
+  ///
+  /// Tidak emit [AuthLoading] agar UI OTP screen tidak hilang/reset.
+  /// Hanya emit [AuthError] jika gagal — state saat ini dipertahankan.
+  Future<void> resendOtp({required String email}) async {
+    final result = await resendOtpUseCase.call(email);
+    result.fold(
+      (failure) => emit(AuthError(message: failure.message)),
+      (_) => null, // sukses: state tidak berubah, UI OTP tetap tampil
     );
   }
 
@@ -75,7 +125,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(const AuthLoading());
     final result = await logoutUseCase.call();
-    
+
     result.fold(
       (failure) => emit(AuthError(message: failure.message)),
       (_) => emit(const AuthUnauthenticated()),
@@ -85,7 +135,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> checkAuth() async {
     emit(const AuthLoading());
     final result = await checkAuthUseCase.call();
-    
+
     result.fold(
       (failure) => emit(const AuthUnauthenticated()),
       (user) => emit(AuthAuthenticated(user: user)),

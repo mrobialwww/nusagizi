@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nusagizi/core/domain/entities/child_profile.dart';
+import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 import 'package:nusagizi/core/widgets/app_card.dart';
 import 'package:nusagizi/features/mother/growth/presentation/pages/growth_page.dart';
 
 class StatusCard extends StatelessWidget {
   final Color accentColor;
-  final ChildProfile profile;
+  final ChildHeaderEntity profile;
   final GrowthTab activeTab;
   final int bbSubPage;
 
@@ -25,8 +26,8 @@ class StatusCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.circle, size: 10, color: Color(0xFF3CB648)),
-          const SizedBox(width: 10),
+          Icon(Icons.circle, size: 10.sp, color: const Color(0xFF00A735)),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,15 +36,15 @@ class StatusCard extends StatelessWidget {
                   title,
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: accentColor,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   desc,
                   style: GoogleFonts.outfit(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: Colors.black54,
                     height: 1.5,
                   ),

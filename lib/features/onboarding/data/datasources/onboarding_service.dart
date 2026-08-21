@@ -1,8 +1,9 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nusagizi/core/error/exceptions.dart';
-import '../models/onboarding_model.dart';
+import 'package:nusagizi/features/onboarding/data/models/onboarding_model.dart';
 
 abstract class OnboardingService {
   Future<void> submitOnboarding(OnboardingModel data);
@@ -12,7 +13,7 @@ abstract class OnboardingService {
 class OnboardingServiceImpl implements OnboardingService {
   final Auth0 auth0;
   final Dio _dio = Dio();
-  final String baseUrl = 'https://d610-114-5-222-116.ngrok-free.app';
+  final String baseUrl = dotenv.env['BASE_URL'] ?? '';
 
   OnboardingServiceImpl({required this.auth0});
 
@@ -46,7 +47,19 @@ class OnboardingServiceImpl implements OnboardingService {
   Future<Credentials> refreshToken() async {
     try {
       // Memaksa SDK untuk fetch token baru (minTtl: 86400 detik = 1 hari)
-      return await auth0.credentialsManager.credentials(minTtl: 86400);
+      // return await auth0.credentialsManager.credentials(minTtl: 86400);
+      final current = await auth0.credentialsManager.credentials();
+      final rt = current.refreshToken;
+      if (rt == null) {
+        throw const ServerException(message: 'Refresh token tidak tersedia');
+      }
+
+      // Ini benar-benar menukar refresh_token ke Auth0 (bukan cek TTL lokal),
+      // jadi Post-Login Action pasti dieksekusi ulang dan claim role terbaru ikut masuk.
+      final newCredentials = await auth0.api.renewCredentials(refreshToken: rt);
+
+      await auth0.credentialsManager.storeCredentials(newCredentials);
+      return newCredentials;
     } catch (e) {
       debugPrint("Gagal refreshToken: $e");
       throw ServerException(message: e.toString());

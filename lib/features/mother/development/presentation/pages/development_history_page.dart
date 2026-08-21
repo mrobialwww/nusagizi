@@ -1,302 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
+import 'package:nusagizi/features/mother/development/domain/entities/child_development_history_entity.dart';
+import 'package:nusagizi/features/mother/development/presentation/cubit/development_history_cubit.dart';
+import 'package:nusagizi/features/mother/development/presentation/cubit/development_history_state.dart';
 import 'package:nusagizi/features/mother/development/presentation/widgets/history_timeline_card.dart';
 import 'package:nusagizi/router.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 
-class DevelopmentHistoryPage extends StatelessWidget {
-  const DevelopmentHistoryPage({super.key});
+class DevelopmentHistoryPage extends StatefulWidget {
+  const DevelopmentHistoryPage({super.key, this.selectedChild});
 
-  static const Color _green = Color(0xFF3CB648);
+  final ChildHeaderEntity? selectedChild;
+
+  @override
+  State<DevelopmentHistoryPage> createState() => _DevelopmentHistoryPageState();
+}
+
+class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
+  static const Color _green = Color(0xFF00A735);
   static const Color _bg = Color(0xFFF5F5F5);
+
+  late final DevelopmentHistoryCubit _cubit = sl<DevelopmentHistoryCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    final cacheState = sl<ChildrenCacheCubit>().state;
+    final childToLoad =
+        widget.selectedChild ??
+        (cacheState.isNotEmpty ? cacheState.first : null);
+
+    if (childToLoad != null) {
+      _cubit.loadHistory(childToLoad.id);
+    }
+  }
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      appBar: AppBar(
-        backgroundColor: _bg,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          'Riwayat Perkembangan',
-          style: GoogleFonts.outfit(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          children: [
-            HistoryTimelineCard(
-              isFirst: true,
-              isLast: false,
-              type: HistoryType.checklist,
-              date: '11 Mei',
-              monthTitle: 'Bulan 24',
-              contentWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.directions_run_rounded,
-                            size: 14,
-                            color: _green,
+      appBar: const HeaderBasic(backgroundColor: _bg, title: 'Riwayat Asesmen'),
+      body: BlocProvider.value(
+        value: sl<ChildrenCacheCubit>(),
+        child: BlocConsumer<ChildrenCacheCubit, List<ChildHeaderEntity>>(
+          listenWhen: (prev, curr) => prev.isEmpty && curr.isNotEmpty,
+          listener: (context, childrenList) {
+            _cubit.loadHistory(childrenList.first.id);
+          },
+          builder: (context, childrenList) {
+            if (childrenList.isEmpty && widget.selectedChild == null) {
+              return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+            }
+
+            final child = widget.selectedChild ?? childrenList.first;
+
+            return BlocProvider.value(
+              value: _cubit,
+              child:
+                  BlocBuilder<DevelopmentHistoryCubit, DevelopmentHistoryState>(
+                    builder: (context, state) {
+                      if (state is DevelopmentHistoryLoading) {
+                        return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+                      }
+
+                      if (state is DevelopmentHistoryError) {
+                        return Center(child: Text(state.message));
+                      }
+
+                      if (state is DevelopmentHistoryLoaded) {
+                        final history = state.historyData;
+                        return SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 20.w,
+                            vertical: 24.h,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Motorik Kasar',
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (history.isEmpty)
+                                Padding(
+                                  padding: EdgeInsets.only(bottom: 24.h),
+                                  child: Text(
+                                    "Belum ada riwayat asesmen.",
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                )
+                              else
+                                ...history.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final item = entry.value;
+                                  return _buildHistoryItem(
+                                    context,
+                                    item,
+                                    child,
+                                    index == 0,
+                                    index == history.length - 1,
+                                    showRetakeButton: index == 0,
+                                  );
+                                }),
+                              if (history.isNotEmpty) SizedBox(height: 24.h),
+                              // _buildNewAssessmentCard(context, child),
+                            ],
                           ),
-                        ],
-                      ),
-                      Text(
-                        '3/3',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: _green,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                        );
+                      }
+
+                      return const SizedBox();
+                    },
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.draw_rounded,
-                            size: 14,
-                            color: _green,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Motorik Halus',
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '2/2',
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: _green,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0F0F0),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '"Si kecil sudah lancar berjalan mundur."',
-                      style: GoogleFonts.outfit(
-                        fontSize: 12,
-                        color: Colors.black54,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            HistoryTimelineCard(
-              isFirst: false,
-              isLast: false,
-              type: HistoryType.kpsp,
-              date: '05 Mei',
-              monthTitle: 'Bulan 24',
-              contentWidget: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: _green, width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      '9',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                        color: _green,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sesuai Tahap',
-                          style: GoogleFonts.outfit(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                            color: _green,
-                          ),
-                        ),
-                        Text(
-                          'Perkembangan optimal',
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            HistoryTimelineCard(
-              isFirst: false,
-              isLast: true,
-              type: HistoryType.checklist,
-              date: '30 Apr',
-              monthTitle: 'Bulan 23',
-              contentWidget: Text(
-                'Telah mengisi 4 domain\nperkembangan.',
-                style: GoogleFonts.outfit(
-                  fontSize: 13,
-                  color: Colors.black54,
-                  height: 1.5,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildNewAssessmentCard(context),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildNewAssessmentCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9), // Light green background
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.assignment, color: _green, size: 28),
+  Widget _buildHistoryItem(
+    BuildContext context,
+    ChildDevelopmentHistoryEntity record,
+    ChildHeaderEntity child,
+    bool isFirst,
+    bool isLast, {
+    bool showRetakeButton = true,
+  }) {
+    final statusColor = record.status == 'Sesuai Usia'
+        ? _green
+        : (record.status == 'Perkembangan meragukan'
+              ? Colors.orange
+              : Colors.red);
+
+    return GestureDetector(
+      onTap: () {
+        context.pushNamed(
+          AppRoutes.developmentKpspResult.name,
+          extra: KpspResultExtra(
+            childName: child.name,
+            childAge: '${record.monthTarget} Bulan',
+            reportId: record.id,
+            isFromHistory: true,
+            childId: child.id,
+            showRetakeButton: showRetakeButton,
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Waktunya Asesmen Baru?',
-            style: GoogleFonts.outfit(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              color: Colors.black87,
+        );
+      },
+      child: HistoryTimelineCard(
+        isFirst: isFirst,
+        isLast: isLast,
+        type: HistoryType.kpsp,
+        date: record.createdAt.toIso8601String().substring(
+          0,
+          10,
+        ), // Short date parsing for now
+        monthTitle: 'Bulan ${record.monthTarget}',
+        contentWidget: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: statusColor, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '${record.kpspScore}',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20.sp,
+                  color: statusColor,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Pastikan perkembangan si kecil selalu terpantau dengan baik.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
-              fontSize: 12,
-              color: Colors.black54,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                context.goNamed(
-                  AppRoutes.developmentKpsp.name,
-                  extra: const KpspAssessmentExtra(
-                    childName: 'Alya', // using a dummy name for now
-                    childAge: '24 Bulan', // dummy for now
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    record.status,
+                    style: GoogleFonts.outfit(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13.sp,
+                      color: statusColor,
+                    ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _green,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'Mulai KPSP Baru',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                  Text(
+                    'Asesmen KPSP',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12.sp,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {
-                context.goNamed(
-                  AppRoutes.developmentChecklist.name,
-                  extra: '24 Bulan', // dummy for now
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                backgroundColor: Colors.white,
-                side: const BorderSide(color: Colors.transparent),
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                'Update Checklist',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: _green,
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

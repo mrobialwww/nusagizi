@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nusagizi/core/domain/entities/growth_record.dart';
-// Untuk import GrowthRecord
+import 'package:nusagizi/core/widgets/headers/header_basic.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_history_cubit.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_history_state.dart';
+import 'package:nusagizi/core/widgets/status_badge.dart';
 
 class GrowthHistoryPage extends StatefulWidget {
-  final List<GrowthRecord> history;
+  final String childId;
 
-  const GrowthHistoryPage({super.key, required this.history});
+  const GrowthHistoryPage({super.key, required this.childId});
 
   @override
   State<GrowthHistoryPage> createState() => _GrowthHistoryPageState();
@@ -18,231 +22,211 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Urutkan berdasarkan _sortOrder
-    final sortedHistory = _sortOrder == 'Terbaru'
-        ? widget.history.reversed.toList()
-        : widget.history.toList();
+    return BlocProvider(
+      create: (_) => sl<GrowthHistoryCubit>()..fetchHistory(widget.childId),
+      child: BlocBuilder<GrowthHistoryCubit, GrowthHistoryState>(
+        builder: (context, state) {
+          if (state is GrowthHistoryLoading) {
+            return const Scaffold(
+              backgroundColor: Color(0xFFF5F5F5),
+              appBar: HeaderBasic(
+                backgroundColor: Color(0xFFF5F5F5),
+                title: 'Riwayat Pertumbuhan',
+              ),
+              body: Center(
+                child: CircularProgressIndicator(color: Color(0xFF00A735)),
+              ),
+            );
+          } else if (state is GrowthHistoryError) {
+            return Scaffold(
+              backgroundColor: const Color(0xFFF5F5F5),
+              appBar: const HeaderBasic(
+                backgroundColor: Color(0xFFF5F5F5),
+                title: 'Riwayat Pertumbuhan',
+              ),
+              body: Center(child: Text(state.message)),
+            );
+          } else if (state is GrowthHistoryLoaded) {
+            final history = state.history;
+            final sortedHistory = _sortOrder == 'Terbaru'
+                ? history.toList()
+                : history.reversed.toList();
 
-    String formatDate(DateTime date) {
-      const months = [
-        'Januari',
-        'Februari',
-        'Maret',
-        'April',
-        'Mei',
-        'Juni',
-        'Juli',
-        'Agustus',
-        'September',
-        'Oktober',
-        'November',
-        'Desember',
-      ];
-      return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]} ${date.year}';
-    }
+            String formatDate(DateTime date) {
+              const months = [
+                'Januari',
+                'Februari',
+                'Maret',
+                'April',
+                'Mei',
+                'Juni',
+                'Juli',
+                'Agustus',
+                'September',
+                'Oktober',
+                'November',
+                'Desember',
+              ];
+              return '${date.day.toString().padLeft(2, '0')} ${months[date.month - 1]} ${date.year}';
+            }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F5F5),
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => context.pop(),
-          child: const Icon(Icons.arrow_back, color: Colors.black87),
-        ),
-        title: Text(
-          'Riwayat Pertumbuhan',
-          style: GoogleFonts.outfit(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            // Dropdown Urutkan (UI Only)
-            GestureDetector(
-              onTap: _showSortPicker,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+            return Scaffold(
+              backgroundColor: const Color(0xFFF5F5F5),
+              appBar: const HeaderBasic(
+                backgroundColor: Color(0xFFF5F5F5),
+                title: 'Riwayat Pertumbuhan',
+              ),
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _sortOrder == 'Terbaru' ? 'Urutkan' : 'Terlama',
-                      style: GoogleFonts.outfit(
-                        fontSize: 12,
-                        color: Colors.black54,
+                    SizedBox(height: 16.h),
+                    // Dropdown Urutkan (UI Only)
+                    GestureDetector(
+                      onTap: _showSortPicker,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(color: const Color(0xFFE0E0E0)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _sortOrder == 'Terbaru' ? 'Urutkan' : 'Terlama',
+                              style: GoogleFonts.outfit(
+                                fontSize: 12.sp,
+                                color: Colors.black54,
+                              ),
+                            ),
+                            SizedBox(width: 4.w),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 16.sp,
+                              color: Colors.black54,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 16,
-                      color: Colors.black54,
+                    SizedBox(height: 16.h),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: sortedHistory.length,
+                        separatorBuilder: (context, index) =>
+                            SizedBox(height: 16.h),
+                        itemBuilder: (context, index) {
+                          final record = sortedHistory[index];
+                          final isWarning =
+                              record.status.toLowerCase() != 'normal';
+
+                          return Container(
+                            padding: EdgeInsets.all(16.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      formatDate(record.measuredAt),
+                                      style: GoogleFonts.outfit(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14.sp,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    StatusBadge(status: record.status),
+                                  ],
+                                ),
+                                SizedBox(height: 16.h),
+                                Row(
+                                  children: [
+                                    _buildInfoBox(
+                                      'Berat',
+                                      '${record.weightKg ?? "-"}',
+                                      'kg',
+                                      Icons.monitor_weight_outlined,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    _buildInfoBox(
+                                      'Tinggi',
+                                      '${record.heightCm?.toInt() ?? "-"}',
+                                      'cm',
+                                      Icons.height,
+                                    ),
+                                    SizedBox(width: 8.w),
+                                    _buildInfoBox(
+                                      'L.Kepala',
+                                      '${record.headCircumferenceCm?.toInt() ?? "-"}',
+                                      'cm',
+                                      Icons.face_outlined,
+                                    ),
+                                  ],
+                                ),
+                                if (isWarning) ...[
+                                  SizedBox(height: 16.h),
+                                  Container(
+                                    padding: EdgeInsets.all(12.w),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFEAEA),
+                                      borderRadius: BorderRadius.circular(8.r),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          Icons.error,
+                                          color: Colors.red,
+                                          size: 16.sp,
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: Text(
+                                            record.description,
+                                            style: GoogleFonts.outfit(
+                                              fontSize: 11.sp,
+                                              color: Colors.red,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.separated(
-                itemCount: sortedHistory.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final record = sortedHistory[index];
-
-                  // Dummy logika untuk status "Perlu Perhatian"
-                  final isWarning =
-                      record.weight < 10.0 && index > 0; // Contoh kondisi acak
-
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              formatDate(record.date),
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isWarning
-                                    ? const Color(0xFFFFEAEA)
-                                    : const Color(0xFFE8F5E9),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: isWarning
-                                          ? Colors.red
-                                          : const Color(0xFF3CB648),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    isWarning ? 'Perlu Perhatian' : 'Normal',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      color: isWarning
-                                          ? Colors.red
-                                          : const Color(0xFF3CB648),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            _buildInfoBox(
-                              'Berat',
-                              '${record.weight}',
-                              'kg',
-                              Icons.monitor_weight_outlined,
-                            ),
-                            const SizedBox(width: 8),
-                            _buildInfoBox(
-                              'Tinggi',
-                              '${record.height.toInt()}',
-                              'cm',
-                              Icons.height,
-                            ),
-                            const SizedBox(width: 8),
-                            _buildInfoBox(
-                              'L.Kepala',
-                              '${record.headCircumference.toInt()}',
-                              'cm',
-                              Icons.face_outlined,
-                            ),
-                          ],
-                        ),
-                        if (isWarning) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFEAEA),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Berat badan anak berada di bawah rentang ideal untuk usianya. Perhatikan asupan makan harian dan lakukan pemantauan rutin.',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 11,
-                                      color: Colors.red,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
@@ -250,28 +234,28 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
   Widget _buildInfoBox(String title, String value, String unit, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(8.r),
         ),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 12, color: Colors.black54),
-                const SizedBox(width: 4),
+                Icon(icon, size: 12.sp, color: Colors.black54),
+                SizedBox(width: 4.w),
                 Text(
                   title,
                   style: GoogleFonts.outfit(
-                    fontSize: 11,
+                    fontSize: 11.sp,
                     color: Colors.black54,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4.h),
             RichText(
               text: TextSpan(
                 children: [
@@ -279,14 +263,14 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
                     text: value,
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       color: Colors.black87,
                     ),
                   ),
                   TextSpan(
                     text: ' $unit',
                     style: GoogleFonts.outfit(
-                      fontSize: 10,
+                      fontSize: 10.sp,
                       color: Colors.black87,
                     ),
                   ),
@@ -305,11 +289,11 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
           ),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+          padding: EdgeInsets.fromLTRB(20.w, 12.h, 20.w, 32.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -318,17 +302,17 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
                 height: 4,
                 decoration: BoxDecoration(
                   color: const Color(0xFFE0E0E0),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(2.r),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   'Urutkan',
                   style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.black87,
                   ),
                 ),
@@ -338,7 +322,7 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
                 title: Text(
                   'Terbaru',
                   style: GoogleFonts.outfit(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.black87,
                   ),
                 ),
@@ -355,7 +339,7 @@ class _GrowthHistoryPageState extends State<GrowthHistoryPage> {
                 title: Text(
                   'Terlama',
                   style: GoogleFonts.outfit(
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.black87,
                   ),
                 ),

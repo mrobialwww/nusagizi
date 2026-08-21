@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/router.dart';
@@ -67,7 +68,7 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
         child: SafeArea(
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
 
               // PageView Slider
               Expanded(
@@ -81,7 +82,7 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                   itemCount: _onboardingData.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      padding: EdgeInsets.symmetric(horizontal: 32.0.w),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -90,22 +91,22 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                             height: 250,
                             fit: BoxFit.contain,
                           ),
-                          const SizedBox(height: 40),
+                          SizedBox(height: 40.h),
                           Text(
                             _onboardingData[index]['title']!,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
-                              fontSize: 22,
+                              fontSize: 22.sp,
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             _onboardingData[index]['description']!,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
-                              fontSize: 14,
+                              fontSize: 14.sp,
                               color: Colors.black54,
                               height: 1.5,
                             ),
@@ -124,24 +125,24 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                   _onboardingData.length,
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                    margin: EdgeInsets.symmetric(horizontal: 4.0.w),
                     height: 8.0,
                     width: _currentPage == index ? 24.0 : 8.0,
                     decoration: BoxDecoration(
                       color: _currentPage == index
-                          ? const Color(0xFF00C9A7) // Active green
+                          ? const Color(0xFF00A735) // Active green
                           : Colors.grey.shade300, // Inactive grey
-                      borderRadius: BorderRadius.circular(4.0),
+                      borderRadius: BorderRadius.circular(4.0.r),
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
 
               // Buttons
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: EdgeInsets.symmetric(horizontal: 24.0.w),
                 child: Column(
                   children: [
                     // Masuk Button
@@ -154,24 +155,24 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
-                            0xFF00C9A7,
+                            0xFF00A735,
                           ), // Green color
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                           elevation: 0,
                         ),
                         child: Text(
                           'Masuk',
                           style: GoogleFonts.outfit(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
 
                     // Daftar Akun Baru Button
                     SizedBox(
@@ -183,18 +184,18 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                            color: Color(0xFF00C9A7),
+                            color: Color(0xFF00A735),
                           ), // Green border
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
                         ),
                         child: Text(
                           'Daftar Akun Baru',
                           style: GoogleFonts.outfit(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF00C9A7),
+                            color: const Color(0xFF00A735),
                           ),
                         ),
                       ),
@@ -203,7 +204,7 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
             ],
           ),
         ),
