@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 enum HistoryType { checklist, kpsp }
@@ -21,7 +22,7 @@ class HistoryTimelineCard extends StatelessWidget {
     required this.contentWidget,
   });
 
-  static const Color _green = Color(0xFF3CB648);
+  static const Color _green = Color(0xFF00A735);
   static const Color _orange = Color(0xFFF26E22);
 
   @override
@@ -48,17 +49,17 @@ class HistoryTimelineCard extends StatelessWidget {
                     color: const Color(0xFFE0E0E0),
                   )
                 else
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24.h),
 
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
                     color: iconBgColor,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
@@ -68,7 +69,7 @@ class HistoryTimelineCard extends StatelessWidget {
                     isChecklist
                         ? Icons.fact_check_rounded
                         : Icons.checklist_rtl_rounded,
-                    size: 16,
+                    size: 16.sp,
                     color: iconColor,
                   ),
                 ),
@@ -79,18 +80,18 @@ class HistoryTimelineCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16.w),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: EdgeInsets.only(bottom: 24.h),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20.w),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -103,19 +104,19 @@ class HistoryTimelineCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
                             color: iconBgColor,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
                             tagText,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                              fontSize: 10.sp,
                               color: iconColor,
                             ),
                           ),
@@ -123,22 +124,22 @@ class HistoryTimelineCard extends StatelessWidget {
                         Text(
                           date,
                           style: GoogleFonts.outfit(
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             color: Colors.black54,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     Text(
                       monthTitle,
                       style: GoogleFonts.outfit(
                         fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                        fontSize: 15.sp,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     contentWidget,
                   ],
                 ),

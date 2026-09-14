@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
@@ -45,98 +46,99 @@ class _SelectRolePageState extends State<SelectRolePage> {
             builder: (context, state) {
               final isLoading = state is OnboardingLoading;
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 60),
+              return Scaffold(
+                backgroundColor: Colors.white,
+                body: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24.0.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 60.h),
 
-                  // Title
-                  Text(
-                    'Masuk sebagai siapa?',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Subtitle
-                  Text(
-                    'Pilih peranmu untuk mendapatkan\npengalaman yang sesuai kebutuhanmu.',
-                    style: GoogleFonts.outfit(
-                      fontSize: 14,
-                      color: Colors.black54,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 48),
-
-                  // Role Cards
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildRoleCard(
-                        title: 'Orang Tua',
-                        imagePath: AppImages.mother,
-                        roleValue: 'mother',
-                      ),
-                      const SizedBox(width: 16),
-                      _buildRoleCard(
-                        title: 'Pengasuh',
-                        imagePath: AppImages.caregiver,
-                        roleValue: 'caregiver',
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 40),
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Color(0xFF00C9A7),
-                            ),
-                          )
-                        : ElevatedButton(
-                            onPressed: _selectedRole != null
-                                ? () => _submitForm(context)
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              disabledBackgroundColor: Colors.grey.shade400,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Text(
-                              'Mulai Nusagizi',
-                              style: GoogleFonts.outfit(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: _selectedRole != null
-                                    ? Colors.white
-                                    : Colors.white,
-                              ),
-                            ),
+                        // Title
+                        Text(
+                          'Masuk sebagai siapa?',
+                          style: GoogleFonts.outfit(
+                            fontSize: 24.sp,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 12.h),
+
+                        // Subtitle
+                        Text(
+                          'Pilih peranmu untuk mendapatkan\npengalaman yang sesuai kebutuhanmu.',
+                          style: GoogleFonts.outfit(
+                            fontSize: 14.sp,
+                            color: Colors.black54,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 48.h),
+
+                        // Role Cards
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildRoleCard(
+                              title: 'Orang Tua',
+                              imagePath: AppImages.mother,
+                              roleValue: 'mother',
+                            ),
+                            SizedBox(width: 16.w),
+                            _buildRoleCard(
+                              title: 'Pengasuh',
+                              imagePath: AppImages.caregiver,
+                              roleValue: 'caregiver',
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: 40.h),
+                        // Submit Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 54,
+                          child: isLoading
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF00A735),
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: _selectedRole != null
+                                      ? () => _submitForm(context)
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    disabledBackgroundColor:
+                                        Colors.grey.shade400,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Mulai Nusagizi',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: _selectedRole != null
+                                          ? Colors.white
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                        SizedBox(height: 32.h),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-          ),
-        );
+                ),
+              );
             },
           );
         },
@@ -162,21 +164,21 @@ class _SelectRolePageState extends State<SelectRolePage> {
           duration: const Duration(milliseconds: 200),
           height: 240, // Fixed height to keep cards equal size
           padding: isSelected
-              ? const EdgeInsets.only(top: 24, bottom: 0)
-              : const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
+              ? EdgeInsets.only(top: 24.h, bottom: 0.h)
+              : EdgeInsets.only(top: 24.h, left: 16.w, right: 16.w, bottom: 24.h),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFFF2FBF5) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
             border: Border.all(
               color: isSelected
-                  ? const Color(0xFF00C9A7)
+                  ? const Color(0xFF00A735)
                   : Colors.grey.shade200,
               width: isSelected ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF00C9A7).withOpacity(0.1),
+                      color: const Color(0xFF00A735).withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -188,11 +190,11 @@ class _SelectRolePageState extends State<SelectRolePage> {
             children: isSelected
                 ? [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0.w),
                       child: Text(
                         title,
                         style: GoogleFonts.outfit(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
@@ -219,11 +221,11 @@ class _SelectRolePageState extends State<SelectRolePage> {
                         child: Image.asset(imagePath, fit: BoxFit.contain),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     Text(
                       title,
                       style: GoogleFonts.outfit(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
                       ),

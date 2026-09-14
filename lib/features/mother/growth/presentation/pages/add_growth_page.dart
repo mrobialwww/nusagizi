@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/core/widgets/headers/header_basic.dart';
+import 'package:nusagizi/core/widgets/calendar/custom_date_picker_field.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/features/mother/growth/data/models/add_growth_report_model.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/add_growth_report_cubit.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/add_growth_report_state.dart';
 
 class AddGrowthPage extends StatefulWidget {
-  const AddGrowthPage({super.key});
+  final String childId;
+  const AddGrowthPage({super.key, required this.childId});
 
   @override
   State<AddGrowthPage> createState() => _AddGrowthPageState();
@@ -11,247 +20,213 @@ class AddGrowthPage extends StatefulWidget {
 
 class _AddGrowthPageState extends State<AddGrowthPage> {
   DateTime? _selectedDate;
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _headCircumController = TextEditingController();
 
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime tempDate = _selectedDate ?? DateTime.now();
-
-    final DateTime? picked = await showGeneralDialog<DateTime>(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Dismiss',
-      barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 700),
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Center(
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 4),
-                        child: Text(
-                          'Select Date',
-                          style: GoogleFonts.outfit(
-                            fontSize: 14,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      _CustomCalendarPicker(
-                        initialDate: tempDate,
-                        onDateChanged: (DateTime newDate) {
-                          setDialogState(() {
-                            tempDate = newDate;
-                          });
-                        },
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(
-                              'Cancel',
-                              style: GoogleFonts.outfit(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: () => Navigator.pop(context, tempDate),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00B14F),
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 10,
-                              ),
-                            ),
-                            child: Text(
-                              'OK',
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position:
-              Tween<Offset>(
-                begin: const Offset(0, 1), // Dari luar layar (bawah)
-                end: Offset.zero, // Ke tengah
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic, // Untuk saat muncul
-                  reverseCurve: Curves.easeInCubic, // Untuk saat menghilang
-                ),
-              ),
-          child: child,
-        );
-      },
-    );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
+  @override
+  void dispose() {
+    _weightController.dispose();
+    _heightController.dispose();
+    _headCircumController.dispose();
+    super.dispose();
   }
 
-  String _formatDate(DateTime date) {
-    const months = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  void _submitData(BuildContext context) {
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tanggal pengukuran wajib diisi'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final double? weight = double.tryParse(_weightController.text);
+    final double? height = double.tryParse(_heightController.text);
+    final double? headCircum = double.tryParse(_headCircumController.text);
+
+    if (weight == null && height == null && headCircum == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Minimal isi satu data (Berat, Tinggi, atau Lingkar Kepala)',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    context.read<AddGrowthReportCubit>().submitReport(
+      AddGrowthReportModel(
+        childId: widget.childId,
+        measuredAt: _selectedDate!,
+        weightKg: weight,
+        heightCm: height,
+        headCircumferenceCm: headCircum,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(
-        0xFFFCFCFC,
-      ), // Mirip putih tapi sedikit off-white
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFCFCFC),
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () => context.pop(),
-          child: const Icon(Icons.arrow_back, color: Colors.black87),
-        ),
-        title: Text(
-          'Tambah Data Pertumbuhan',
-          style: GoogleFonts.outfit(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildInputLabel('Tanggal Pertumbuhan'),
-                      _buildTextField(
-                        hintText: _selectedDate == null
-                            ? 'Select Date'
-                            : _formatDate(_selectedDate!),
-                        suffixIcon: Icons.calendar_today_outlined,
-                        readOnly: true,
-                        onTap: () => _selectDate(context),
+    return BlocProvider(
+      create: (context) => sl<AddGrowthReportCubit>(),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFFCFCFC),
+            appBar: const HeaderBasic(
+              backgroundColor: Color(0xFFFCFCFC),
+              title: 'Tambah Data Pertumbuhan',
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(20.0.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInputLabel('Tanggal Pertumbuhan'),
+                            CustomDatePickerField(
+                              hint: 'Pilih Tanggal',
+                              initialDate: _selectedDate,
+                              onDateSelected: (date) {
+                                setState(() {
+                                  _selectedDate = date;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 16.h),
+                            _buildInputLabel(
+                              'Berat Badan (kg)',
+                              isRequired: false,
+                            ),
+                            _buildTextField(
+                              controller: _weightController,
+                              hintText: '12.4',
+                              keyboardType: TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            _buildInputLabel(
+                              'Tinggi Badan (cm)',
+                              isRequired: false,
+                            ),
+                            _buildTextField(
+                              controller: _heightController,
+                              hintText: '89',
+                              keyboardType: TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            _buildInputLabel(
+                              'Lingkar Kepala (cm)',
+                              isRequired: false,
+                            ),
+                            _buildTextField(
+                              controller: _headCircumController,
+                              hintText: '47',
+                              keyboardType: TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 16),
-
-                      _buildInputLabel('Usia Anak', isRequired: false),
-                      _buildTextField(hintText: '2 Tahun 3 Bulan'),
-                      const SizedBox(height: 16),
-
-                      _buildInputLabel('Berat Badan (kg)'),
-                      _buildTextField(hintText: '12.4kg'),
-                      const SizedBox(height: 16),
-
-                      _buildInputLabel('Tinggi Badan (cm)'),
-                      _buildTextField(hintText: '89cm'),
-                      const SizedBox(height: 16),
-
-                      _buildInputLabel('Lingkar Kepala (cm)'),
-                      _buildTextField(hintText: '47cm'),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 16.h),
+                    BlocConsumer<AddGrowthReportCubit, AddGrowthReportState>(
+                      listener: (context, state) {
+                        if (state is AddGrowthReportSuccess) {
+                          crudFlag = true;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Data berhasil disimpan!'),
+                              backgroundColor: Color(0xFF00B14F),
+                            ),
+                          );
+                          context.pop(true);
+                        } else if (state is AddGrowthReportError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.message),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: state is AddGrowthReportLoading
+                                ? null
+                                : () => _submitData(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                0xFF00B14F,
+                              ), // Hijau Nuzagizi
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14.r),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: state is AddGrowthReportLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFF00A735),
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    'Simpan',
+                                    style: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15.sp,
+                                    ),
+                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00B14F), // Hijau Nuzagizi
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'Simpan',
-                  style: GoogleFonts.outfit(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildInputLabel(String text, {bool isRequired = true}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: 8.h),
       child: RichText(
         text: TextSpan(
           text: text,
           style: GoogleFonts.outfit(
             color: Colors.black87,
-            fontSize: 12,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w500,
           ),
           children: [
             if (isRequired)
               TextSpan(
-                text: '*',
+                text: ' *',
                 style: GoogleFonts.outfit(color: Colors.red),
               ),
           ],
@@ -262,243 +237,26 @@ class _AddGrowthPageState extends State<AddGrowthPage> {
 
   Widget _buildTextField({
     required String hintText,
-    IconData? suffixIcon,
-    bool readOnly = false,
-    VoidCallback? onTap,
+    TextEditingController? controller,
+    TextInputType? keyboardType,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(8.r),
         border: Border.all(color: const Color(0xFFE0E0E0)),
       ),
       child: TextField(
-        readOnly: readOnly,
-        onTap: onTap,
+        controller: controller,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: GoogleFonts.outfit(color: Colors.black54, fontSize: 13),
+          hintStyle: GoogleFonts.outfit(color: Colors.black54, fontSize: 13.sp),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 14,
-          ),
-          suffixIcon: suffixIcon != null
-              ? Icon(suffixIcon, color: Colors.black54, size: 20)
-              : null,
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         ),
-        style: GoogleFonts.outfit(color: Colors.black87, fontSize: 14),
+        style: GoogleFonts.outfit(color: Colors.black87, fontSize: 14.sp),
       ),
-    );
-  }
-}
-
-class _CustomCalendarPicker extends StatefulWidget {
-  final DateTime initialDate;
-  final ValueChanged<DateTime> onDateChanged;
-
-  const _CustomCalendarPicker({
-    required this.initialDate,
-    required this.onDateChanged,
-  });
-
-  @override
-  State<_CustomCalendarPicker> createState() => _CustomCalendarPickerState();
-}
-
-class _CustomCalendarPickerState extends State<_CustomCalendarPicker> {
-  late DateTime _currentMonth;
-  late DateTime _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedDate = widget.initialDate;
-    _currentMonth = DateTime(_selectedDate.year, _selectedDate.month);
-  }
-
-  void _nextMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
-    });
-  }
-
-  void _prevMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-    });
-  }
-
-  String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final firstDayOfMonth = DateTime(
-      _currentMonth.year,
-      _currentMonth.month,
-      1,
-    );
-    final daysInMonth = DateTime(
-      _currentMonth.year,
-      _currentMonth.month + 1,
-      0,
-    ).day;
-    final firstWeekday = firstDayOfMonth.weekday; // 1 = Mon, 7 = Sun
-    final offset = firstWeekday == 7 ? 0 : firstWeekday;
-    final prevMonthDays = DateTime(
-      _currentMonth.year,
-      _currentMonth.month,
-      0,
-    ).day;
-
-    List<Widget> dayWidgets = [];
-
-    // Header Hari
-    const weekDays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-    for (var day in weekDays) {
-      dayWidgets.add(
-        Center(
-          child: Text(
-            day,
-            style: GoogleFonts.outfit(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Hari dari bulan sebelumnya
-    for (int i = 0; i < offset; i++) {
-      int dayNumber = prevMonthDays - offset + i + 1;
-      dayWidgets.add(
-        Center(
-          child: Text(
-            '$dayNumber',
-            style: GoogleFonts.outfit(fontSize: 13, color: Colors.black38),
-          ),
-        ),
-      );
-    }
-
-    // Hari di bulan ini
-    for (int i = 1; i <= daysInMonth; i++) {
-      final date = DateTime(_currentMonth.year, _currentMonth.month, i);
-      final isSelected =
-          date.year == _selectedDate.year &&
-          date.month == _selectedDate.month &&
-          date.day == _selectedDate.day;
-
-      dayWidgets.add(
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedDate = date;
-            });
-            widget.onDateChanged(_selectedDate);
-          },
-          child: Center(
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF00B14F)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '$i',
-                style: GoogleFonts.outfit(
-                  fontSize: 13,
-                  color: isSelected ? Colors.white : Colors.black87,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Hari di bulan berikutnya
-    int totalCellsFilled = offset + daysInMonth;
-    int nextMonthDaysNeeded = 42 - totalCellsFilled;
-    for (int i = 1; i <= nextMonthDaysNeeded; i++) {
-      dayWidgets.add(
-        Center(
-          child: Text(
-            '$i',
-            style: GoogleFonts.outfit(fontSize: 13, color: Colors.black38),
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: _prevMonth,
-              child: const Icon(
-                Icons.chevron_left,
-                color: Colors.black54,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 24),
-            Text(
-              '${_getMonthName(_currentMonth.month)} ${_currentMonth.year}',
-              style: GoogleFonts.outfit(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(width: 24),
-            GestureDetector(
-              onTap: _nextMonth,
-              child: const Icon(
-                Icons.chevron_right,
-                color: Colors.black54,
-                size: 24,
-              ),
-            ),
-          ],
-        ),
-        GridView.count(
-          crossAxisCount: 7,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 1.1,
-          mainAxisSpacing: 8,
-          children: dayWidgets,
-        ),
-        const SizedBox(height: 8),
-      ],
     );
   }
 }

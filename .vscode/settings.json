@@ -1,0 +1,7 @@
+{
+  "editor.defaultFormatter": "Dart-Code.dart-code",
+  "notebook.defaultFormatter": "Dart-Code.dart-code",
+  "editor.detectIndentation": true,
+  "prettier.tabWidth": 2,
+  "editor.tabSize": 2
+}

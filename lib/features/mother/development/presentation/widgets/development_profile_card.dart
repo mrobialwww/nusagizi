@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/router.dart';
@@ -8,41 +9,37 @@ import 'package:nusagizi/features/mother/development/presentation/widgets/develo
 class DevelopmentProfileCard extends StatelessWidget {
   final String childName;
   final String childAge;
+  final String childId;
+  final String reportId;
   final double motorikHalus;
   final double motorikKasar;
   final double sosialisasi;
   final double bicara;
-  final String motorikHalusStatus;
-  final String motorikKasarStatus;
-  final String sosialisasiStatus;
-  final String bicaraStatus;
 
   const DevelopmentProfileCard({
     super.key,
     required this.childName,
     required this.childAge,
+    required this.childId,
+    required this.reportId,
     required this.motorikHalus,
     required this.motorikKasar,
     required this.sosialisasi,
     required this.bicara,
-    required this.motorikHalusStatus,
-    required this.motorikKasarStatus,
-    required this.sosialisasiStatus,
-    required this.bicaraStatus,
   });
+
+  static const Color _accentColor = Color(0xFF00A735);
 
   @override
   Widget build(BuildContext context) {
-    const Color greenColor = Color(0xFF3CB648);
-
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -58,14 +55,12 @@ class DevelopmentProfileCard extends StatelessWidget {
                 extra: DevelopmentProfileDetailExtra(
                   childName: childName,
                   childAge: childAge,
+                  childId: childId,
+                  reportId: reportId,
                   motorikHalus: motorikHalus,
                   motorikKasar: motorikKasar,
                   sosialisasi: sosialisasi,
                   bicara: bicara,
-                  motorikHalusStatus: motorikHalusStatus,
-                  motorikKasarStatus: motorikKasarStatus,
-                  sosialisasiStatus: sosialisasiStatus,
-                  bicaraStatus: bicaraStatus,
                 ),
               );
             },
@@ -79,50 +74,50 @@ class DevelopmentProfileCard extends StatelessWidget {
                       'Profil Perkembangan',
                       style: GoogleFonts.outfit(
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       'Berdasarkan asesmen terakhir',
                       style: GoogleFonts.outfit(
-                        fontSize: 12,
+                        fontSize: 12.sp,
                         color: Colors.black54,
                       ),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: EdgeInsets.all(4.w),
                   decoration: const BoxDecoration(
                     color: Color(0xFFF5F5F5),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.chevron_right,
-                    size: 16,
+                    size: 16.sp,
                     color: Colors.black54,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           DevelopmentRadarChart(
             motorikHalus: motorikHalus,
             motorikKasar: motorikKasar,
             sosialisasi: sosialisasi,
             bicara: bicara,
-            color: greenColor,
+            color: _accentColor,
             height: 220,
             tickCount: 4,
             borderWidth: 1.5,
             radarBorderColor: Colors.transparent,
-            gridBorderColor: Colors.grey.withOpacity(0.3),
-            titleTextStyle: const TextStyle(fontSize: 9, color: Colors.black87),
+            gridBorderColor: Colors.grey.withValues(alpha: 0.3),
+            titleTextStyle: TextStyle(fontSize: 9.sp, color: Colors.black87),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 30.h),
           // Legend
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,9 +126,9 @@ class DevelopmentProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _legendItem('Motorik Kasar', motorikKasarStatus),
-                    const SizedBox(height: 8),
-                    _legendItem('Bicara & Bahasa', bicaraStatus),
+                    _legendItem('Motorik Kasar', motorikKasar),
+                    SizedBox(height: 10.h),
+                    _legendItem('Bicara & Bahasa', bicara),
                   ],
                 ),
               ),
@@ -141,9 +136,9 @@ class DevelopmentProfileCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _legendItem('Motorik Halus', motorikHalusStatus),
-                    const SizedBox(height: 8),
-                    _legendItem('Sosialisasi', sosialisasiStatus),
+                    _legendItem('Motorik Halus', motorikHalus),
+                    SizedBox(height: 10.h),
+                    _legendItem('Sosialisasi', sosialisasi),
                   ],
                 ),
               ),
@@ -154,26 +149,47 @@ class DevelopmentProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _legendItem(String label, String status) {
-    const Color greenColor = Color(0xFF3CB648);
+  String _statusFromScore(double score) {
+    if (score >= 1.0) return "Sesuai Usia";
+    if (score >= 0.66) return "Perlu Stimulasi";
+    if (score >= 0.5) return "Perkembangan meragukan";
+    if (score >= 0.33) return "Perlu Evaluasi";
+    return "Kemungkinan penyimpangan";
+  }
+
+  Widget _legendItem(String label, double score) {
+    final status = _statusFromScore(score);
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           width: 6,
           height: 6,
+          margin: EdgeInsets.only(
+            top: 4.h,
+          ), // align dot with first line of text
           decoration: const BoxDecoration(
-            color: greenColor,
+            color: _accentColor,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 6),
-        Text(
-          '$label ',
-          style: GoogleFonts.outfit(fontSize: 10, color: Colors.black87),
-        ),
-        Text(
-          '($status)',
-          style: GoogleFonts.outfit(fontSize: 10, color: Colors.black54),
+        SizedBox(width: 8.w),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              text: '$label ',
+              style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.black87),
+              children: [
+                TextSpan(
+                  text: '($status)',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12.sp,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

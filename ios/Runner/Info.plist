@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Dipakai untuk scan QR connect anak</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Dipakai untuk ambil QR connect dari galeri</string>
 </dict>
 </plist>

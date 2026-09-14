@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nusagizi/core/config/assets/app_images.dart';
-import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:nusagizi/features/auth/presentation/cubit/auth_state.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_cubit.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_state.dart';
+import 'package:nusagizi/features/mother/home/presentation/widgets/flip_child_card.dart';
+import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_cubit.dart';
+import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_state.dart';
+import 'package:nusagizi/core/widgets/loading_ellipsis_text.dart';
 import 'package:nusagizi/router.dart';
+import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
+import 'package:nusagizi/core/utils/image_helper.dart';
 
-/// Home page placeholder. Nanti akan dikembangkan sesuai role masing-masing.
 class HomeMotherPage extends StatefulWidget {
   const HomeMotherPage({super.key});
 
@@ -15,188 +22,374 @@ class HomeMotherPage extends StatefulWidget {
   State<HomeMotherPage> createState() => _HomeMotherPageState();
 }
 
-class _HomeMotherPageState extends State<HomeMotherPage> {
-  void _handleLogout() {
-    context.read<AuthCubit>().logout();
+class _HomeMotherPageState extends State<HomeMotherPage>
+    with WidgetsBindingObserver {
+  late final GoRouterDelegate _routerDelegate;
+
+  // Register lifecycle, navigation, and routing observers
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    motherNavTabNotifier.addListener(_onTabChanged);
+
+    _routerDelegate = GoRouter.of(context).routerDelegate;
+    _routerDelegate.addListener(_onRouteChanged);
   }
 
-  Widget _buildAksesCepatItem({
-    required String title,
-    required String image,
-    required Color backgroundColor,
-    required Color textColor,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              image,
-              width: 40,
-              height: 40,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image_not_supported, size: 40),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: GoogleFonts.outfit(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  // Re-fetch data automatically when returning (popping) to this page via routing
+  void _onRouteChanged() {
+    if (!mounted) return;
+    try {
+      final String location = _routerDelegate.currentConfiguration.uri
+          .toString();
+      // Hanya refetch jika router BENAR-BENAR pindah kembali ke home-mother.
+      if (location == '/home-mother' && motherNavTabNotifier.value == 0) {
+        final matches = _routerDelegate.currentConfiguration.matches;
+        // Hanya refetch jika tidak ada halaman lain yang sedang di-push di atas home
+        if (matches.length > 1 &&
+            matches.last.matchedLocation != '/home-mother') {
+          return;
+        }
+
+        _refetch();
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    motherNavTabNotifier.removeListener(_onTabChanged);
+    _routerDelegate.removeListener(_onRouteChanged);
+    super.dispose();
+  }
+
+  // Re-fetch data automatically when the user switches back to this tab
+  void _onTabChanged() {
+    // Index 0 adalah HomeMotherPage
+    if (motherNavTabNotifier.value == 0) {
+      _refetch();
+    }
+  }
+
+  // Re-fetch data automatically when the app is resumed from background
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && motherNavTabNotifier.value == 0) {
+      _refetch();
+    }
+  }
+
+  // Core function to trigger data reloading for children summary and profile
+  void _refetch() {
+    if (!mounted) return;
+    context.read<MotherHomeCubit>().getChildrenSummary();
+    context.read<UserProfileCubit>().loadProfile();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
+    return BlocConsumer<MotherHomeCubit, MotherHomeState>(
       listener: (context, state) {
-        if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal logout: ${state.message}')),
-          );
+        if (state is MotherHomeLoaded && state.children.isEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            // Gunakan goNamed agar route berpindah sepenuhnya dan mencegah _onRouteChanged me-refetch tanpa henti
+            context.goNamed(
+              AppRoutes.editChildProfile.name,
+              extra: {'fromHome': true},
+            );
+          });
         }
       },
       builder: (context, state) {
-        final isLoading = state is AuthLoading;
+        if (state is MotherHomeLoaded && state.children.isEmpty) {
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: SizedBox.shrink(),
+          );
+        }
+
         return Scaffold(
+          backgroundColor: const Color(0xFFEAF7EE),
+          appBar: AppBar(
+            toolbarHeight: 0,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            systemOverlayStyle:
+                SystemUiOverlayStyle.dark, // Ensures status bar icons are dark
+          ),
           body: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Selamat Datang! 🎉',
-                      style: GoogleFonts.outfit(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF).withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(50),
-                        border: Border.all(
-                          color: const Color(0xFF6C63FF).withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        "Mother",
-                        style: GoogleFonts.outfit(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF6C63FF),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Section (Header)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(24.w, 24.h, 24.w, 24.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BlocBuilder<UserProfileCubit, UserProfileState>(
+                        builder: (context, state) {
+                          String firstName = 'Bunda';
+                          String? photoUrl;
 
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Akses Cepat',
+                          if (state is UserProfileLoaded) {
+                            final fullName = state.profile.fullName;
+                            if (fullName.isNotEmpty) {
+                              firstName = fullName.split(' ').first;
+                            }
+                            photoUrl = state.profile.photoUrl;
+                          }
+
+                          return Row(
+                            children: [
+                              (state is UserProfileLoading ||
+                                      state is UserProfileInitial)
+                                  ? Container(
+                                      width: 40.r,
+                                      height: 40.r,
+                                      padding: EdgeInsets.all(10.r),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    )
+                                  : CircleAvatar(
+                                      radius: 20.r,
+                                      backgroundColor:
+                                          ImageHelper.getSafeImageProvider(
+                                                photoUrl,
+                                              ) ==
+                                              null
+                                          ? ImageHelper.getAvatarColor(
+                                              firstName,
+                                            )
+                                          : Colors.grey.shade200,
+                                      backgroundImage:
+                                          ImageHelper.getSafeImageProvider(
+                                            photoUrl,
+                                          ),
+                                      child:
+                                          ImageHelper.getSafeImageProvider(
+                                                photoUrl,
+                                              ) ==
+                                              null
+                                          ? Text(
+                                              ImageHelper.getInitials(
+                                                firstName,
+                                              ),
+                                              style: GoogleFonts.outfit(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14.sp,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                              SizedBox(width: 12.w),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Halo,',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.grey[600],
+                                      fontSize: 14.sp,
+                                    ),
+                                  ),
+                                  (state is UserProfileLoading ||
+                                          state is UserProfileInitial)
+                                      ? LoadingEllipsisText(
+                                          text: '',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.sp,
+                                          ),
+                                        )
+                                      : Text(
+                                          'Bunda $firstName 👋',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18.sp,
+                                          ),
+                                        ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          context.pushNamed(AppRoutes.notification.name);
+                        },
+                        child: Stack(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 20.r,
+                              child: Icon(
+                                Icons.notifications_none,
+                                color: Colors.black,
+                                size: 24.sp,
+                              ),
+                            ),
+                            Positioned(
+                              right: 8.w,
+                              top: 8.h,
+                              child: Container(
+                                width: 8.w,
+                                height: 8.w,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Welcome Text
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Apa kabar si kecil',
                         style: GoogleFonts.outfit(
-                          fontSize: 18,
+                          fontSize: 22.sp,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Colors.black87,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: _buildAksesCepatItem(
-                            title: 'Tumbuh',
-                            image: AppImages.growth,
-                            backgroundColor: const Color(0xFFE8F5E9),
-                            textColor: const Color(0xFF2E7D32),
-                            onTap: () => context.goNamed(AppRoutes.growth.name),
-                          ),
+                      Text(
+                        'hari ini?',
+                        style: GoogleFonts.outfit(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF00A735),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildAksesCepatItem(
-                            title: 'Kembang',
-                            image: AppImages.development,
-                            backgroundColor: const Color(0xFFE3F2FD),
-                            textColor: const Color(0xFF1565C0),
-                            onTap: () => context.goNamed(AppRoutes.development.name),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildAksesCepatItem(
-                            title: 'Gizi',
-                            image: AppImages.nutrition,
-                            backgroundColor: const Color(0xFFFFF3E0),
-                            textColor: const Color(0xFFEF6C00),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                ),
 
-                    const SizedBox(height: 48),
-                    SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: isLoading ? null : _handleLogout,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Colors.redAccent.withOpacity(0.5),
+                SizedBox(height: 24.h),
+
+                // Carousel Slider
+                Expanded(
+                  child: Builder(
+                    builder: (context) {
+                      if (state is MotherHomeLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF00A735),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          foregroundColor: Colors.redAccent,
-                        ),
-                        icon: isLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.redAccent,
+                        );
+                      } else if (state is MotherHomeError) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 48.sp,
+                                color: Colors.red.shade300,
+                              ),
+                              SizedBox(height: 16.h),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 32.w),
+                                child: Text(
+                                  state.message,
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.red.shade400,
+                                    fontSize: 14.sp,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              SizedBox(height: 16.h),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  context
+                                      .read<MotherHomeCubit>()
+                                      .getChildrenSummary();
+                                },
+                                icon: Icon(
+                                  Icons.refresh,
+                                  size: 18.sp,
+                                  color: const Color(0xFF00A735),
+                                ),
+                                label: Text(
+                                  "Coba Lagi",
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF00A735),
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                              )
-                            : const Icon(Icons.logout_rounded, size: 18),
-                        label: Text(
-                          isLoading ? 'Mengeluarkan...' : 'Keluar',
-                          style: GoogleFonts.outfit(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                    color: Color(0xFF00A735),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 24.w,
+                                    vertical: 12.h,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
+                        );
+                      } else if (state is MotherHomeLoaded) {
+                        if (state.children.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'Belum ada data anak.',
+                              style: GoogleFonts.outfit(color: Colors.grey),
+                            ),
+                          );
+                        }
+
+                        return CarouselSlider.builder(
+                          options: CarouselOptions(
+                            height: double.infinity,
+                            enlargeCenterPage: true,
+                            enableInfiniteScroll: state.children.length > 1,
+                            viewportFraction: 0.8,
+                            clipBehavior: Clip.none,
+                          ),
+                          itemCount: state.children.length,
+                          itemBuilder: (context, index, realIndex) {
+                            final childData = state.children[index];
+                            return Padding(
+                              padding: EdgeInsets.only(top: 8.h, bottom: 24.h),
+                              child: FlipChildCard(
+                                key: ValueKey('flip-${childData.id}'),
+                                childData: childData,
+                              ),
+                            );
+                          },
+                        );
+                      }
+
+                      // Initial state or fallback
+                      return const SizedBox();
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         );

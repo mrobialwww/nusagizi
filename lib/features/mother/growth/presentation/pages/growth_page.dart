@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nusagizi/core/constants/child_data_dummy.dart';
-import 'package:nusagizi/core/domain/entities/child_profile.dart';
-import 'package:nusagizi/core/domain/entities/growth_record.dart';
-import 'package:nusagizi/core/widgets/header_growth_development.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
+import 'package:nusagizi/features/mother/growth/domain/entities/growth_record_entity.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
+import 'package:nusagizi/core/widgets/headers/header_primary_features.dart';
+import 'package:nusagizi/core/widgets/headers/header_action_button.dart';
+import 'package:nusagizi/core/widgets/child_picker_bottom_sheet.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/features/mother/growth/presentation/widgets/add_new_data_bottom_sheets.dart';
 import 'package:nusagizi/features/mother/growth/presentation/widgets/chart_head_circumference.dart';
@@ -12,12 +18,17 @@ import 'package:nusagizi/features/mother/growth/presentation/widgets/chart_heigh
 import 'package:nusagizi/features/mother/growth/presentation/widgets/chart_weight_card.dart';
 import 'package:nusagizi/features/mother/growth/presentation/widgets/status_card.dart';
 import 'package:nusagizi/features/mother/growth/presentation/widgets/summary_card.dart';
-
+import 'package:nusagizi/features/mother/growth/presentation/cubit/latest_growth_report_cubit.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_analyses_cubit.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_history_cubit.dart';
+import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_history_state.dart';
 
 enum GrowthTab { beratBadan, tinggiBadan, lKepala }
 
 class GrowthPage extends StatefulWidget {
-  const GrowthPage({super.key});
+  final String? initialChildId;
+
+  const GrowthPage({super.key, this.initialChildId});
 
   @override
   State<GrowthPage> createState() => _GrowthPageState();
@@ -25,200 +36,266 @@ class GrowthPage extends StatefulWidget {
 
 class _GrowthPageState extends State<GrowthPage> {
   static const Color _bg = Color(0xFFF5F5F5);
-  static const Color _green = Color(0xFF3CB648);
+  static const Color _green = Color(0xFF00A735);
 
   int _selectedChildIndex = 0;
-  ChildProfile get _dummyChild => dummyDataList[_selectedChildIndex].profile;
-  GrowthRecord get _dummyLatest => dummyDataList[_selectedChildIndex].latest;
-  List<GrowthRecord> get _dummyHistory =>
-      dummyDataList[_selectedChildIndex].history;
 
   GrowthTab _activeTab = GrowthTab.beratBadan;
 
   /// Sub-halaman di dalam tab "Berat Badan": 0=BB/U, 1=BB vs TB, 2=IMT/U
   int _bbSubPage = 0;
   late final PageController _bbPageController;
+  late final GoRouterDelegate _routerDelegate;
 
   @override
   void initState() {
     super.initState();
     _bbPageController = PageController();
+    _routerDelegate = GoRouter.of(context).routerDelegate;
+    _routerDelegate.addListener(_onRouteChanged);
+
+    _initializeSelectedChild();
+  }
+
+  void _initializeSelectedChild() {
+    if (widget.initialChildId != null) {
+      final childrenList = sl<ChildrenCacheCubit>().state;
+      if (childrenList.isNotEmpty) {
+        final index = childrenList.indexWhere(
+          (c) => c.id == widget.initialChildId,
+        );
+        if (index != -1) {
+          _selectedChildIndex = index;
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
+    _routerDelegate.removeListener(_onRouteChanged);
     _bbPageController.dispose();
     super.dispose();
   }
 
-  // ─── Child Picker ─────────────────────────────────────────────────────────
-  void _showChildPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Text(
-                'Grafik Tumbuh',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Pilih Profil Anak',
-                style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54),
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-              ...List.generate(dummyDataList.length, (index) {
-                final childData = dummyDataList[index];
-                final isSelected = index == _selectedChildIndex;
-                return Column(
-                  children: [
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                      leading: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: const Color(0xFFDDEFDD),
-                            child: Text(
-                              childData.profile.name[0],
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.bold,
-                                color: _green,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.check_circle,
-                                  size: 12,
-                                  color: _green,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      title: Text(
-                        childData.profile.name,
-                        style: GoogleFonts.outfit(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      subtitle: Text(
-                        childData.profile.ageString,
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.chevron_right,
-                          size: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _selectedChildIndex = index;
-                        });
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF0F0F0),
-                    ),
-                  ],
-                );
-              }),
-            ],
-          ),
-        );
-      },
+  /// Refetch on return if a child page triggered a CRUD operation.
+  void _onRouteChanged() {
+    if (!mounted) return;
+    try {
+      final location = _routerDelegate.currentConfiguration.uri.toString();
+      if (location == '/home-mother/growth' &&
+          motherNavTabNotifier.value == 0) {
+        if (crudFlag) {
+          _refetch();
+          crudFlag = false;
+        }
+      }
+    } catch (_) {}
+  }
+
+  /// Fetch latest growth data for the active child.
+  void _refetch() {
+    if (!mounted) return;
+    final childrenList = sl<ChildrenCacheCubit>().state;
+    if (childrenList.isEmpty) return;
+    final validChild = _selectedChildIndex < childrenList.length
+        ? childrenList[_selectedChildIndex]
+        : childrenList.first;
+    context.read<LatestGrowthReportCubit>().fetchLatestGrowthReport(
+      validChild.id,
+    );
+    context.read<GrowthHistoryCubit>().fetchHistory(validChild.id);
+    context.read<GrowthAnalysesCubit>().fetch(
+      childId: validChild.id,
+      analysisType: 'weight_for_age',
+      ageRange: '0-60',
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _bg,
-      body: Column(
-        children: [
-          HeaderGrowthDevelopment(
-            profile: _dummyChild,
-            latest: _dummyLatest,
-            accentColor: _green,
-            onPickerTapped: _showChildPicker,
-            onHistoryTapped: () =>
-                context.goNamed(AppRoutes.growthHistory.name, extra: _dummyHistory),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  SummaryCard(latest: _dummyLatest, accentColor: _green),
-                  const SizedBox(height: 16),
-                  _tabBar(),
-                  const SizedBox(height: 16),
-                  _chartCard(),
-                  const SizedBox(height: 16),
-                  StatusCard(
-                    accentColor: _green,
-                    profile: _dummyChild,
-                    activeTab: _activeTab,
-                    bbSubPage: _bbSubPage,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: sl<ChildrenCacheCubit>()),
+        BlocProvider(
+          create: (_) {
+            final cubit = sl<LatestGrowthReportCubit>();
+            final childrenList = sl<ChildrenCacheCubit>().state;
+            if (childrenList.isNotEmpty) {
+              final validChild = _selectedChildIndex < childrenList.length
+                  ? childrenList[_selectedChildIndex]
+                  : childrenList.first;
+              cubit.fetchLatestGrowthReport(validChild.id);
+            }
+            return cubit;
+          },
+        ),
+        BlocProvider(
+          create: (_) {
+            final cubit = sl<GrowthAnalysesCubit>();
+            final childrenList = sl<ChildrenCacheCubit>().state;
+            if (childrenList.isNotEmpty) {
+              final validChild = _selectedChildIndex < childrenList.length
+                  ? childrenList[_selectedChildIndex]
+                  : childrenList.first;
+              // Fetch kombinasi yang tampil pertama kali (BB/U, 0-5 Tahun)
+              cubit.fetch(
+                childId: validChild.id,
+                analysisType: 'weight_for_age',
+                ageRange: '0-60',
+              );
+            }
+            return cubit;
+          },
+        ),
+        BlocProvider(
+          create: (_) {
+            final cubit = sl<GrowthHistoryCubit>();
+            final childrenList = sl<ChildrenCacheCubit>().state;
+            if (childrenList.isNotEmpty) {
+              final validChild = _selectedChildIndex < childrenList.length
+                  ? childrenList[_selectedChildIndex]
+                  : childrenList.first;
+              cubit.fetchHistory(validChild.id);
+            }
+            return cubit;
+          },
+        ),
+      ],
+      child: BlocBuilder<ChildrenCacheCubit, List<ChildHeaderEntity>>(
+        builder: (context, childrenList) {
+          if (childrenList.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('Belum ada data anak.')),
+            );
+          }
+
+          final validChild = _selectedChildIndex < childrenList.length
+              ? childrenList[_selectedChildIndex]
+              : childrenList.first;
+
+          final validIndex = _selectedChildIndex < childrenList.length
+              ? _selectedChildIndex
+              : 0;
+
+          return BlocBuilder<GrowthHistoryCubit, GrowthHistoryState>(
+            builder: (context, historyState) {
+              List<GrowthRecord> history = [];
+              if (historyState is GrowthHistoryLoaded) {
+                // Assume newer records come first from API, so reversed for chronological chart
+                final list = historyState.history.reversed.toList();
+                history = list
+                    .map(
+                      (e) => GrowthRecord(
+                        date: e.measuredAt,
+                        weight: e.weightKg ?? 0.0,
+                        height: e.heightCm ?? 0.0,
+                        headCircumference: e.headCircumferenceCm ?? 0.0,
+                      ),
+                    )
+                    .toList();
+              }
+              final latest = history.isNotEmpty
+                  ? history.last
+                  : GrowthRecord(
+                      date: DateTime.now(),
+                      weight: 0,
+                      height: 0,
+                      headCircumference: 0,
+                    );
+
+              return Scaffold(
+                backgroundColor: _bg,
+                appBar: HeaderPrimaryFeatures(
+                  profile: validChild,
+                  accentColor: _green,
+                  onPickerTapped: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      builder: (bsContext) {
+                        return BlocProvider.value(
+                          value: sl<ChildrenCacheCubit>(),
+                          child: ChildPickerBottomSheet(
+                            selectedIndex: validIndex,
+                            onChildSelected: (index) {
+                              setState(() {
+                                _selectedChildIndex = index;
+                              });
+
+                              // Gunakan variabel childrenList dari luar (BlocBuilder)
+                              final child = childrenList[index];
+
+                              // context di sini mengacu ke context milik GrowthPage
+                              context
+                                  .read<LatestGrowthReportCubit>()
+                                  .fetchLatestGrowthReport(child.id);
+                              context.read<GrowthHistoryCubit>().fetchHistory(
+                                child.id,
+                              );
+                            },
+                            accentColor: _green,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  actions: [
+                    HeaderActionButton(
+                      icon: Icons.history_rounded,
+                      onTap: () => context.goNamed(
+                        AppRoutes.growthHistory.name,
+                        extra: validChild.id,
+                      ),
+                    ),
+                  ],
+                ),
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(16.w),
+                          child: Column(
+                            children: [
+                              SummaryCard(accentColor: _green),
+                              SizedBox(height: 16.h),
+                              _tabBar(),
+                              SizedBox(height: 16.h),
+                              _chartCard(
+                                validChild,
+                                latest,
+                                history,
+                                validChild.id,
+                              ),
+                              SizedBox(height: 16.h),
+                              StatusCard(
+                                accentColor: _green,
+                                profile: validChild,
+                                activeTab: _activeTab,
+                                bbSubPage: _bbSubPage,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-        ],
+                ),
+                bottomNavigationBar: AddNewDataBottomSheets(
+                  accentColor: const Color(0xFF00A735),
+                  childId: validChild.id,
+                ),
+              );
+            },
+          );
+        },
       ),
-      bottomNavigationBar: AddNewDataBottomSheets(accentColor: _green),
     );
   }
 
@@ -227,52 +304,57 @@ class _GrowthPageState extends State<GrowthPage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8.r,
+            offset: Offset(0, 2.h),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(4),
+      padding: EdgeInsets.all(4.w),
       child: Row(
         children: GrowthTab.values.asMap().entries.map((e) {
           final isActive = _activeTab == e.value;
           return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _activeTab = e.value;
-                  if (e.value == GrowthTab.beratBadan) {
-                    _bbSubPage = 0;
-                  }
-                });
-                // jumpToPage dipanggil setelah frame selesai di-build
-                // agar PageController sudah terhubung ke PageView
-                if (e.value == GrowthTab.beratBadan) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (_bbPageController.hasClients) {
-                      _bbPageController.jumpToPage(0);
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _activeTab = e.value;
+                    if (e.value == GrowthTab.beratBadan) {
+                      _bbSubPage = 0;
                     }
                   });
-                }
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: isActive ? _green : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    labels[e.key],
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                      color: isActive ? Colors.white : Colors.black54,
+                  // jumpToPage dipanggil setelah frame selesai di-build
+                  // agar PageController sudah terhubung ke PageView
+                  if (e.value == GrowthTab.beratBadan) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_bbPageController.hasClients) {
+                        _bbPageController.jumpToPage(0);
+                      }
+                    });
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  decoration: BoxDecoration(
+                    color: isActive ? _green : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      labels[e.key],
+                      style: GoogleFonts.outfit(
+                        fontSize: 12.sp,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isActive ? Colors.white : Colors.black54,
+                      ),
                     ),
                   ),
                 ),
@@ -284,44 +366,47 @@ class _GrowthPageState extends State<GrowthPage> {
     );
   }
 
-  Widget _chartCard() {
-    switch (_activeTab) {
-      case GrowthTab.beratBadan:
-        return ChartWeightCard(
-          accentColor: _green,
-          profile: _dummyChild,
-          latest: _dummyLatest,
-          history: _dummyHistory,
-          bbSubPage: _bbSubPage,
-          bbPageController: _bbPageController,
-          onPageChanged: (i) => setState(() => _bbSubPage = i),
-          onPrev: () {
-            setState(() => _bbSubPage--);
-            _bbPageController.previousPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          },
-          onNext: () {
-            setState(() => _bbSubPage++);
-            _bbPageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          },
+  Widget _chartCard(
+    ChildHeaderEntity childProfile,
+    GrowthRecord latest,
+    List<GrowthRecord> history,
+    String childId,
+  ) => switch (_activeTab) {
+    GrowthTab.beratBadan => ChartWeightCard(
+      accentColor: _green,
+      profile: childProfile,
+      latest: latest,
+      history: history,
+      childId: childId,
+      bbSubPage: _bbSubPage,
+      bbPageController: _bbPageController,
+      onPageChanged: (i) => setState(() => _bbSubPage = i),
+      onPrev: () {
+        setState(() => _bbSubPage--);
+        _bbPageController.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
         );
-      case GrowthTab.tinggiBadan:
-        return ChartHeightCard(
-          profile: _dummyChild,
-          latest: _dummyLatest,
-          history: _dummyHistory,
+      },
+      onNext: () {
+        setState(() => _bbSubPage++);
+        _bbPageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
         );
-      case GrowthTab.lKepala:
-        return ChartHeadCircumference(
-          profile: _dummyChild,
-          latest: _dummyLatest,
-          history: _dummyHistory,
-        );
-    }
-  }
+      },
+    ),
+    GrowthTab.tinggiBadan => ChartHeightCard(
+      profile: childProfile,
+      latest: latest,
+      history: history,
+      childId: childId,
+    ),
+    GrowthTab.lKepala => ChartHeadCircumference(
+      profile: childProfile,
+      latest: latest,
+      history: history,
+      childId: childId,
+    ),
+  };
 }

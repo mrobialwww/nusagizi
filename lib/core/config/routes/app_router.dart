@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../features/auth/presentation/pages/login_page.dart';
+import 'package:nusagizi/features/auth/presentation/pages/login_page.dart';
 
 // Daftar semua route name
 class Routes {

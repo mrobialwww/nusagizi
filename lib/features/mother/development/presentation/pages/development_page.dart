@@ -1,344 +1,420 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nusagizi/core/constants/child_data_dummy.dart';
-import 'package:nusagizi/core/domain/entities/child_profile.dart';
-import 'package:nusagizi/core/domain/entities/growth_record.dart';
-import 'package:nusagizi/core/widgets/header_growth_development.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
-
 import 'package:nusagizi/router.dart';
-
-import 'package:nusagizi/features/mother/development/presentation/widgets/development_summary_card.dart';
+import 'package:nusagizi/core/widgets/child_picker_bottom_sheet.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
+import 'package:nusagizi/core/widgets/headers/header_primary_features.dart';
+import 'package:nusagizi/core/widgets/headers/header_action_button.dart';
+import 'package:nusagizi/features/mother/development/domain/entities/child_development_summary_entity.dart';
+import 'package:nusagizi/features/mother/development/presentation/cubit/development_cubit.dart';
+import 'package:nusagizi/features/mother/development/presentation/cubit/development_state.dart';
 import 'package:nusagizi/features/mother/development/presentation/widgets/development_profile_card.dart';
-
-import 'package:nusagizi/core/constants/dummy_child_development_summaries.dart';
+import 'package:nusagizi/features/mother/development/presentation/widgets/development_summary_card.dart';
+import 'package:nusagizi/features/mother/development/presentation/widgets/quick_access_card.dart';
 
 class DevelopmentPage extends StatefulWidget {
-  const DevelopmentPage({super.key});
+  final String? initialChildId;
+
+  const DevelopmentPage({super.key, this.initialChildId});
 
   @override
   State<DevelopmentPage> createState() => _DevelopmentPageState();
 }
 
 class _DevelopmentPageState extends State<DevelopmentPage> {
-  static const Color _bg = Color(0xFFF5F5F5);
-  static const Color _green = Color(0xFF3CB648);
+  static const Color _backgroundColor = Color(0xFFF5F5F5);
+  static const Color _accentColor = Color(0xFF00A735);
+
+  late final DevelopmentCubit _cubit = sl<DevelopmentCubit>();
+  late final GoRouterDelegate _routerDelegate;
 
   int _selectedChildIndex = 0;
-  ChildProfile get _dummyChild => dummyDataList[_selectedChildIndex].profile;
-  GrowthRecord get _dummyLatest => dummyDataList[_selectedChildIndex].latest;
 
-  void _showChildPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              Text(
-                'Grafik Tumbuh Kembang',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Pilih Profil Anak',
-                style: GoogleFonts.outfit(fontSize: 12, color: Colors.black54),
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFF0F0F0)),
-              ...List.generate(dummyDataList.length, (index) {
-                final childData = dummyDataList[index];
-                final isSelected = index == _selectedChildIndex;
-                return Column(
-                  children: [
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                      leading: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: const Color(0xFFDDEFDD),
-                            child: Text(
-                              childData.profile.name[0],
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.bold,
-                                color: _green,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.check_circle,
-                                  size: 12,
-                                  color: _green,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      title: Text(
-                        childData.profile.name,
-                        style: GoogleFonts.outfit(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      subtitle: Text(
-                        childData.profile.ageString,
-                        style: GoogleFonts.outfit(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFF5F5F5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.chevron_right,
-                          size: 16,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _selectedChildIndex = index;
-                        });
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: Color(0xFFF0F0F0),
-                    ),
-                  ],
-                );
-              }),
-            ],
-          ),
+  @override
+  void initState() {
+    super.initState();
+    _routerDelegate = GoRouter.of(context).routerDelegate;
+    _routerDelegate.addListener(_onRouteChanged);
+
+    _initializeSelectedChild();
+
+    final cacheState = sl<ChildrenCacheCubit>().state;
+    if (cacheState.isNotEmpty) {
+      _cubit.loadSummary(cacheState[_selectedChildIndex].id);
+    }
+  }
+
+  void _initializeSelectedChild() {
+    if (widget.initialChildId != null) {
+      final cacheState = sl<ChildrenCacheCubit>().state;
+      if (cacheState.isNotEmpty) {
+        final index = cacheState.indexWhere(
+          (c) => c.id == widget.initialChildId,
         );
-      },
-    );
+        if (index != -1) {
+          _selectedChildIndex = index;
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _routerDelegate.removeListener(_onRouteChanged);
+    _cubit.close();
+    super.dispose();
+  }
+
+  // Refetch on return if a child page triggered a CRUD operation.
+  void _onRouteChanged() {
+    if (!mounted) return;
+    try {
+      final location = _routerDelegate.currentConfiguration.uri.toString();
+      if (location == '/home-mother/development' &&
+          motherNavTabNotifier.value == 0) {
+        if (crudFlag) {
+          _refetch();
+          crudFlag = false;
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Fetch latest development summary for the active child.
+  void _refetch() {
+    if (!mounted) return;
+    final cacheState = sl<ChildrenCacheCubit>().state;
+    if (cacheState.isNotEmpty && _selectedChildIndex < cacheState.length) {
+      _cubit.loadSummary(cacheState[_selectedChildIndex].id);
+    }
+  }
+
+  void _onChildSelected(int index) {
+    setState(() => _selectedChildIndex = index);
+    final cacheState = sl<ChildrenCacheCubit>().state;
+    if (index < cacheState.length) {
+      _cubit.loadSummary(cacheState[index].id);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final devData = dummyChildDevelopmentSummaries[_selectedChildIndex];
+    return BlocProvider.value(
+      value: sl<ChildrenCacheCubit>(),
+      child: BlocBuilder<ChildrenCacheCubit, List<ChildHeaderEntity>>(
+        builder: (context, childrenList) {
+          if (childrenList.isEmpty) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(color: Color(0xFF00A735)),
+              ),
+            );
+          }
 
-    return Scaffold(
-      backgroundColor: _bg,
-      body: Column(
-        children: [
-          HeaderGrowthDevelopment(
-            profile: _dummyChild,
-            latest: _dummyLatest,
-            onPickerTapped: _showChildPicker,
-            onHistoryTapped: () =>
-                context.goNamed(AppRoutes.developmentHistory.name),
-            accentColor: _green,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DevelopmentSummaryCard(
-                    badgeStatus: devData.badgeStatus,
-                    badgeColor: devData.badgeColor,
-                    badgeBgColor: devData.badgeBgColor,
-                    lastCheck: devData.lastCheck,
-                    kpspScore: devData.kpspScore,
-                    nextCheck: devData.nextCheck,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Akses Cepat',
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.black54,
+          final validChild = _selectedChildIndex < childrenList.length
+              ? childrenList[_selectedChildIndex]
+              : childrenList.first;
+
+          final validIndex = _selectedChildIndex < childrenList.length
+              ? _selectedChildIndex
+              : 0;
+
+          return BlocProvider.value(
+            value: _cubit,
+            child: Scaffold(
+              backgroundColor: _backgroundColor,
+              appBar: HeaderPrimaryFeatures(
+                profile: validChild,
+                onPickerTapped: () {
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                    ),
+                    builder: (context) {
+                      return BlocProvider.value(
+                        value: sl<ChildrenCacheCubit>(),
+                        child: ChildPickerBottomSheet(
+                          selectedIndex: validIndex,
+                          onChildSelected: _onChildSelected,
+                          accentColor: _accentColor,
+                        ),
+                      );
+                    },
+                  );
+                },
+                actions: [
+                  HeaderActionButton(
+                    icon: Icons.history_rounded,
+                    onTap: () => context.goNamed(
+                      AppRoutes.developmentHistory.name,
+                      extra: validChild,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickAccessCard(
-                          title: 'Asesmen KPSP',
-                          subtitle: 'Cek rutin perkembangan',
-                          icon: Icons.assignment_outlined,
-                          iconBackgroundColor: const Color(0xFFDDEFDD),
-                          iconColor: const Color(0xFF3CB648),
-                          decorationColor: const Color(0xFFDDEFDD),
-                          onTap: () {
-                            context.goNamed(
-                              AppRoutes.developmentKpsp.name,
-                              extra: KpspAssessmentExtra(
-                                childName: _dummyChild.name,
-                                childAge: _dummyChild.ageString,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickAccessCard(
-                          title: 'Checklist Manual',
-                          subtitle: 'Pantau harian mandiri',
-                          icon: Icons.fact_check_outlined,
-                          iconBackgroundColor: const Color(0xFFFFEBD6),
-                          iconColor: const Color(0xFFFF9800),
-                          decorationColor: const Color(0xFFFFEBD6),
-                          onTap: () => context.goNamed(
-                            AppRoutes.developmentChecklist.name,
-                            extra: _dummyChild.ageString,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  DevelopmentProfileCard(
-                    childName: _dummyChild.name,
-                    childAge: _dummyChild.ageString,
-                    motorikHalus: devData.motorikHalus,
-                    motorikKasar: devData.motorikKasar,
-                    sosialisasi: devData.sosialisasi,
-                    bicara: devData.bicara,
-                    motorikHalusStatus: devData.motorikHalusStatus,
-                    motorikKasarStatus: devData.motorikKasarStatus,
-                    sosialisasiStatus: devData.sosialisasiStatus,
-                    bicaraStatus: devData.bicaraStatus,
-                  ),
-                  const SizedBox(height: 24),
                 ],
+                accentColor: _accentColor,
+              ),
+              body: SafeArea(
+                child: BlocBuilder<DevelopmentCubit, DevelopmentState>(
+                  builder: (context, state) {
+                    if (state is DevelopmentError) {
+                      return Center(child: Text(state.message));
+                    }
+                    if (state is! DevelopmentLoaded) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF00A735),
+                        ),
+                      );
+                    }
+
+                    final summary = state.summary;
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.all(16.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSummaryCard(summary, validChild),
+                          SizedBox(height: 24.h),
+                          Text(
+                            "Akses Cepat",
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: QuickAccessCard(
+                                  title: 'Mulai KPSP',
+                                  subtitle:
+                                      'Kuesioner Pra Skrining Perkembangan',
+                                  icon: Icons.assignment_outlined,
+                                  iconColor: const Color(0xFF00A735),
+                                  iconBackgroundColor: const Color(0xFFDDEFDD),
+                                  onTap: () {
+                                    final nextCheckDate = summary.nextCheckDate;
+                                    final now = DateTime.now();
+                                    final isNextCheckInFuture =
+                                        nextCheckDate != null &&
+                                        nextCheckDate.isAfter(now);
+
+                                    if (isNextCheckInFuture) {
+                                      _showKpspAlreadyDoneDialog(
+                                        context,
+                                        summary,
+                                        validChild,
+                                      );
+                                    } else {
+                                      context.goNamed(
+                                        AppRoutes.developmentKpsp.name,
+                                        extra: KpspAssessmentExtra(
+                                          childName: validChild.name,
+                                          childAge: validChild.age,
+                                          childId: validChild.id,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: QuickAccessCard(
+                                  title: 'Checklist Manual',
+                                  subtitle: 'Pantau harian mandiri',
+                                  icon: Icons.fact_check_outlined,
+                                  iconColor: const Color(0xFFFF9800),
+                                  iconBackgroundColor: const Color(0xFFFFEBD6),
+                                  onTap: () => context.goNamed(
+                                    AppRoutes.developmentChecklist.name,
+                                    extra: ChecklistMilestoneExtra(
+                                      childId: validChild.id,
+                                      childAge: validChild.age,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 24.h),
+                          DevelopmentProfileCard(
+                            childName: validChild.name,
+                            childAge: validChild.age,
+                            childId: validChild.id,
+                            reportId: summary.id,
+                            motorikHalus: summary.motorikHalus,
+                            motorikKasar: summary.motorikKasar,
+                            sosialisasi: summary.sosialisasi,
+                            bicara: summary.bicara,
+                          ),
+                          SizedBox(height: 24.h),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildQuickAccessCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconBackgroundColor,
-    required Color iconColor,
-    required Color decorationColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildSummaryCard(
+    ChildDevelopmentSummaryEntity summary,
+    ChildHeaderEntity child,
+  ) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 136, // Diperbesar sedikit agar tidak overflow
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Ornamen lingkaran di pojok kanan bawah
-            Positioned(
-              right: -20,
-              bottom: -20,
-              child: Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: decorationColor.withOpacity(0.3),
-                ),
-              ),
-            ),
-            // Konten
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: iconBackgroundColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: iconColor, size: 20),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    title,
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.outfit(
-                      fontSize: 11,
-                      color: Colors.black54,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
+      onTap: () => context.goNamed(
+        AppRoutes.developmentKpspResult.name,
+        extra: KpspResultExtra(
+          childName: child.name,
+          childAge: child.age,
+          reportId: summary.id,
+          isFromHistory: true,
+          childId: child.id,
         ),
       ),
+
+      child: DevelopmentSummaryCard(
+        badgeStatus: summary.badgeStatus,
+        lastCheck: summary.lastCheck,
+        kpspScore: '${summary.kpspScore}/${summary.kpspTotal}',
+        nextCheck: summary.nextCheck,
+      ),
+    );
+  }
+
+  void _showKpspAlreadyDoneDialog(
+    BuildContext context,
+    ChildDevelopmentSummaryEntity summary,
+    ChildHeaderEntity child,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.r),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(24.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'KPSP Sudah Dilakukan',
+                  style: GoogleFonts.outfit(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18.sp,
+                    color: const Color(0xFF00A735),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  'Kamu sudah melakukan KPSP untuk periode usia ini. Hasil tersebut masih berlaku hingga periode berikutnya.',
+                  style: GoogleFonts.outfit(
+                    fontSize: 14.sp,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: 12.h),
+                Text(
+                  'Jika kamu tetap ingin mengulang asesmen, hasil sebelumnya akan digantikan dengan hasil terbaru.',
+                  style: GoogleFonts.outfit(
+                    fontSize: 14.sp,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.goNamed(
+                            AppRoutes.developmentKpsp.name,
+                            extra: KpspAssessmentExtra(
+                              childName: child.name,
+                              childAge: child.age,
+                              childId: child.id,
+                              existingReportId: summary.id,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(
+                              color: const Color(0xFF00A735),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            'Ulangi KPSP',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: const Color(0xFF00A735),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 14.h),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00A735),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Text(
+                            'Batal',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
