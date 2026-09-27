@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/app_card.dart';
 
 /// Title + subtitle text block shared by every growth chart card header.
@@ -20,8 +19,9 @@ class ChartCardTitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w700,
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w600,
             fontSize: 13.sp,
             color: Colors.black87,
           ),
@@ -30,7 +30,12 @@ class ChartCardTitle extends StatelessWidget {
         SizedBox(height: 2.h),
         Text(
           subtitle,
-          style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black45),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w400,
+            fontSize: 11.sp,
+            color: Colors.black45,
+          ),
           textAlign: TextAlign.center,
         ),
       ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:nusagizi/core/config/assets/app_images.dart';
 
 class ImageHelper {
   /// Gets a safe ImageProvider or null if the path is invalid or empty.
@@ -24,41 +25,24 @@ class ImageHelper {
     return null;
   }
 
-  /// Gets up to 2 uppercase initials from a full name.
-  static String getInitials(String name) {
-    if (name.trim().isEmpty) return 'U';
-
-    // Clean multiple spaces
-    final cleanName = name.trim().replaceAll(RegExp(r'\s+'), ' ');
-    final parts = cleanName.split(' ');
-
-    if (parts.length >= 2) {
-      final firstChar = parts[0][0];
-      final secondChar = parts[1][0];
-      return '$firstChar$secondChar'.toUpperCase();
+  static AssetImage getDefaultChildImage(String gender) {
+    if (gender.trim().toLowerCase() == 'female') {
+      return const AssetImage(AppImages.defaultFemaleChildProfile);
     }
-
-    // If only one word, take up to the first two characters
-    return name
-        .trim()
-        .substring(0, name.trim().length > 1 ? 2 : 1)
-        .toUpperCase();
+    return const AssetImage(AppImages.defaultMaleChildProfile);
   }
 
-  /// Generates a stable color from a given string (like a name).
-  static Color getAvatarColor(String name) {
-    if (name.trim().isEmpty) {
-      return const Color(0xFF00A735); // Default primary green
+  static AssetImage getDefaultUserImage([String? gender]) {
+    if (gender?.trim().toLowerCase() == 'male') {
+      return const AssetImage(AppImages.defaultMaleUserProfile);
     }
+    return const AssetImage(AppImages.defaultUserProfile);
+  }
 
-    int hash = 0;
-    for (int i = 0; i < name.length; i++) {
-      hash = name.codeUnitAt(i) + ((hash << 5) - hash);
+  static AssetImage getDefaultDailyCaptureImage(String gender) {
+    if (gender.trim().toLowerCase() == 'female') {
+      return const AssetImage(AppImages.defaultDailyFemaleCapture);
     }
-
-    // Generate HSL color for vibrant, readable avatar backgrounds
-    // Saturation around 60%, Lightness around 40% (ensures white text is readable)
-    final h = (hash % 360).abs().toDouble();
-    return HSLColor.fromAHSL(1.0, h, 0.6, 0.4).toColor();
+    return const AssetImage(AppImages.defaultDailyMaleCapture);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class DeleteAccountDialog extends StatelessWidget {
   const DeleteAccountDialog({super.key});
@@ -32,7 +32,8 @@ class DeleteAccountDialog extends StatelessWidget {
               SizedBox(height: 20.h),
               Text(
                 'Hapus Akun?',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -42,8 +43,10 @@ class DeleteAccountDialog extends StatelessWidget {
               SizedBox(height: 8.h),
               Text(
                 'Apakah Anda yakin ingin menghapus akun?',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black54,
                 ),
                 textAlign: TextAlign.center,
@@ -53,7 +56,7 @@ class DeleteAccountDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.red),
                         padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -63,7 +66,8 @@ class DeleteAccountDialog extends StatelessWidget {
                       ),
                       child: Text(
                         'Batal',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.red,
                           fontWeight: FontWeight.w600,
                         ),
@@ -73,10 +77,7 @@ class DeleteAccountDialog extends StatelessWidget {
                   SizedBox(width: 12.w),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement actual delete account logic
-                        Navigator.pop(context);
-                      },
+                      onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         elevation: 0,
@@ -87,7 +88,8 @@ class DeleteAccountDialog extends StatelessWidget {
                       ),
                       child: Text(
                         'Hapus',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),

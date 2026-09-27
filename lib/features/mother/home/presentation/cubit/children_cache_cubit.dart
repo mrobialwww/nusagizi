@@ -9,6 +9,10 @@ class ChildrenCacheCubit extends HydratedCubit<List<ChildHeaderEntity>> {
     emit(children);
   }
 
+  void remove(String childId) {
+    emit(state.where((c) => c.id != childId).toList());
+  }
+
   @override
   List<ChildHeaderEntity>? fromJson(Map<String, dynamic> json) {
     try {

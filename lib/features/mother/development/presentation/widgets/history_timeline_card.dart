@@ -1,38 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-enum HistoryType { checklist, kpsp }
 
 class HistoryTimelineCard extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
-  final HistoryType type;
   final String date;
   final String monthTitle;
-  final Widget contentWidget;
+  final int kpspScore;
+  final String status;
 
   const HistoryTimelineCard({
     super.key,
     required this.isFirst,
     required this.isLast,
-    required this.type,
     required this.date,
     required this.monthTitle,
-    required this.contentWidget,
+    required this.kpspScore,
+    required this.status,
   });
 
   static const Color _green = Color(0xFF00A735);
-  static const Color _orange = Color(0xFFF26E22);
+
+  Color _statusColor() {
+    if (status == 'Sesuai Usia') return _green;
+    if (status == 'Perkembangan meragukan') return Colors.orange;
+    return Colors.red;
+  }
+
+  String _summaryTitle() {
+    final s = status.toLowerCase();
+    if (s.contains('sesuai usia')) return 'Perkembangan Sangat Baik';
+    if (s.contains('meragukan')) return 'Perkembangan Meragukan';
+    return 'Perkembangan Menyimpang';
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isChecklist = type == HistoryType.checklist;
-    final Color iconColor = isChecklist ? _orange : _green;
-    final Color iconBgColor = isChecklist
-        ? const Color(0xFFFFE5D9)
-        : const Color(0xFFDDEFDD);
-    final String tagText = isChecklist ? 'Update Checklist' : 'Hasil KPSP';
+    final statusColor = _statusColor();
 
     return IntrinsicHeight(
       child: Row(
@@ -54,7 +58,7 @@ class HistoryTimelineCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(8.w),
                   decoration: BoxDecoration(
-                    color: iconBgColor,
+                    color: const Color(0xFFDDEFDD),
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
@@ -66,11 +70,9 @@ class HistoryTimelineCard extends StatelessWidget {
                     ],
                   ),
                   child: Icon(
-                    isChecklist
-                        ? Icons.fact_check_rounded
-                        : Icons.checklist_rtl_rounded,
+                    Icons.checklist_rtl_rounded,
                     size: 16.sp,
-                    color: iconColor,
+                    color: _green,
                   ),
                 ),
                 if (!isLast)
@@ -104,26 +106,29 @@ class HistoryTimelineCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: iconBgColor,
+                            color: const Color(0xFFDDEFDD),
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: Text(
-                            tagText,
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.w600,
+                            'Hasil KPSP',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w700,
                               fontSize: 10.sp,
-                              color: iconColor,
+                              color: _green,
                             ),
                           ),
                         ),
                         Text(
                           date,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
                             fontSize: 12.sp,
                             color: Colors.black54,
                           ),
@@ -133,14 +138,63 @@ class HistoryTimelineCard extends StatelessWidget {
                     SizedBox(height: 16.h),
                     Text(
                       monthTitle,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                         color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    contentWidget,
+                    // ── KPSP score + status row ──
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: statusColor, width: 1.5),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '$kpspScore',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20.sp,
+                              color: statusColor,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 16.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                status,
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13.sp,
+                                  color: statusColor,
+                                ),
+                              ),
+                              Text(
+                                _summaryTitle(),
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

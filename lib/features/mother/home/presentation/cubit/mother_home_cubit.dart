@@ -21,12 +21,15 @@ class MotherHomeCubit extends Cubit<MotherHomeState> {
       children,
     ) {
       final cacheData = children
-          .map((c) => ChildHeaderModel(
-                id: c.id,
-                name: c.name,
-                age: c.age,
-                imagePath: c.imagePath,
-              ))
+          .map(
+            (c) => ChildHeaderModel(
+              id: c.id,
+              name: c.name,
+              age: c.age,
+              imagePath: c.imagePath,
+              gender: c.gender,
+            ),
+          )
           .toList();
       cacheCubit.save(cacheData); // Simpan ke cache
       emit(MotherHomeLoaded(children: children));

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_state.dart';
 import 'package:nusagizi/router.dart';
@@ -37,7 +36,10 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
   void initState() {
     super.initState();
     _startCooldown();
-    // Set auto focus ke field OTP
+    // Keep UI in sync with every keystroke (boxes + verify button).
+    _otpController.addListener(() {
+      if (mounted) setState(() {});
+    });
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _focusNode.requestFocus();
     });
@@ -70,7 +72,6 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
 
   void _verify() {
     if (_otpController.text.length != _otpLength) return;
-    // Tutup keyboard
     FocusScope.of(context).unfocus();
 
     context.read<AuthCubit>().verifyOtpAndLogin(
@@ -90,6 +91,8 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isOtpFilled = _otpController.text.length == _otpLength;
+
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -105,7 +108,6 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
       },
       builder: (context, state) {
         final isLoading = state is AuthLoading;
-        final isOtpFilled = _otpController.text.length == _otpLength;
 
         return Scaffold(
           backgroundColor: Colors.white,
@@ -124,7 +126,8 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
             ),
             title: Text(
               'Verifikasi Email',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.black,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -148,15 +151,16 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Bagian Atas
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             RichText(
                               text: TextSpan(
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   color: Colors.black87,
                                   fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
                                   height: 1.5,
                                 ),
                                 children: [
@@ -166,8 +170,9 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                                   ),
                                   TextSpan(
                                     text: widget.email,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.black,
                                     ),
                                   ),
@@ -177,34 +182,19 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                             SizedBox(height: 32.h),
                             Text(
                               'Kode Verifikasi',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.grey.shade600,
                                 fontSize: 13.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             SizedBox(height: 12.h),
 
-                            // Custom OTP Input (Overlapping TextField with Boxes)
+                            // Custom OTP Input
                             Stack(
                               children: [
-                                // TextField Asli (Transparan/Tersembunyi) tapi memunculkan keyboard default Android
-                                Positioned.fill(
-                                  child: Opacity(
-                                    opacity: 0.0,
-                                    child: TextField(
-                                      controller: _otpController,
-                                      focusNode: _focusNode,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: _otpLength,
-                                      autofocus: true,
-                                      onChanged: (val) {
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                ),
-
-                                // UI Kotak-Kotak OTP
+                                // Visual OTP boxes (behind, display only)
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -220,48 +210,57 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                                                 text.length == _otpLength));
                                     final hasValue = char.isNotEmpty;
 
-                                    return GestureDetector(
-                                      onTap: () {
-                                        _focusNode.requestFocus();
-                                        // Pindahkan kursor ke ujung
-                                        _otpController.selection =
-                                            TextSelection.fromPosition(
-                                              TextPosition(
-                                                offset:
-                                                    _otpController.text.length,
-                                              ),
-                                            );
-                                      },
-                                      child: AnimatedContainer(
-                                        duration: const Duration(milliseconds: 200),
-                                        width: 64.w,
-                                        height: 64.w,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            8.r,
-                                          ),
-                                          border: Border.all(
-                                            color: hasValue || isFocused
-                                                ? const Color(0xFF00A735)
-                                                : Colors.grey.shade300,
-                                            width: hasValue || isFocused
-                                                ? 2
-                                                : 1,
-                                          ),
+                                    return AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      width: 64.w,
+                                      height: 64.w,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(
+                                          8.r,
                                         ),
-                                        child: Text(
-                                          char,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 28.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                          ),
+                                        border: Border.all(
+                                          color: hasValue || isFocused
+                                              ? const Color(0xFF00A735)
+                                              : Colors.grey.shade300,
+                                          width: hasValue || isFocused ? 2 : 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        char,
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
+                                          fontSize: 28.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     );
                                   }),
+                                ),
+
+                                // Real TextField on top — receives taps and
+                                // manages focus + keyboard natively via the
+                                // platform channel, so it works reliably
+                                // after app resume (e.g., from email app).
+                                Positioned.fill(
+                                  child: Opacity(
+                                    opacity: 0.0,
+                                    child: TextField(
+                                      controller: _otpController,
+                                      focusNode: _focusNode,
+                                      keyboardType: TextInputType.number,
+                                      maxLength: _otpLength,
+                                      autofocus: true,
+                                      decoration: const InputDecoration(
+                                        counterText: '',
+                                        border: InputBorder.none,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -270,9 +269,11 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                             Text(
                               'Tidak menerima kode verifikasi?',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.grey.shade600,
                                 fontSize: 13.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                             SizedBox(height: 8.h),
@@ -285,11 +286,12 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                                     ? 'Kirim ulang dalam 00:${_resendCooldown.toString().padLeft(2, '0')}'
                                     : 'Kirim ulang',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   color: _resendCooldown > 0
                                       ? Colors.black
                                       : const Color(0xFF00A735),
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 13.sp,
                                 ),
                               ),
@@ -297,7 +299,7 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                           ],
                         ),
 
-                        // Bagian Bawah (Tombol Verifikasi)
+                        // Verify button
                         Padding(
                           padding: EdgeInsets.only(top: 24.h),
                           child: SizedBox(
@@ -332,9 +334,10 @@ class _RegisterOtpScreenState extends State<RegisterOtpScreen> {
                                     )
                                   : Text(
                                       'Verifikasi',
-                                      style: GoogleFonts.outfit(
+                                      style: TextStyle(
+                                        fontFamily: 'PlusJakartaSans',
                                         fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                             ),

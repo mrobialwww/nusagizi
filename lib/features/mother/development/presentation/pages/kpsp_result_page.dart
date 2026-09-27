@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/router.dart';
@@ -83,7 +82,7 @@ class KpspResultPage extends StatelessWidget {
 
   String _summaryDesc(String apiStatus) {
     if (apiStatus.toLowerCase().contains('sesuai usia')) {
-      return 'Hebat! Perkembangan $childName saat ini sesuai dengan tahap umurnya. Terus berikan stimulasi yang menyenangkan ya Bunda.';
+      return 'Hebat! Perkembangan $childName saat ini sesuai dengan tahap umurnya. Terus berikan stimulasi yang menyenangkan yaa.';
     }
     if (apiStatus.toLowerCase().contains('meragukan')) {
       return 'Perkembangan $childName perlu dipantau lebih lanjut. Coba lakukan stimulasi di area yang belum optimal.';
@@ -133,7 +132,9 @@ class KpspResultPage extends StatelessWidget {
           child: BlocBuilder<KpspResultCubit, KpspResultState>(
             builder: (context, state) {
               if (state is KpspResultLoading || state is KpspResultInitial) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF00A735)),
+                );
               }
               if (state is KpspResultError) {
                 return Center(
@@ -141,7 +142,9 @@ class KpspResultPage extends StatelessWidget {
                     padding: EdgeInsets.all(16.w),
                     child: Text(
                       state.message,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         color: Colors.red,
                         fontSize: 16.sp,
                       ),
@@ -207,8 +210,9 @@ class KpspResultPage extends StatelessWidget {
                 SizedBox(width: 4.w),
                 Text(
                   detail.status,
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w600,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
                     fontSize: 12.sp,
                     color: Colors.white,
                   ),
@@ -223,8 +227,9 @@ class KpspResultPage extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '${detail.kpspScore}',
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w800,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w700,
                     fontSize: 52.sp,
                     color: Colors.black87,
                     height: 1,
@@ -232,8 +237,9 @@ class KpspResultPage extends StatelessWidget {
                 ),
                 TextSpan(
                   text: '/${detail.kpspAnswersCount}',
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w500,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w600,
                     fontSize: 20.sp,
                     color: Colors.black45,
                   ),
@@ -244,8 +250,9 @@ class KpspResultPage extends StatelessWidget {
           SizedBox(height: 8.h),
           Text(
             _summaryTitle(detail.status),
-            style: GoogleFonts.outfit(
-              fontWeight: FontWeight.w700,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w600,
               fontSize: 18.sp,
               color: Colors.black87,
             ),
@@ -255,7 +262,9 @@ class KpspResultPage extends StatelessWidget {
           Text(
             _summaryDesc(detail.status),
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w600,
               fontSize: 13.sp,
               color: Colors.black54,
               height: 1.5,
@@ -293,8 +302,9 @@ class KpspResultPage extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 'Rincian Domain',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
                   fontSize: 16.sp,
                   color: Colors.black87,
                 ),
@@ -363,10 +373,11 @@ class KpspResultPage extends StatelessWidget {
               children: [
                 Text(
                   _mapDomainName(domainLabel),
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
                     color: Colors.black54,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -374,8 +385,9 @@ class KpspResultPage extends StatelessWidget {
                 SizedBox(height: 2.h),
                 Text(
                   '$score/$total',
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w700,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w600,
                     fontSize: 16.sp,
                     color: Colors.black87,
                   ),
@@ -413,8 +425,9 @@ class KpspResultPage extends StatelessWidget {
               SizedBox(width: 8.w),
               Text(
                 'Rekomendasi Selanjutnya',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
                   fontSize: 16.sp,
                   color: Colors.black87,
                 ),
@@ -467,7 +480,8 @@ class KpspResultPage extends StatelessWidget {
                           children: [
                             Text(
                               rec.title,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14.sp,
                                 color: Colors.black87,
@@ -477,7 +491,9 @@ class KpspResultPage extends StatelessWidget {
                               SizedBox(height: 6.h),
                               Text(
                                 rec.actionText,
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 12.sp,
                                   color: Colors.black54,
                                   height: 1.5,
@@ -598,8 +614,9 @@ class KpspResultPage extends StatelessWidget {
               child: Text(
                 'Selesai',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   fontSize: 15.sp,
                   color: Colors.white,
                 ),
@@ -645,8 +662,9 @@ class KpspResultPage extends StatelessWidget {
         child: Text(
           'Ulangi Asesmen',
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w600,
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
             fontSize: 15.sp,
             color: _green,
           ),
@@ -679,8 +697,9 @@ class KpspResultPage extends StatelessWidget {
         child: Text(
           'Profil Perkembangan',
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w600,
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
             fontSize: 15.sp,
             color: Colors.white,
           ),

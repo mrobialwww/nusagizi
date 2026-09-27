@@ -1,5 +1,5 @@
-import 'package:auth0_flutter/auth0_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+﻿import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:nusagizi/core/env.dart';
 import 'package:get_it/get_it.dart';
 import 'package:nusagizi/features/caregiver/home/domain/usecases/get_caregiver_recipe_detail_usecase.dart';
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_recipe_detail_cubit.dart';
@@ -36,6 +36,7 @@ import 'package:nusagizi/features/mother/home/data/repositories/mother_home_repo
 import 'package:nusagizi/features/mother/home/domain/repositories/mother_home_repository.dart';
 import 'package:nusagizi/features/mother/home/domain/usecases/get_children_summary_usecase.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/daily_focus_cubit.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_cubit.dart';
 
 // Caregiver Home Imports
@@ -196,9 +197,10 @@ import 'package:nusagizi/features/mother/social/presentation/cubit/contacts_cubi
 import 'package:nusagizi/features/mother/social/presentation/cubit/gallery_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/photo_detail_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/review_photos_cubit.dart';
-import 'package:nusagizi/features/mother/social/domain/usecases/edit_child_photo_usecase.dart';
-import 'package:nusagizi/features/mother/social/presentation/cubit/edit_child_photo_cubit.dart';
+import 'package:nusagizi/features/mother/social/domain/usecases/review_child_photo_usecase.dart';
+import 'package:nusagizi/features/mother/social/presentation/cubit/review_child_photo_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/create_child_photo_cubit.dart';
+import 'package:nusagizi/features/mother/social/presentation/cubit/retake_photo_cubit.dart';
 
 // Caregiver Social Imports
 import 'package:nusagizi/features/caregiver/home/data/datasources/social_caregiver_remote_datasource.dart';
@@ -218,12 +220,12 @@ Future<void> initDependencies() async {
 
   // Auth0 Singleton
   sl.registerLazySingleton<Auth0>(
-    () => Auth0(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!),
+    () => Auth0(Env.auth0Domain, Env.auth0ClientId),
   );
 
   // Dio Singleton
   sl.registerLazySingleton<Dio>(() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.env['BASE_URL'] ?? ''));
+    final dio = Dio(BaseOptions(baseUrl: Env.baseUrl));
 
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -578,6 +580,7 @@ Future<void> initDependencies() async {
 
   // Mother Home Cubits
   sl.registerLazySingleton(() => ChildrenCacheCubit());
+  sl.registerLazySingleton(() => DailyFocusCubit());
   sl.registerFactory(
     () => MotherHomeCubit(
       getChildrenSummaryUseCase: sl(),
@@ -801,7 +804,7 @@ Future<void> initDependencies() async {
     () => GetContactChildPhotosUseCase(repository: sl()),
   );
   sl.registerLazySingleton(() => GetPhotoDetailUseCase(repository: sl()));
-  sl.registerLazySingleton(() => EditChildPhotoUseCase(sl()));
+  sl.registerLazySingleton(() => ReviewChildPhotoUseCase(sl()));
   sl.registerLazySingleton(() => CreateChildPhotoUseCase(sl()));
 
   sl.registerFactory(
@@ -815,7 +818,9 @@ Future<void> initDependencies() async {
     ),
   );
   sl.registerFactory(() => PhotoDetailCubit(getPhotoDetailUseCase: sl()));
-  sl.registerFactory(() => EditChildPhotoCubit(editChildPhotoUseCase: sl()));
+  sl.registerFactory(
+    () => ReviewChildPhotoCubit(reviewChildPhotoUseCase: sl()),
+  );
   sl.registerFactory(() => ReviewPhotosCubit(sl()));
   sl.registerFactory(
     () => CreateChildPhotoCubit(
@@ -823,4 +828,5 @@ Future<void> initDependencies() async {
       createChildPhotoUseCase: sl(),
     ),
   );
+  sl.registerFactory(() => RetakePhotoCubit(uploadImageUseCase: sl()));
 }

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_state.dart';
@@ -35,7 +34,8 @@ class ProfileMotherPage extends StatelessWidget {
               SizedBox(height: 16.h),
               Text(
                 'Profil',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -46,13 +46,13 @@ class ProfileMotherPage extends StatelessWidget {
               BlocBuilder<UserProfileCubit, UserProfileState>(
                 builder: (context, state) {
                   String? photoUrl;
-                  String name = '—';
                   if (state is UserProfileLoaded) {
                     photoUrl = state.profile.photoUrl;
-                    name = state.profile.fullName;
                   }
 
                   return Container(
+                    width: 90.r,
+                    height: 90.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -65,26 +65,30 @@ class ProfileMotherPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: CircleAvatar(
-                      radius: 45.r,
-                      backgroundColor:
-                          ImageHelper.getSafeImageProvider(photoUrl) == null
-                          ? ImageHelper.getAvatarColor(name)
-                          : Colors.white,
-                      backgroundImage: ImageHelper.getSafeImageProvider(
-                        photoUrl,
-                      ),
-                      child: ImageHelper.getSafeImageProvider(photoUrl) == null
-                          ? Text(
-                              ImageHelper.getInitials(name),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 36.sp,
-                              ),
-                            )
-                          : null,
-                    ),
+                    child:
+                        (state is UserProfileLoading ||
+                            state is UserProfileInitial)
+                        ? Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: EdgeInsets.all(30.r),
+                            child: const CircularProgressIndicator(
+                              color: Color(0xFF00A735),
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 45.r,
+                            backgroundColor: Colors.white,
+                            backgroundImage:
+                                ImageHelper.getSafeImageProvider(photoUrl) ??
+                                ImageHelper.getDefaultUserImage(
+                                  state is UserProfileLoaded
+                                      ? state.profile.gender
+                                      : null,
+                                ),
+                          ),
                   );
                 },
               ),
@@ -102,17 +106,20 @@ class ProfileMotherPage extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
                         email,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
@@ -254,7 +261,8 @@ class ProfileMotherPage extends StatelessWidget {
                         ),
                         label: Text(
                           'Keluar',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: const Color(0xFF00A735),
                             fontWeight: FontWeight.w600,
                             fontSize: 15.sp,

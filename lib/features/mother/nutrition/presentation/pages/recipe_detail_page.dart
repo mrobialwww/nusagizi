@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/utils/number_extension.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
@@ -62,7 +61,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 backgroundColor: const Color(0xFF00A735),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             );
@@ -74,7 +73,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 backgroundColor: Colors.red,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             );
@@ -96,7 +95,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 padding: EdgeInsets.all(32.w),
                 child: Text(
                   state.message,
-                  style: GoogleFonts.outfit(color: Colors.red),
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w400,
+                    color: Colors.red,
+                  ),
                 ),
               ),
             );
@@ -124,7 +127,11 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           return Center(
             child: Text(
               "Tidak ada data resep",
-              style: GoogleFonts.outfit(color: Colors.grey),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w400,
+                color: Colors.grey,
+              ),
             ),
           );
         },
@@ -174,7 +181,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                   ),
                   child: Text(
                     tag,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.grey[700],
@@ -199,7 +207,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           SizedBox(height: 16.h),
           Text(
             data.name,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
@@ -209,7 +218,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
             SizedBox(height: 8.h),
             Text(
               data.description,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w400,
                 fontSize: 14.sp,
                 color: Colors.grey[600],
                 height: 1.5,
@@ -235,7 +246,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           children: [
             Text(
               "Informasi Gizi",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -295,7 +307,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           SizedBox(height: 8.h),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
@@ -303,7 +316,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           ),
           Text(
             label,
-            style: GoogleFonts.outfit(fontSize: 10.sp, color: Colors.grey),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w400,
+              fontSize: 10.sp,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/development/domain/entities/kpsp_question.dart';
@@ -139,33 +138,41 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
         ),
         title: Text(
           'Keluar dari Asesmen?',
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.w700,
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w600,
             fontSize: 16.sp,
           ),
         ),
         content: Text(
           'Progress Anda akan hilang jika keluar sekarang.',
-          style: GoogleFonts.outfit(fontSize: 14.sp, color: Colors.black54),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            fontSize: 14.sp,
+            color: Colors.black54,
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () => ctx.pop(false),
             child: Text(
               'Lanjutkan',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: _green,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
+            onPressed: () => ctx.pop(true),
             child: Text(
               'Keluar',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.red,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -251,7 +258,8 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
                       ),
                       child: Text(
                         'Keluar',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontWeight: FontWeight.w600,
                           fontSize: 12.sp,
                           color: Colors.red,
@@ -291,14 +299,25 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
             children: [
               Text(
                 state.message,
-                style: GoogleFonts.outfit(color: Colors.red, fontSize: 16.sp),
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                  fontSize: 16.sp,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16.h),
               ElevatedButton(
                 onPressed: () =>
                     cubit.loadQuestions(_parseMonthTarget(widget.childAge)),
-                child: Text('Coba Lagi', style: GoogleFonts.outfit()),
+                child: Text(
+                  'Coba Lagi',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),
@@ -343,17 +362,20 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
           color: Colors.white,
           padding: EdgeInsets.fromLTRB(16.w, 0.h, 16.w, 12.h),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Pertanyaan ${_currentIndex + 1}/${_questions.length}',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   fontSize: 12.sp,
                   color: Colors.black54,
                 ),
               ),
               SizedBox(width: 8.w),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF0F0F0),
                   borderRadius: BorderRadius.circular(20.r),
@@ -362,9 +384,10 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
                   _questions.isNotEmpty
                       ? domainLabel(_questions[_currentIndex].domain)
                       : '',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black54,
                   ),
                 ),
@@ -426,8 +449,9 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
                   child: Text(
                     question.question.replaceAll('[nama]', widget.childName),
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w700,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w600,
                       fontSize: 15.sp,
                       color: Colors.black87,
                       height: 1.4,
@@ -443,7 +467,7 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
                       child: Image(
                         image: safeProvider,
                         width: double.infinity,
-                        height: 200,
+                        height: 200.h,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             _buildFallbackImage(index),
@@ -497,8 +521,8 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 18,
-              height: 18,
+              width: 18.w,
+              height: 18.w,
               decoration: const BoxDecoration(
                 color: Color(0xFF00A735),
                 shape: BoxShape.circle,
@@ -508,7 +532,8 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
             SizedBox(width: 8.w),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontWeight: FontWeight.w600,
                 fontSize: 14.sp,
                 color: Colors.black87,
@@ -540,7 +565,7 @@ class _KpspAssessmentPageState extends State<KpspAssessmentPage> {
     }
 
     return Container(
-      height: 200,
+      height: 200.h,
       width: double.infinity,
       color: const Color(0xFFF0F0F0),
       child: Image.asset(assetPath, fit: BoxFit.cover),

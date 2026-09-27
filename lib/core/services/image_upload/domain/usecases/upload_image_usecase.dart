@@ -10,6 +10,7 @@ class UploadImageParams {
   final String category;
   final String contentType;
   final String? ownerId;
+  final String? existingObjectKey;
   final UploadProgressCallback? onProgress;
 
   const UploadImageParams({
@@ -17,6 +18,7 @@ class UploadImageParams {
     required this.category,
     required this.contentType,
     this.ownerId,
+    this.existingObjectKey,
     this.onProgress,
   });
 }
@@ -32,6 +34,7 @@ class UploadImageUseCase implements UseCase<String, UploadImageParams> {
       category: params.category,
       contentType: params.contentType,
       ownerId: params.ownerId,
+      existingObjectKey: params.existingObjectKey,
     );
 
     return presignResult.fold((failure) async => Left(failure), (

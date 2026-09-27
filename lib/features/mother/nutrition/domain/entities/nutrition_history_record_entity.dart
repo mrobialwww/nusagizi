@@ -2,8 +2,7 @@ import 'package:equatable/equatable.dart';
 
 class NutritionHistoryRecordEntity extends Equatable {
   final String dateStr;
-  final bool isTargetReached;
-  final bool isSickCondition;
+  final String status;
   final String intakeLabel;
   final String intakeSubLabel;
   final double totalKcal;
@@ -14,8 +13,7 @@ class NutritionHistoryRecordEntity extends Equatable {
 
   const NutritionHistoryRecordEntity({
     required this.dateStr,
-    required this.isTargetReached,
-    required this.isSickCondition,
+    required this.status,
     required this.intakeLabel,
     required this.intakeSubLabel,
     required this.totalKcal,
@@ -28,8 +26,7 @@ class NutritionHistoryRecordEntity extends Equatable {
   @override
   List<Object?> get props => [
     dateStr,
-    isTargetReached,
-    isSickCondition,
+    status,
     intakeLabel,
     intakeSubLabel,
     totalKcal,

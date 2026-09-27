@@ -773,6 +773,7 @@ Contoh: usia 7 bulan -> `month_target=6`, `next_check_date` = usia 9 bulan (2 bu
 - **Query Params**: `-` (tidak ada)
 - **Request Body**: `-` (tidak ada)
 - **Response Body (200)**:
+  _Jika data ditemukan:_
 
 ```json
 {
@@ -807,6 +808,12 @@ Contoh: usia 7 bulan -> `month_target=6`, `next_check_date` = usia 9 bulan (2 bu
 }
 ```
 
+_Jika belum ada laporan perkembangan sama sekali:_
+
+```json
+null
+```
+
 | Field                          | Type           | Keterangan                                                                                 |
 | ------------------------------ | -------------- | ------------------------------------------------------------------------------------------ |
 | id                             | UUID           |                                                                                            |
@@ -820,12 +827,11 @@ Contoh: usia 7 bulan -> `month_target=6`, `next_check_date` = usia 9 bulan (2 bu
 
 - **Response Error**:
 
-| Status | Kasus                                             |
-| ------ | ------------------------------------------------- |
-| 403    | `child_id` bukan milik user yang login            |
-| 404    | belum ada `child_development_reports` sama sekali |
+| Status | Kasus                                  |
+| ------ | -------------------------------------- |
+| 403    | `child_id` bukan milik user yang login |
 
-- **Catatan [FIX v4]**: v3 mengembalikan raw list jawaban per domain lalu FE yang menghitung `total_question`/`true_answer`. Diubah jadi agregasi di query (`GROUP BY developmental_domain`, `COUNT(*)` untuk `total_question`, `COUNT(*) FILTER (WHERE answer = true)` untuk `true_answer`) — lebih baik dari sisi performa karena payload jauh lebih kecil dan logic agregasi cukup ditulis sekali di backend, tidak diulang di tiap platform client (mobile/web).
+- **Catatan [FIX v4]**: v3 mengembalikan raw list jawaban per domain lalu FE yang menghitung `total_question`/`true_answer`. Diubah jadi agregasi di query (`GROUP BY developmental_domain`, `COUNT(*)` untuk `total_question`, `COUNT(*) FILTER (WHERE answer = true)` untuk `true_answer`) — lebih baik dari sisi performa karena payload jauh lebih kecil dan logic agregasi cukup ditulis sekali di backend, tidak diulang di tiap platform client (mobile/web). Data akan mengembalikan `null` (200) apabila anak belum memiliki laporan.
 
 ### 20. Get riwayat asesmen KPSP
 
@@ -1477,6 +1483,7 @@ Contoh: usia 7 bulan -> `month_target=6`, `next_check_date` = usia 9 bulan (2 bu
         "protein": 20,
         "fat": 15,
         "carbohydrate": 100,
+        "status": "Normal",
         "meal_times": ["breakfast", "lunch"]
     }
 ]
@@ -1487,6 +1494,7 @@ Contoh: usia 7 bulan -> `month_target=6`, `next_check_date` = usia 9 bulan (2 bu
 | id                                | UUID          | `child_nutrition_reports.id`                                                                                                                                     |
 | created_at                        | datetime      |                                                                                                                                                                  |
 | calories/protein/fat/carbohydrate | integer       | aktual — **[FIX v4]** field `target_*` dihapus dari response ini                                                                                                 |
+| status                            | string        | Ditentukan dari pencapaian >= 90% target makronutrisi harian (format: Normal, Kurang Optimal, Berisiko, Sangat Buruk). Sama dengan endpoint 29.                  |
 | meal_times                        | array\<enum\> | **[FIX v4]** `recipes.meal_time` dari resep yang `portions_consumed > 0` pada hari itu, join `child_nutrition_reports` -> `child_nutrition_recipes` -> `recipes` |
 
 - **Response Error**:
@@ -2014,19 +2022,19 @@ WHERE c.mother_profile_id = ?
 ### 53. [BARU] Get riwayat akses caregiver yang sudah dicabut (POV mother)
 
 - **Method & Path**: `GET /mother-profiles/caregiver-engagements/revoked`
-- **Authorization**: sama seperti endpoint 53
+- **Authorization**: sama seperti endpoint 52
 - **Path Params**: `-` (tidak ada)
 - **Query Params**: `-` (tidak ada)
 - **Request Body**: `-` (tidak ada)
-- **Response Body (200)**: sama seperti endpoint 53 (termasuk `phone_number`), tapi filter `ce.deleted_at IS NOT NULL`
+- **Response Body (200)**: sama seperti endpoint 52 (termasuk `phone_number`), tapi filter `ce.deleted_at IS NOT NULL`
 - **Response Error**:
 
 | Status | Kasus                       |
 | ------ | --------------------------- |
 | 403    | bukan milik user yang login |
 
-- **Contoh query**: sama seperti endpoint 53, ganti baris terakhir jadi `AND ce.deleted_at IS NOT NULL;`
-- **Catatan**: celah dari v3 — endpoint 53 hanya menampilkan akses yang masih aktif, tidak ada cara melihat riwayat caregiver yang aksesnya sudah dicabut.
+- **Contoh query**: sama seperti endpoint 52, ganti baris terakhir jadi `AND ce.deleted_at IS NOT NULL;`
+- **Catatan**: celah dari v3 — endpoint 52 hanya menampilkan akses yang masih aktif, tidak ada cara melihat riwayat caregiver yang aksesnya sudah dicabut.
 
 ### 54. Hapus akses caregiver
 

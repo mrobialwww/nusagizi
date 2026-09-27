@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/config/assets/app_vectors.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
@@ -13,10 +12,7 @@ class EmailSentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const HeaderBasic(
-        backgroundColor: Colors.white,
-        title: '',
-      ),
+      appBar: const HeaderBasic(backgroundColor: Colors.white, title: ''),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28.w),
         child: Column(
@@ -25,7 +21,8 @@ class EmailSentPage extends StatelessWidget {
             SizedBox(height: 24.h),
             Text(
               "Email telah dikirim!",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
@@ -35,8 +32,10 @@ class EmailSentPage extends StatelessWidget {
             Text(
               "Silakan periksa kotak masuk Anda dan klik tautan\nyang diterima untuk mereset kata sandi",
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
                 color: Colors.black54,
                 height: 1.5,
               ),
@@ -44,10 +43,7 @@ class EmailSentPage extends StatelessWidget {
             SizedBox(height: 60.h),
 
             // Email sent illustration
-            SvgPicture.asset(
-              AppVectors.emailSent,
-              height: 200,
-            ),
+            SvgPicture.asset(AppVectors.emailSent, height: 200),
             const Spacer(),
 
             // Masuk button
@@ -70,9 +66,10 @@ class EmailSentPage extends StatelessWidget {
                 ),
                 child: Text(
                   "Masuk",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -85,8 +82,10 @@ class EmailSentPage extends StatelessWidget {
               children: [
                 Text(
                   "Belum menerima tautan? ",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black54,
                   ),
                 ),
@@ -94,9 +93,10 @@ class EmailSentPage extends StatelessWidget {
                   onTap: () => context.pop(),
                   child: Text(
                     "Kirim Kembali",
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: const Color(0xFF00A735),
                     ),
                   ),
@@ -109,6 +109,4 @@ class EmailSentPage extends StatelessWidget {
       ),
     );
   }
-
-
 }

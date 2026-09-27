@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class NoteSelectionSheet extends StatelessWidget {
   final String title;
@@ -26,8 +26,8 @@ class NoteSelectionSheet extends StatelessWidget {
           SizedBox(height: 12.h),
           Center(
             child: Container(
-              width: 40,
-              height: 4,
+              width: 40.w,
+              height: 4.h,
               decoration: BoxDecoration(
                 color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2.r),
@@ -39,7 +39,8 @@ class NoteSelectionSheet extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Text(
               title,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.black87,
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -62,7 +63,7 @@ class NoteSelectionSheet extends StatelessWidget {
                 return InkWell(
                   onTap: () {
                     onSelected(item);
-                    Navigator.pop(context);
+                    context.pop();
                   },
                   child: Padding(
                     padding: EdgeInsets.symmetric(
@@ -71,12 +72,13 @@ class NoteSelectionSheet extends StatelessWidget {
                     ),
                     child: Text(
                       item,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.black87,
                         fontSize: 14.sp,
                         fontWeight: item == selectedValue
                             ? FontWeight.w600
-                            : FontWeight.w400,
+                            : FontWeight.w500,
                       ),
                     ),
                   ),

@@ -42,4 +42,8 @@ class GrowthAnalysesCubit extends Cubit<GrowthAnalysesState> {
       emit(GrowthAnalysesLoaded(data));
     });
   }
+
+  /// Hapus semua cache agar fetch() berikutnya selalu mengambil data terbaru dari API.
+  /// Gunakan ini setelah operasi CRUD (tambah/edit data pertumbuhan).
+  void invalidateCache() => _cache.clear();
 }

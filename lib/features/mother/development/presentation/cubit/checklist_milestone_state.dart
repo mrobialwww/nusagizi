@@ -28,7 +28,7 @@ class ChecklistMilestoneLoaded extends ChecklistMilestoneState {
 class ChecklistMilestoneError extends ChecklistMilestoneState {
   final String message;
 
-  const ChecklistMilestoneError({required this.message});
+  const ChecklistMilestoneError(this.message);
 
   @override
   List<Object?> get props => [message];

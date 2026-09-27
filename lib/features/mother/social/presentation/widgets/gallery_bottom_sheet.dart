@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/features/mother/social/domain/entities/child_photo_entity.dart';
 import 'package:nusagizi/router.dart';
@@ -24,8 +23,11 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<GalleryCubit>()..fetchAllPhotos(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => sl<GalleryCubit>()..fetchAllPhotos()),
+        BlocProvider(create: (_) => sl<ContactsCubit>()..fetchContacts()),
+      ],
       child: Builder(
         builder: (context) {
           return Container(
@@ -56,12 +58,13 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
     return GestureDetector(
       onTap: () async {
         final galleryCubit = context.read<GalleryCubit>();
+        final contactsCubit = context.read<ContactsCubit>();
         final selectedTitle = await showDialog<String>(
           context: context,
           builder: (ctx) => MultiBlocProvider(
             providers: [
               BlocProvider.value(value: galleryCubit),
-              BlocProvider(create: (_) => sl<ContactsCubit>()..fetchContacts()),
+              BlocProvider.value(value: contactsCubit),
             ],
             child: const GalleryFilterDialog(),
           ),
@@ -84,10 +87,11 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
           children: [
             Text(
               currentFilterTitle,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white,
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
             SizedBox(width: 8.w),
@@ -108,7 +112,11 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
             return Center(
               child: Text(
                 state.message,
-                style: const TextStyle(color: Colors.red),
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
               ),
             );
           } else if (state is GalleryLoaded) {
@@ -130,7 +138,11 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
       return Center(
         child: Text(
           'Belum ada foto',
-          style: GoogleFonts.inter(color: Colors.white54),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            color: Colors.white54,
+          ),
         ),
       );
     }
@@ -192,8 +204,9 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
                     Icon(Icons.photo_library, color: Colors.white, size: 14.sp),
                     SizedBox(width: 4.w),
                     Text(
-                      'Tinjau: ${reviewPhotos.length}',
-                      style: GoogleFonts.inter(
+                      'Tinjau Foto: ${reviewPhotos.length}',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.white,
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
@@ -289,10 +302,10 @@ class _GalleryBottomSheetState extends State<GalleryBottomSheet> {
           child: Padding(
             padding: EdgeInsets.only(top: 20.h),
             child: GestureDetector(
-              onTap: () => Navigator.pop(context),
+              onTap: () => context.pop(),
               child: Container(
-                width: 60.w,
-                height: 60.w,
+                width: 50.w,
+                height: 50.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),

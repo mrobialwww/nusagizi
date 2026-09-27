@@ -5,14 +5,16 @@ class ChildHeaderEntity extends Equatable {
   final String name;
   final String age;
   final String imagePath;
+  final String gender;
 
   const ChildHeaderEntity({
     required this.id,
     required this.name,
     required this.age,
     required this.imagePath,
+    required this.gender,
   });
 
   @override
-  List<Object?> get props => [id, name, age, imagePath];
+  List<Object?> get props => [id, name, age, imagePath, gender];
 }

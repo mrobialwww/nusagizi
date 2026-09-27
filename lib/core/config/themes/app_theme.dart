@@ -5,6 +5,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.all(
+          const TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w400,
+            fontSize: 12,
+          ),
+        ),
+      ),
     );
   }
 

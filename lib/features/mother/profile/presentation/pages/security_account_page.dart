@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
@@ -32,7 +31,8 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
           children: [
             Text(
               "Ubah Kata Sandi",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -41,7 +41,15 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
             SizedBox(height: 24.h),
 
             // Kata Sandi Lama
-            _buildLabel("Kata Sandi Lama"),
+            Text(
+              "Kata Sandi Lama",
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 12.sp,
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8.h),
             _buildTextField(
               hint: "******",
@@ -55,7 +63,15 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
             SizedBox(height: 16.h),
 
             // Kata Sandi Baru
-            _buildLabel("Kata Sandi Baru"),
+            Text(
+              "Kata Sandi Baru",
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 12.sp,
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8.h),
             _buildTextField(
               hint: "******",
@@ -69,7 +85,15 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
             SizedBox(height: 16.h),
 
             // Konfirmasi Kata Sandi Baru
-            _buildLabel("Konfirmasi Kata Sandi Baru"),
+            Text(
+              "Konfirmasi Kata Sandi Baru",
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontSize: 12.sp,
+                color: Colors.black54,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: 8.h),
             _buildTextField(
               hint: "******",
@@ -89,7 +113,8 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
               },
               child: Text(
                 "Lupa kata sandi?",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w500,
                   color: const Color(0xFF00A735),
@@ -98,17 +123,6 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.outfit(
-        fontSize: 12.sp,
-        color: Colors.black54,
-        fontWeight: FontWeight.w500,
       ),
     );
   }
@@ -126,13 +140,19 @@ class _SecurityAccountPageState extends State<SecurityAccountPage> {
       ),
       child: TextField(
         obscureText: obscureText,
-        style: GoogleFonts.outfit(fontSize: 14.sp),
+        style: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.outfit(
+          hintStyle: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontSize: 14.sp,
             color: Colors.black38,
             letterSpacing: 2,
+            fontWeight: FontWeight.w500,
           ),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(

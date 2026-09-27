@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
@@ -58,19 +58,22 @@ class GalleryFilterDialog extends StatelessWidget {
     BuildContext context,
     IconData? icon,
     String? imageUrl,
-    String title,
+    String contactName,
     String? contactId,
   ) {
     return InkWell(
       onTap: () {
-        if (contactId == null && title == 'Semua orang') {
+        if (contactId == null && contactName == 'Semua orang') {
           context.read<GalleryCubit>().fetchAllPhotos();
-        } else if (contactId == null && title == 'Anda') {
+        } else if (contactId == null && contactName == 'Anda') {
           context.read<GalleryCubit>().fetchOwnPhotos();
         } else if (contactId != null) {
-          context.read<GalleryCubit>().fetchContactPhotos(contactId, title);
+          context.read<GalleryCubit>().fetchContactPhotos(
+            contactId,
+            contactName,
+          );
         }
-        Navigator.pop(context, title);
+        context.pop(contactName);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -95,11 +98,12 @@ class GalleryFilterDialog extends StatelessWidget {
             SizedBox(width: 16.w),
             Expanded(
               child: Text(
-                title,
-                style: GoogleFonts.inter(
+                contactName,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   color: Colors.white,
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

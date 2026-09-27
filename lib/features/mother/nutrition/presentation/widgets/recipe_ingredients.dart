@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/entities/recipe_detail_entity.dart';
 
 class RecipeIngredients extends StatelessWidget {
@@ -32,7 +31,8 @@ class RecipeIngredients extends StatelessWidget {
             children: [
               Text(
                 "Bahan Utama",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -40,7 +40,12 @@ class RecipeIngredients extends StatelessWidget {
               ),
               Text(
                 "$allItemsCount item",
-                style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.grey),
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12.sp,
+                  color: Colors.grey,
+                ),
               ),
             ],
           ),
@@ -86,7 +91,8 @@ class RecipeIngredients extends StatelessWidget {
                       children: [
                         Text(
                           item.name.isNotEmpty ? item.name : 'Bahan',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -94,7 +100,9 @@ class RecipeIngredients extends StatelessWidget {
                         ),
                         Text(
                           item.unit,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
                             fontSize: 12.sp,
                             color: Colors.grey,
                           ),
@@ -137,7 +145,8 @@ class RecipeIngredients extends StatelessWidget {
                       children: [
                         Text(
                           spice.name,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -145,7 +154,9 @@ class RecipeIngredients extends StatelessWidget {
                         ),
                         Text(
                           spice.unit,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
                             fontSize: 12.sp,
                             color: Colors.grey,
                           ),

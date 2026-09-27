@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/config/assets/app_vectors.dart';
@@ -41,7 +40,9 @@ class _NotificationPageState extends State<NotificationPage> {
                   child: Text(
                     state.message,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       color: Colors.red,
                       fontSize: 14.sp,
                     ),
@@ -57,12 +58,14 @@ class _NotificationPageState extends State<NotificationPage> {
                     children: [
                       SvgPicture.asset(
                         AppVectors.emptyNotification,
-                        height: 180,
+                        height: 175.h,
                       ),
                       SizedBox(height: 24.h),
                       Text(
-                        'Belum ada notifikasi',
-                        style: GoogleFonts.outfit(
+                        'Belum Ada Notifikasi',
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w400,
                           color: Colors.black54,
                           fontSize: 14.sp,
                         ),
@@ -116,7 +119,8 @@ class _NotificationPageState extends State<NotificationPage> {
                   Expanded(
                     child: Text(
                       notif.title,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.black87,
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w600,
@@ -126,7 +130,9 @@ class _NotificationPageState extends State<NotificationPage> {
                   SizedBox(width: 8.w),
                   Text(
                     displayTime,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w400,
                       color: Colors.black38,
                       fontSize: 12.sp,
                     ),
@@ -136,7 +142,9 @@ class _NotificationPageState extends State<NotificationPage> {
               SizedBox(height: 6.h),
               Text(
                 notif.message,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w400,
                   color: Colors.black54,
                   fontSize: 13.sp,
                   height: 1.4,

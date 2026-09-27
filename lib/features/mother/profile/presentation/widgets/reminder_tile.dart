@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/dashed_line_painter.dart';
 
 class ReminderTile extends StatelessWidget {
@@ -114,7 +113,8 @@ class ReminderTile extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 13.sp,
                               color: Colors.grey,
                               fontWeight: FontWeight.w500,
@@ -123,7 +123,8 @@ class ReminderTile extends StatelessWidget {
                           SizedBox(height: 4.h),
                           Text(
                             time,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 16.sp,
                               color: Colors.black87,
                               fontWeight: FontWeight.w600,
@@ -134,7 +135,7 @@ class ReminderTile extends StatelessWidget {
                       CupertinoSwitch(
                         value: isSwitchedOn,
                         onChanged: onChanged,
-                        activeColor: const Color(0xFF00A735),
+                        activeTrackColor: const Color(0xFF00A735),
                       ),
                     ],
                   ),

@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
@@ -26,10 +25,11 @@ class ReviewPhotosPage extends StatelessWidget {
           ),
           title: Text(
             'Tinjau Foto',
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w600,
               color: Colors.white,
               fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
             ),
           ),
           centerTitle: true,
@@ -42,7 +42,11 @@ class ReviewPhotosPage extends StatelessWidget {
               return Center(
                 child: Text(
                   state.message,
-                  style: GoogleFonts.outfit(color: Colors.red),
+                  style: const TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                  ),
                 ),
               );
             } else if (state is ReviewPhotosLoaded) {
@@ -51,7 +55,11 @@ class ReviewPhotosPage extends StatelessWidget {
                 return Center(
                   child: Text(
                     'Tidak ada foto yang perlu ditinjau.',
-                    style: GoogleFonts.outfit(color: Colors.grey),
+                    style: const TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
                   ),
                 );
               }
@@ -72,7 +80,7 @@ class ReviewPhotosPage extends StatelessWidget {
                   return GestureDetector(
                     onTap: () {
                       context.pushNamed(
-                        AppRoutes.editChildPhoto.name,
+                        AppRoutes.reviewChildPhoto.name,
                         extra: {
                           'photoId': photo.id,
                           'image': imageUrl,

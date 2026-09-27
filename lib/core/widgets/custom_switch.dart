@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomSwitch extends StatelessWidget {
   final bool value;
@@ -12,11 +13,11 @@ class CustomSwitch extends StatelessWidget {
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 48,
-        height: 28,
-        padding: const EdgeInsets.all(2),
+        width: 48.w,
+        height: 28.h,
+        padding: EdgeInsets.all(2.w),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(14.r),
           color: value ? const Color(0xFF00A735) : Colors.white,
           border: Border.all(
             color: value ? const Color(0xFF00A735) : Colors.grey.shade500,
@@ -27,8 +28,8 @@ class CustomSwitch extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           alignment: value ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            width: 22,
-            height: 22,
+            width: 22.w,
+            height: 22.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: value ? Colors.white : Colors.grey.shade500,

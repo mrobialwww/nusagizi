@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
+import 'package:nusagizi/core/config/assets/app_images.dart';
 
 class CaregiverChildSelector extends StatelessWidget {
   final List<Map<String, dynamic>> children;
@@ -67,7 +67,8 @@ class CaregiverChildSelector extends StatelessWidget {
             SizedBox(height: 8.h),
             Text(
               'Scan QR',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 12.sp,
                 color: const Color(0xFF00A735),
                 fontWeight: FontWeight.w600,
@@ -105,7 +106,11 @@ class CaregiverChildSelector extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: 30.r,
-                    backgroundImage: NetworkImage(child['image']),
+                    backgroundImage:
+                        (child['image'] != null &&
+                            child['image'].toString().isNotEmpty)
+                        ? NetworkImage(child['image']) as ImageProvider
+                        : const AssetImage(AppImages.defaultMaleChildProfile),
                   ),
                 ),
               ),
@@ -113,10 +118,11 @@ class CaregiverChildSelector extends StatelessWidget {
             SizedBox(height: 8.h),
             Text(
               child['name'],
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 12.sp,
                 color: isSelected ? const Color(0xFF00A735) : Colors.black87,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],

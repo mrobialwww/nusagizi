@@ -134,8 +134,9 @@ class CaregiverShoppingListCubit
 
   @override
   Map<String, dynamic>? toJson(CaregiverShoppingListState state) {
-    if (state is CaregiverShoppingListLoaded)
+    if (state is CaregiverShoppingListLoaded) {
       return {'checkedMap': state.checkedMap};
+    }
     return null;
   }
 }

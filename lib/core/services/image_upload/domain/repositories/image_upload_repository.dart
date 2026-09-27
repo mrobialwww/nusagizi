@@ -10,6 +10,7 @@ abstract class ImageUploadRepository {
     required String category,
     required String contentType,
     String? ownerId,
+    String? existingObjectKey,
   });
 
   Future<Either<Failure, void>> putFileToStorage({

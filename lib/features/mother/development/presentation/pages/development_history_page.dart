@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nusagizi/core/config/assets/app_vectors.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
 import 'package:nusagizi/features/mother/development/domain/entities/child_development_history_entity.dart';
@@ -24,9 +25,6 @@ class DevelopmentHistoryPage extends StatefulWidget {
 }
 
 class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
-  static const Color _green = Color(0xFF00A735);
-  static const Color _bg = Color(0xFFF5F5F5);
-
   late final DevelopmentHistoryCubit _cubit = sl<DevelopmentHistoryCubit>();
 
   @override
@@ -51,8 +49,11 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bg,
-      appBar: const HeaderBasic(backgroundColor: _bg, title: 'Riwayat Asesmen'),
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: const HeaderBasic(
+        backgroundColor: Color(0xFFF5F5F5),
+        title: 'Riwayat Asesmen',
+      ),
       body: BlocProvider.value(
         value: sl<ChildrenCacheCubit>(),
         child: BlocConsumer<ChildrenCacheCubit, List<ChildHeaderEntity>>(
@@ -62,7 +63,9 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
           },
           builder: (context, childrenList) {
             if (childrenList.isEmpty && widget.selectedChild == null) {
-              return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF00A735)),
+              );
             }
 
             final child = widget.selectedChild ?? childrenList.first;
@@ -73,7 +76,11 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
                   BlocBuilder<DevelopmentHistoryCubit, DevelopmentHistoryState>(
                     builder: (context, state) {
                       if (state is DevelopmentHistoryLoading) {
-                        return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF00A735),
+                          ),
+                        );
                       }
 
                       if (state is DevelopmentHistoryError) {
@@ -82,6 +89,11 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
 
                       if (state is DevelopmentHistoryLoaded) {
                         final history = state.historyData;
+
+                        if (history.isEmpty) {
+                          return _buildEmptyState();
+                        }
+
                         return SingleChildScrollView(
                           padding: EdgeInsets.symmetric(
                             horizontal: 20.w,
@@ -90,30 +102,18 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (history.isEmpty)
-                                Padding(
-                                  padding: EdgeInsets.only(bottom: 24.h),
-                                  child: Text(
-                                    "Belum ada riwayat asesmen.",
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                )
-                              else
-                                ...history.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final item = entry.value;
-                                  return _buildHistoryItem(
-                                    context,
-                                    item,
-                                    child,
-                                    index == 0,
-                                    index == history.length - 1,
-                                    showRetakeButton: index == 0,
-                                  );
-                                }),
+                              ...history.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final item = entry.value;
+                                return _buildHistoryItem(
+                                  context,
+                                  item,
+                                  child,
+                                  index == 0,
+                                  index == history.length - 1,
+                                  showRetakeButton: index == 0,
+                                );
+                              }),
                               if (history.isNotEmpty) SizedBox(height: 24.h),
                               // _buildNewAssessmentCard(context, child),
                             ],
@@ -139,12 +139,6 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
     bool isLast, {
     bool showRetakeButton = true,
   }) {
-    final statusColor = record.status == 'Sesuai Usia'
-        ? _green
-        : (record.status == 'Perkembangan meragukan'
-              ? Colors.orange
-              : Colors.red);
-
     return GestureDetector(
       onTap: () {
         context.pushNamed(
@@ -162,52 +156,47 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
       child: HistoryTimelineCard(
         isFirst: isFirst,
         isLast: isLast,
-        type: HistoryType.kpsp,
-        date: record.createdAt.toIso8601String().substring(
-          0,
-          10,
-        ), // Short date parsing for now
+        date: record.createdAt.toIso8601String().substring(0, 10),
         monthTitle: 'Bulan ${record.monthTarget}',
-        contentWidget: Row(
+        kpspScore: record.kpspScore,
+        status: record.status,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 90.h),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: statusColor, width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                '${record.kpspScore}',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20.sp,
-                  color: statusColor,
-                ),
+            SvgPicture.asset(AppVectors.emptyNote, width: 250.w),
+            SizedBox(height: 24.h),
+            Text(
+              'Belum Ada Riwayat Asesmen',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w600,
+                fontSize: 16.sp,
+                color: Colors.black87,
               ),
             ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    record.status,
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13.sp,
-                      color: statusColor,
-                    ),
-                  ),
-                  Text(
-                    'Asesmen KPSP',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12.sp,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
+            SizedBox(height: 8.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40.w),
+              child: Text(
+                'Pantau tumbuh kembang si kecil dengan klik tombol Mulai Asesmen di bawah untuk memilih metode tes.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14.sp,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
               ),
             ),
           ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/router.dart';
@@ -90,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage>
         }
       },
       builder: (context, state) {
-        final _isLoading = state is AuthLoading;
+        final isLoading = state is AuthLoading;
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: HeaderBasic(
@@ -192,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage>
                             SizedBox(
                               width: double.infinity,
                               height: 50,
-                              child: _isLoading
+                              child: isLoading
                                   ? const Center(
                                       child: CircularProgressIndicator(
                                         color: Color(0xFF00A735),
@@ -213,9 +212,10 @@ class _RegisterPageState extends State<RegisterPage>
                                       ),
                                       child: Text(
                                         'Daftar',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w500,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -233,9 +233,11 @@ class _RegisterPageState extends State<RegisterPage>
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Text(
                               'Atau Daftar dengan',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.grey,
                                 fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -256,7 +258,8 @@ class _RegisterPageState extends State<RegisterPage>
                           ),
                           label: Text(
                             'Masuk dengan Google',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: const Color(0xFF00A735),
                               fontWeight: FontWeight.w500,
                               fontSize: 15.sp,
@@ -269,7 +272,7 @@ class _RegisterPageState extends State<RegisterPage>
                             ),
                             backgroundColor: Colors.white,
                           ),
-                          onPressed: _isLoading ? null : _handleGoogleLogin,
+                          onPressed: isLoading ? null : _handleGoogleLogin,
                         ),
                       ),
 
@@ -281,19 +284,22 @@ class _RegisterPageState extends State<RegisterPage>
                         children: [
                           Text(
                             'Sudah memiliki akun? ',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.grey,
                               fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           GestureDetector(
                             onTap: _navigateToLogin,
                             child: Text(
                               'Masuk',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: const Color(0xFF00A735),
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -317,17 +323,19 @@ class _RegisterPageState extends State<RegisterPage>
       return RichText(
         text: TextSpan(
           text: baseText,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: Colors.black87,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontSize: 14.sp,
           ),
           children: [
             TextSpan(
               text: '*',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.red,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 14.sp,
               ),
             ),
@@ -338,9 +346,10 @@ class _RegisterPageState extends State<RegisterPage>
 
     return Text(
       text,
-      style: GoogleFonts.outfit(
+      style: TextStyle(
+        fontFamily: 'PlusJakartaSans',
         color: Colors.black87,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 14.sp,
       ),
     );
@@ -358,11 +367,19 @@ class _RegisterPageState extends State<RegisterPage>
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: GoogleFonts.outfit(color: Colors.black),
+      style: const TextStyle(
+        fontFamily: 'PlusJakartaSans',
+        color: Colors.black,
+      ),
       validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey, fontSize: 14.sp),
+        hintStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          color: Colors.grey,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
@@ -385,11 +402,12 @@ class _RegisterPageState extends State<RegisterPage>
           borderRadius: BorderRadius.circular(12.r),
           borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
         ),
-        errorStyle: GoogleFonts.outfit(
+        errorStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
           color: Colors.redAccent,
           fontSize: 12.sp,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       ),
     );
   }

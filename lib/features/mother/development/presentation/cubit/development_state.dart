@@ -16,7 +16,7 @@ class DevelopmentLoading extends DevelopmentState {
 class DevelopmentLoaded extends DevelopmentState {
   const DevelopmentLoaded(this.summary);
 
-  final ChildDevelopmentSummaryEntity summary;
+  final ChildDevelopmentSummaryEntity? summary;
 }
 
 class DevelopmentError extends DevelopmentState {

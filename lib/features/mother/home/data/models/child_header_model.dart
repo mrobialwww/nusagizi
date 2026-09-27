@@ -6,6 +6,7 @@ class ChildHeaderModel extends ChildHeaderEntity {
     required super.name,
     required super.age,
     required super.imagePath,
+    required super.gender,
   });
 
   factory ChildHeaderModel.fromJson(Map<String, dynamic> json) {
@@ -15,10 +16,17 @@ class ChildHeaderModel extends ChildHeaderEntity {
       age: json['age'] ?? '',
       imagePath:
           json['photo_url'] as String? ?? json['imagePath'] as String? ?? '',
+      gender: json['gender'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'age': age, 'imagePath': imagePath};
+    return {
+      'id': id,
+      'name': name,
+      'age': age,
+      'imagePath': imagePath,
+      'gender': gender,
+    };
   }
 }

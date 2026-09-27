@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
@@ -59,9 +58,10 @@ class _SelectRolePageState extends State<SelectRolePage> {
                         // Title
                         Text(
                           'Masuk sebagai siapa?',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 24.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black87,
                           ),
                           textAlign: TextAlign.center,
@@ -71,8 +71,10 @@ class _SelectRolePageState extends State<SelectRolePage> {
                         // Subtitle
                         Text(
                           'Pilih peranmu untuk mendapatkan\npengalaman yang sesuai kebutuhanmu.',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
                             color: Colors.black54,
                             height: 1.5,
                           ),
@@ -102,7 +104,7 @@ class _SelectRolePageState extends State<SelectRolePage> {
                         // Submit Button
                         SizedBox(
                           width: double.infinity,
-                          height: 54,
+                          height: 54.h,
                           child: isLoading
                               ? const Center(
                                   child: CircularProgressIndicator(
@@ -114,6 +116,7 @@ class _SelectRolePageState extends State<SelectRolePage> {
                                       ? () => _submitForm(context)
                                       : null,
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00A735),
                                     disabledBackgroundColor:
                                         Colors.grey.shade400,
                                     elevation: 0,
@@ -123,12 +126,11 @@ class _SelectRolePageState extends State<SelectRolePage> {
                                   ),
                                   child: Text(
                                     'Mulai Nusagizi',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       fontSize: 16.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: _selectedRole != null
-                                          ? Colors.white
-                                          : Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -162,10 +164,15 @@ class _SelectRolePageState extends State<SelectRolePage> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          height: 240, // Fixed height to keep cards equal size
+          height: 240.h,
           padding: isSelected
               ? EdgeInsets.only(top: 24.h, bottom: 0.h)
-              : EdgeInsets.only(top: 24.h, left: 16.w, right: 16.w, bottom: 24.h),
+              : EdgeInsets.only(
+                  top: 24.h,
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 24.h,
+                ),
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFFF2FBF5) : Colors.white,
             borderRadius: BorderRadius.circular(16.r),
@@ -193,7 +200,8 @@ class _SelectRolePageState extends State<SelectRolePage> {
                       padding: EdgeInsets.symmetric(horizontal: 8.0.w),
                       child: Text(
                         title,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -224,7 +232,8 @@ class _SelectRolePageState extends State<SelectRolePage> {
                     SizedBox(height: 16.h),
                     Text(
                       title,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,

@@ -9,7 +9,7 @@ import 'package:nusagizi/features/mother/development/domain/entities/kpsp_questi
 import 'package:nusagizi/features/mother/development/data/models/kpsp_request_model.dart';
 
 abstract class ChildDevelopmentRepository {
-  Future<Either<Failure, ChildDevelopmentSummaryEntity>>
+  Future<Either<Failure, ChildDevelopmentSummaryEntity?>>
   getChildDevelopmentSummary({required String childId});
 
   Future<Either<Failure, List<ChildDevelopmentHistoryEntity>>>
@@ -18,16 +18,15 @@ abstract class ChildDevelopmentRepository {
   Future<Either<Failure, ChildDevelopmentReportDetailEntity>>
   getDevelopmentReportDetail({required String reportId});
 
-  Future<Either<Failure, List<KpspQuestion>>>
-  getKpspQuestions({required int monthTarget});
+  Future<Either<Failure, List<KpspQuestion>>> getKpspQuestions({
+    required int monthTarget,
+  });
 
-  Future<Either<Failure, String>>
-  createDevelopmentReport({
+  Future<Either<Failure, String>> createDevelopmentReport({
     required DevelopmentReportCreateRequestModel request,
   });
 
-  Future<Either<Failure, String>>
-  updateDevelopmentReport({
+  Future<Either<Failure, String>> updateDevelopmentReport({
     required DevelopmentReportUpdateRequestModel request,
   });
 
@@ -43,8 +42,7 @@ abstract class ChildDevelopmentRepository {
     required String childId,
   });
 
-  Future<Either<Failure, void>>
-  syncChecklistMilestoneProgress({
+  Future<Either<Failure, void>> syncChecklistMilestoneProgress({
     required String childId,
     required List<String> assessmentKpspQuestionIds,
   });

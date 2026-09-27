@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
@@ -69,9 +68,10 @@ class ChildAvatar extends StatelessWidget {
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       child: Text(
         name.trim()[0].toUpperCase(),
-        style: GoogleFonts.outfit(
+        style: TextStyle(
+          fontFamily: 'PlusJakartaSans',
           fontSize: (size * _initialFontRatio).sp,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
           color: Colors.white,
         ),
       ),

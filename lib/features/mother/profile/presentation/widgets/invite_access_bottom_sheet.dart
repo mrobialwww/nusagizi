@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -25,6 +25,13 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
   DateTime? _expiresAt;
   Duration _remaining = Duration.zero;
   Timer? _countdownTimer;
+  late String _selectedChildId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedChildId = widget.childId;
+  }
 
   @override
   void dispose() {
@@ -90,22 +97,28 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
             SizedBox(height: 16.h),
             Text(
               'Gagal Memuat QR Code',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.red.shade700,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             SizedBox(height: 8.h),
             Text(
               state.message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(color: Colors.black54, fontSize: 13.sp),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
+                fontSize: 13.sp,
+              ),
             ),
             SizedBox(height: 20.h),
             ElevatedButton.icon(
               onPressed: () => context.read<InviteAccessCubit>().generateToken(
-                widget.childId,
+                _selectedChildId,
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade50,
@@ -119,7 +132,10 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
               icon: Icon(Icons.refresh_rounded, size: 18.sp),
               label: Text(
                 'Coba Lagi',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
@@ -145,7 +161,7 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
               child: QrImageView(
                 data: jsonEncode({
                   "token": state.token,
-                  "childId": widget.childId,
+                  "childId": _selectedChildId,
                 }),
                 size: 200.w,
               ),
@@ -153,8 +169,9 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
           ),
           SizedBox(height: 16.h),
           Text(
-            'Berlaku ${_formatDuration(_remaining)} lagi',
-            style: GoogleFonts.outfit(
+            'Kode Berlaku ${_formatDuration(_remaining)}',
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 16.sp,
               fontWeight: FontWeight.w500,
             ),
@@ -176,7 +193,9 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
             setState(() => _expiresAt = state.expiresAt);
             _startCountdown(
               onExpired: () {
-                context.read<InviteAccessCubit>().generateToken(widget.childId);
+                context.read<InviteAccessCubit>().generateToken(
+                  _selectedChildId,
+                );
               },
             );
           }
@@ -211,9 +230,13 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                 BlocBuilder<ChildrenCacheCubit, List<ChildHeaderEntity>>(
                   builder: (context, children) {
                     return ChildDropdown(
-                      initialValue: children.isNotEmpty
-                          ? children.first.name
-                          : 'Anak',
+                      initialChildId: _selectedChildId,
+                      onChanged: (childId) {
+                        setState(() => _selectedChildId = childId);
+                        context.read<InviteAccessCubit>().generateToken(
+                          childId,
+                        );
+                      },
                     );
                   },
                 ),
@@ -231,7 +254,8 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                     children: [
                       Text(
                         'Undang Pengasuh',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.black87,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
@@ -241,10 +265,12 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                       Text(
                         'Bagikan QR ini kepada pengasuh agar dapat membantu menjalankan rutinitas harian anak.',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.black54,
                           fontSize: 12.sp,
                           height: 1.5,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       SizedBox(height: 24.h),
@@ -255,17 +281,18 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                       TextButton(
                         onPressed: () => context
                             .read<InviteAccessCubit>()
-                            .generateToken(widget.childId),
+                            .generateToken(_selectedChildId),
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.symmetric(vertical: 4.h),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: Text(
-                          'Perbarui QR Anak',
-                          style: GoogleFonts.outfit(
+                          'Perbarui QR',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: const Color(0xFF00A735),
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             fontSize: 12.sp,
                           ),
                         ),
@@ -290,7 +317,8 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                         ),
                         child: Text(
                           'Bagikan QR',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: const Color(0xFF00A735),
                             fontWeight: FontWeight.w500,
                           ),
@@ -300,7 +328,7 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                     SizedBox(width: 16.w),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => context.pop(),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFF00A735)),
                           padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -310,7 +338,8 @@ class _InviteAccessBottomSheetState extends State<InviteAccessBottomSheet> {
                         ),
                         child: Text(
                           'Manajemen Akses',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: const Color(0xFF00A735),
                             fontWeight: FontWeight.w500,
                           ),

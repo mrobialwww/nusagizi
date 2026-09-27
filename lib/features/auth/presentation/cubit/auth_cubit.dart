@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/core/error/failures.dart';
 import 'package:nusagizi/features/auth/domain/usecases/login_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/register_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/google_login_usecase.dart';
@@ -9,6 +11,7 @@ import 'package:nusagizi/features/auth/domain/usecases/verify_otp_and_login_usec
 import 'package:nusagizi/features/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_state.dart';
 import 'package:nusagizi/features/auth/domain/entities/user_entity.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
 // AUTH FEATURE - PRESENTATION LAYER
 // Cubit: mengatur state dan memanggil use case
@@ -112,24 +115,30 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> googleLogin() async {
+    final previousState = state;
     emit(const AuthLoading());
 
     final result = await googleLoginUseCase.call();
 
-    result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
-      (user) => emit(AuthAuthenticated(user: user)),
-    );
+    result.fold((failure) {
+      // Jika user cancel (back/close dari browser), kembalikan ke state sebelumnya
+      // tanpa menampilkan error apapun.
+      if (failure is CancelledFailure) {
+        emit(previousState);
+        return;
+      }
+      emit(AuthError(message: failure.message));
+    }, (user) => emit(AuthAuthenticated(user: user)));
   }
 
   Future<void> logout() async {
     emit(const AuthLoading());
     final result = await logoutUseCase.call();
 
-    result.fold(
-      (failure) => emit(AuthError(message: failure.message)),
-      (_) => emit(const AuthUnauthenticated()),
-    );
+    result.fold((failure) => emit(AuthError(message: failure.message)), (_) {
+      sl<ChildrenCacheCubit>().save([]);
+      emit(const AuthUnauthenticated());
+    });
   }
 
   Future<void> checkAuth() async {

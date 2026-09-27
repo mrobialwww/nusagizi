@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/widgets/app_card.dart';
 import 'package:nusagizi/features/mother/growth/presentation/cubit/latest_growth_report_cubit.dart';
@@ -8,27 +7,25 @@ import 'package:nusagizi/features/mother/growth/presentation/cubit/latest_growth
 import 'package:nusagizi/features/mother/growth/domain/entities/latest_growth_report_entity.dart';
 import 'package:nusagizi/core/widgets/status_badge.dart';
 
-String _monthName(int m) => const [
-  '',
-  'Januari',
-  'Februari',
-  'Maret',
-  'April',
-  'Mei',
-  'Juni',
-  'Juli',
-  'Agustus',
-  'September',
-  'Oktober',
-  'November',
-  'Desember',
-][m];
-
 class SummaryCard extends StatelessWidget {
   final Color accentColor;
 
   const SummaryCard({super.key, required this.accentColor});
 
+  static const List<String> _months = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LatestGrowthReportCubit, LatestGrowthReportState>(
@@ -42,7 +39,12 @@ class SummaryCard extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 20.h),
                 child: Text(
                   state.message,
-                  style: GoogleFonts.outfit(color: Colors.red, fontSize: 13.sp),
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
+                    color: Colors.red,
+                    fontSize: 13.sp,
+                  ),
                 ),
               ),
             ),
@@ -57,7 +59,9 @@ class SummaryCard extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 20.h),
               child: Text(
                 'Data belum tersedia.',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   color: Colors.black54,
                   fontSize: 13.sp,
                 ),
@@ -75,7 +79,7 @@ class SummaryCard extends StatelessWidget {
     if (year < 100) year += 2000; // Handle 2-digit years parsed incorrectly
 
     final dateStr =
-        '${d.day.toString().padLeft(2, '0')} ${_monthName(d.month)} $year';
+        '${d.day.toString().padLeft(2, '0')} ${_months[d.month - 1]} $year';
 
     return AppCard(
       child: Column(
@@ -86,8 +90,9 @@ class SummaryCard extends StatelessWidget {
             children: [
               Text(
                 'Ringkasan Tumbuh',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
                   fontSize: 15.sp,
                   color: Colors.black87,
                 ),
@@ -98,7 +103,12 @@ class SummaryCard extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             'Terakhir diperbarui: $dateStr',
-            style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black45),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 11.sp,
+              color: Colors.black45,
+            ),
           ),
           SizedBox(height: 12.h),
           Row(
@@ -154,7 +164,9 @@ class SummaryCard extends StatelessWidget {
               SizedBox(width: 4.w),
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   fontSize: 12.sp,
                   color: Colors.black54,
                 ),
@@ -168,7 +180,8 @@ class SummaryCard extends StatelessWidget {
             children: [
               Text(
                 value,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontWeight: FontWeight.w700,
                   fontSize: 22.sp,
                   color: Colors.black87,
@@ -178,7 +191,8 @@ class SummaryCard extends StatelessWidget {
                 SizedBox(width: 4.w),
                 Text(
                   unit,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontWeight: FontWeight.w500,
                     fontSize: 13.sp,
                     color: Colors.black87,
@@ -191,8 +205,6 @@ class SummaryCard extends StatelessWidget {
       ),
     );
   }
-
-
 
   Widget _buildSkeleton() {
     return AppCard(

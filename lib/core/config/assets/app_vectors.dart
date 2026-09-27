@@ -14,7 +14,8 @@ class AppVectors {
   static const String emailSent = '${basePath}email_sent$format';
   static const String emptyNotification =
       '${basePath}empty_notification$format';
-  static const String emptyCaregiver = '${basePath}empty_caregiver$format';
+  static const String emptySearch = '${basePath}empty_search$format';
+  static const String emptyNote = '${basePath}empty_note$format';
   static const String noteSelected = '${basePath}note_selected$format';
   static const String noteUnselected = '${basePath}note_unselected$format';
   static const String caregiverEmptyChild =

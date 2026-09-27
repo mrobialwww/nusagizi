@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
@@ -76,7 +75,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
               ),
               Text(
                 "Berapa banyak porsi yang dihabiskan?",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -103,7 +103,7 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
   ) {
     return InkWell(
       onTap: () {
-        Navigator.pop(context);
+        context.pop();
         setState(() => _isChecked = true);
         context.read<CaregiverRecipeCompletionCubit>().updateCompletion(
           widget.recipe.id,
@@ -120,9 +120,10 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
           children: [
             Text(
               title,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
@@ -185,7 +186,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                     SizedBox(width: 12.w),
                     Text(
                       mealType,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -203,7 +205,9 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                   ),
                   child: Text(
                     widget.recipe.mealTime,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       fontSize: 12.sp,
                       color: Colors.black87,
                     ),
@@ -233,7 +237,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -256,7 +261,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                             ),
                             child: Text(
                               tag,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontSize: 10.sp,
                                 color: Colors.green[800]!,
                                 fontWeight: FontWeight.w500,
@@ -276,7 +282,9 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                           SizedBox(width: 4.w),
                           Text(
                             "${kcal.toInt()} Kcal",
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
                               fontSize: 12.sp,
                               color: Colors.grey[600],
                             ),
@@ -291,7 +299,9 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                             SizedBox(width: 4.w),
                             Text(
                               "${protein.toInt()} g",
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 12.sp,
                                 color: Colors.grey[600],
                               ),
@@ -331,7 +341,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                       alignment: Alignment.center,
                       child: Text(
                         "Detail Resep",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: _isChecked ? green : Colors.black87,
@@ -385,7 +396,8 @@ class _CaregiverMealCardState extends State<CaregiverMealCard> {
                       SizedBox(width: 8.w),
                       Text(
                         "Ambil Foto Makanan",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,

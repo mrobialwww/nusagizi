@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/widgets/calendar/custom_date_picker_field.dart';
@@ -183,18 +182,19 @@ class _AddGrowthPageState extends State<AddGrowthPage> {
                               elevation: 0,
                             ),
                             child: state is AddGrowthReportLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
+                                ? SizedBox(
+                                    width: 24.w,
+                                    height: 24.w,
+                                    child: const CircularProgressIndicator(
                                       color: Color(0xFF00A735),
                                       strokeWidth: 2,
                                     ),
                                   )
                                 : Text(
                                     'Simpan',
-                                    style: GoogleFonts.outfit(
-                                      fontWeight: FontWeight.w700,
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
+                                      fontWeight: FontWeight.w600,
                                       fontSize: 15.sp,
                                     ),
                                   ),
@@ -218,16 +218,21 @@ class _AddGrowthPageState extends State<AddGrowthPage> {
       child: RichText(
         text: TextSpan(
           text: text,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: Colors.black87,
             fontSize: 12.sp,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
           children: [
             if (isRequired)
               TextSpan(
                 text: ' *',
-                style: GoogleFonts.outfit(color: Colors.red),
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red,
+                ),
               ),
           ],
         ),
@@ -251,11 +256,24 @@ class _AddGrowthPageState extends State<AddGrowthPage> {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: GoogleFonts.outfit(color: Colors.black54, fontSize: 13.sp),
+          hintStyle: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            color: Colors.black54,
+            fontSize: 13.sp,
+          ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 12.w,
+            vertical: 14.h,
+          ),
         ),
-        style: GoogleFonts.outfit(color: Colors.black87, fontSize: 14.sp),
+        style: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+          fontSize: 14.sp,
+        ),
       ),
     );
   }

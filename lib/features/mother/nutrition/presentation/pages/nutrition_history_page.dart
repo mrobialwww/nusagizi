@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -10,6 +9,8 @@ import 'package:nusagizi/features/mother/nutrition/presentation/cubit/nutrition_
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/nutrition_history_state.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/widgets/history_card.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nusagizi/core/config/assets/app_vectors.dart';
 
 class NutritionHistoryPage extends StatefulWidget {
   final ChildHeaderEntity? child;
@@ -65,33 +66,7 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
   }
 
   List<String> _generateMonthsFromAge(String? ageStr) {
-    if (ageStr == null || ageStr.isEmpty) return [];
-
-    int totalMonths = 0;
-
-    final yearMatch = RegExp(
-      r'(\d+)\s*Tahun',
-      caseSensitive: false,
-    ).firstMatch(ageStr);
-    final monthMatch = RegExp(
-      r'(\d+)\s*Bulan',
-      caseSensitive: false,
-    ).firstMatch(ageStr);
-
-    if (yearMatch != null) {
-      totalMonths += int.parse(yearMatch.group(1)!) * 12;
-    }
-    if (monthMatch != null) {
-      totalMonths += int.parse(monthMatch.group(1)!);
-    }
-
-    if (totalMonths == 0) {
-      return [];
-    }
-
     final now = DateTime.now();
-    List<String> result = [];
-
     const monthNames = [
       'Januari',
       'Februari',
@@ -106,6 +81,28 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
       'November',
       'Desember',
     ];
+
+    int totalMonths = 0;
+
+    if (ageStr != null && ageStr.isNotEmpty) {
+      final yearMatch = RegExp(
+        r'(\d+)\s*Tahun',
+        caseSensitive: false,
+      ).firstMatch(ageStr);
+      final monthMatch = RegExp(
+        r'(\d+)\s*Bulan',
+        caseSensitive: false,
+      ).firstMatch(ageStr);
+
+      if (yearMatch != null) {
+        totalMonths += int.parse(yearMatch.group(1)!) * 12;
+      }
+      if (monthMatch != null) {
+        totalMonths += int.parse(monthMatch.group(1)!);
+      }
+    }
+
+    List<String> result = [];
 
     for (int i = 0; i <= totalMonths; i++) {
       int year = now.year;
@@ -160,23 +157,41 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildMonthSelector(),
+            BlocBuilder<NutritionHistoryCubit, NutritionHistoryState>(
+              builder: (context, state) {
+                final avgCalories =
+                    state is NutritionHistoryLoaded && state.reports.isNotEmpty
+                    ? state.reports
+                              .map((r) => r.calories)
+                              .reduce((a, b) => a + b) /
+                          state.reports.length
+                    : 0.0;
+                return _buildMonthSelector(avgCalories);
+              },
+            ),
             Expanded(
               child: BlocBuilder<NutritionHistoryCubit, NutritionHistoryState>(
                 builder: (context, state) {
                   if (state is NutritionHistoryLoading) {
-                    return const Center(child: CircularProgressIndicator(color: Color(0xFF00A735)));
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF00A735),
+                      ),
+                    );
                   } else if (state is NutritionHistoryError) {
-                    return Center(child: Text(state.message));
+                    return Center(
+                      child: Text(
+                        state.message,
+                        style: const TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
                   } else if (state is NutritionHistoryLoaded) {
                     final reports = state.reports;
                     if (reports.isEmpty) {
-                      return Center(
-                        child: Text(
-                          "Belum ada riwayat gizi di bulan ini.",
-                          style: GoogleFonts.outfit(color: Colors.grey),
-                        ),
-                      );
+                      return _buildEmptyState(context);
                     }
 
                     return ListView.separated(
@@ -219,8 +234,7 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
                             'dd MMM yyyy',
                             'id_ID',
                           ).format(report.createdAt),
-                          isTargetReached: report.calories >= 1000,
-                          isSickCondition: false, // Not from backend yet
+                          status: report.status,
                           intakeLabel: "Total Asupan",
                           intakeSubLabel: intakeSubLabel,
                           totalKcal: report.calories,
@@ -247,7 +261,7 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
     );
   }
 
-  Widget _buildMonthSelector() {
+  Widget _buildMonthSelector(double avgCalories) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
       child: Container(
@@ -284,7 +298,8 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
               children: [
                 Text(
                   _months[_currentMonthIndex],
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -292,10 +307,12 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  "Rata-rata: 1.150 kcal/hari",
-                  style: GoogleFonts.outfit(
+                  "Rata-rata: ${avgCalories.toStringAsFixed(0)} kcal/hari",
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
                     color: Colors.grey,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -316,6 +333,46 @@ class _NutritionHistoryPageState extends State<NutritionHistoryPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 25.w),
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppVectors.emptySearch, height: 250.h),
+                SizedBox(height: 24.h),
+                Text(
+                  "Belum Ada Riwayat Gizi",
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15.sp,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  "Semua analisis nutrisi dan data makanan yang diberikan ke si kecil tersimpan rapi di halaman ini.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    color: Colors.black54,
+                    fontSize: 12.sp,
+                    height: 1.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

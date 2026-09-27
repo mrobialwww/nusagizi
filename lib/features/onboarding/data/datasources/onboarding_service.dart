@@ -1,7 +1,7 @@
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:nusagizi/core/env.dart';
 import 'package:nusagizi/core/error/exceptions.dart';
 import 'package:nusagizi/features/onboarding/data/models/onboarding_model.dart';
 
@@ -13,7 +13,7 @@ abstract class OnboardingService {
 class OnboardingServiceImpl implements OnboardingService {
   final Auth0 auth0;
   final Dio _dio = Dio();
-  final String baseUrl = dotenv.env['BASE_URL'] ?? '';
+  final String baseUrl = Env.baseUrl;
 
   OnboardingServiceImpl({required this.auth0});
 

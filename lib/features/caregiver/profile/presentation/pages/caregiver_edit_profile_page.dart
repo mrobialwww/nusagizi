@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'dart:io';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -12,6 +12,7 @@ import 'package:nusagizi/features/caregiver/profile/data/models/update_caregiver
 import 'package:nusagizi/features/caregiver/profile/domain/entities/caregiver_profile_entity.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_state.dart';
+import 'package:nusagizi/core/utils/image_helper.dart';
 
 class CaregiverEditProfilePage extends StatefulWidget {
   final CaregiverProfileEntity initialProfile;
@@ -119,6 +120,9 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
                 );
                 // Reload agar data terbaru tersedia di halaman profil & edit
                 context.read<CaregiverProfileCubit>().loadProfile();
+
+                // Kembali ke halaman sebelumnya (Profile)
+                context.pop();
               } else if (state is CaregiverProfileUpdateError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -185,33 +189,25 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
                                       backgroundImage: _pickedFile != null
                                           ? FileImage(_pickedFile!)
                                                 as ImageProvider
-                                          : (widget.initialProfile.photoUrl !=
-                                                    null
-                                                ? NetworkImage(
-                                                    widget
-                                                        .initialProfile
-                                                        .photoUrl!,
-                                                  )
-                                                : null),
-                                      child:
-                                          (_pickedFile == null &&
-                                              widget.initialProfile.photoUrl ==
-                                                  null)
-                                          ? Icon(
-                                              Icons.person,
-                                              size: 40.w,
-                                              color: Colors.grey,
-                                            )
-                                          : null,
+                                          : (ImageHelper.getSafeImageProvider(
+                                                  widget
+                                                      .initialProfile
+                                                      .photoUrl,
+                                                ) ??
+                                                ImageHelper.getDefaultUserImage(
+                                                  _selectedGender,
+                                                )),
+                                      child: null,
                                     ),
                                   ),
                                 ),
                                 SizedBox(height: 12.h),
                                 Text(
                                   'Unggah Foto',
-                                  style: GoogleFonts.outfit(
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
                                     color: const Color(0xFF00A735),
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -307,8 +303,9 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
                               )
                             : Text(
                                 'Simpan',
-                                style: GoogleFonts.outfit(
-                                  fontWeight: FontWeight.w700,
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 15.sp,
                                 ),
                               ),
@@ -330,10 +327,11 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
       child: RichText(
         text: TextSpan(
           text: text,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: Colors.black87,
             fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
           children: const [
             TextSpan(
@@ -356,7 +354,11 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey),
+        hintStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          color: Colors.grey,
+          fontWeight: FontWeight.w500,
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),
@@ -376,7 +378,12 @@ class _CaregiverEditProfilePageState extends State<CaregiverEditProfilePage> {
         Radio<String>(value: value, activeColor: const Color(0xFF00A735)),
         Text(
           label,
-          style: GoogleFonts.outfit(color: Colors.black87, fontSize: 14.sp),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            color: Colors.black87,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );

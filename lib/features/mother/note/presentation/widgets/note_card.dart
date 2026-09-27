@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/router.dart';
 
 class NoteCard extends StatelessWidget {
@@ -53,7 +52,8 @@ class NoteCard extends StatelessWidget {
               children: [
                 Text(
                   childName,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.black87,
                     fontSize: 15.sp,
                     fontWeight: FontWeight.w600,
@@ -84,12 +84,13 @@ class NoteCard extends StatelessWidget {
                           SizedBox(width: 4.w),
                           Text(
                             isActive ? 'Aktif' : 'Kadaluwarsa',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: isActive
                                   ? const Color(0xFF00A735)
                                   : Colors.grey,
                               fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -116,7 +117,8 @@ class NoteCard extends StatelessWidget {
                 SizedBox(width: 6.w),
                 Text(
                   date,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.black54,
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w500,
@@ -127,7 +129,9 @@ class NoteCard extends StatelessWidget {
             SizedBox(height: 16.h),
             Text(
               desc,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
                 color: Colors.black54,
                 fontSize: 12.sp,
                 height: 1.5,
@@ -176,7 +180,8 @@ class NoteCard extends StatelessWidget {
           SizedBox(width: 4.w),
           Text(
             text,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: color,
               fontSize: 11.sp,
               fontWeight: FontWeight.w500,

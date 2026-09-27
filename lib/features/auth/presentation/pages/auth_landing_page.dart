@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 
@@ -95,9 +94,10 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                           Text(
                             _onboardingData[index]['title']!,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 22.sp,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black87,
                             ),
                           ),
@@ -105,8 +105,10 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                           Text(
                             _onboardingData[index]['description']!,
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
                               color: Colors.black54,
                               height: 1.5,
                             ),
@@ -164,9 +166,10 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                         ),
                         child: Text(
                           'Masuk',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
                         ),
@@ -192,7 +195,8 @@ class _AuthLandingPageState extends State<AuthLandingPage> {
                         ),
                         child: Text(
                           'Daftar Akun Baru',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w500,
                             color: const Color(0xFF00A735),

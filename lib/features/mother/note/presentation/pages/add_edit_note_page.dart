@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/widgets/calendar/custom_date_picker_field.dart';
@@ -143,8 +142,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
             children: [
               Center(
                 child: Container(
-                  width: 40,
-                  height: 4,
+                  width: 40.w,
+                  height: 4.h,
                   margin: EdgeInsets.only(bottom: 24.h),
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -156,7 +155,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Text(
                   'Pilih Anak',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
                     color: Colors.black87,
@@ -173,19 +173,21 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                         setState(() {
                           _selectedChild = child;
                         });
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
+                          horizontal: 20.w,
+                          vertical: 16.h,
                         ),
                         child: Text(
                           child.name,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             color: Colors.black87,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -258,7 +260,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                   Text(
                     'Catatan Berhasil Disimpan 🎉',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 22.sp,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF00A735),
@@ -268,11 +271,12 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                   Text(
                     'Hasil konsultasi telah tersimpan dan akan\nmenjadi acuan rekomendasi menu anak',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       color: Colors.grey.shade600,
                       height: 1.5,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -352,8 +356,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                     child: Container(
                                       width: double.infinity,
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 14,
+                                        horizontal: 16.w,
+                                        vertical: 14.h,
                                       ),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
@@ -371,11 +375,13 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                           Text(
                                             _selectedChild?.name ??
                                                 'Pilih Anak',
-                                            style: GoogleFonts.outfit(
+                                            style: TextStyle(
+                                              fontFamily: 'PlusJakartaSans',
                                               color: _selectedChild == null
                                                   ? Colors.grey
                                                   : Colors.black87,
                                               fontSize: 14.sp,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                           Icon(
@@ -390,9 +396,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 8.h),
                                   Text(
                                     'Pilih profil anak untuk lanjut mengisi',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                 ],
@@ -407,7 +415,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                 children: [
                                   Text(
                                     'Identitas Dokter',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -451,9 +460,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 4.h),
                                   Text(
                                     'Tuliskan saran pola makan dari dokter',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   SizedBox(height: 12.h),
@@ -474,7 +485,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                 children: [
                                   Text(
                                     'Target Gizi Harian',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -482,9 +494,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 4.h),
                                   Text(
                                     'Isi jika dokter menyebutkan angkanya',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   SizedBox(height: 16.h),
@@ -565,7 +579,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                 children: [
                                   Text(
                                     'Pantangan & Alergen',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -586,7 +601,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                           children: [
                                             TextSpan(
                                               text: 'Pantangan,',
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 color: Colors.red,
                                                 fontSize: 12.sp,
                                                 fontWeight: FontWeight.w600,
@@ -597,9 +613,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                             ),
                                             TextSpan(
                                               text: 'hindari makanan ini',
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 color: Colors.grey,
                                                 fontSize: 12.sp,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],
@@ -617,9 +635,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                             (e) => Chip(
                                               label: Text(
                                                 e,
-                                                style: GoogleFonts.outfit(
+                                                style: TextStyle(
+                                                  fontFamily: 'PlusJakartaSans',
                                                   color: Colors.red,
                                                   fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                               backgroundColor:
@@ -649,15 +669,15 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                       Expanded(
                                         child: _buildTextField(
                                           _pantanganCtrl,
-                                          'Contoh Makanan pedas',
+                                          'Contoh: Makanan pedas',
                                         ),
                                       ),
                                       SizedBox(width: 8.w),
                                       InkWell(
                                         onTap: _addPantangan,
                                         child: Container(
-                                          width: 48,
-                                          height: 48,
+                                          width: 48.w,
+                                          height: 48.w,
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade100,
                                             borderRadius: BorderRadius.circular(
@@ -679,9 +699,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 8.h),
                                   Text(
                                     'Ketik lalu tekan + untuk menambah',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                   SizedBox(height: 16.h),
@@ -700,7 +722,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                           children: [
                                             TextSpan(
                                               text: 'Alergen,',
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 color: Colors.orange,
                                                 fontSize: 12.sp,
                                                 fontWeight: FontWeight.w600,
@@ -712,9 +735,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                             TextSpan(
                                               text:
                                                   'perhatikan reaksi tubuh anak',
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 color: Colors.grey,
                                                 fontSize: 12.sp,
+                                                fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                           ],
@@ -732,9 +757,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                             (e) => Chip(
                                               label: Text(
                                                 e,
-                                                style: GoogleFonts.outfit(
+                                                style: TextStyle(
+                                                  fontFamily: 'PlusJakartaSans',
                                                   color: Colors.orange,
                                                   fontSize: 12.sp,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
                                               backgroundColor:
@@ -794,9 +821,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 4.h),
                                   Text(
                                     'Ketik lalu tekan + untuk menambah',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                 ],
@@ -816,9 +845,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                   SizedBox(height: 4.h),
                                   Text(
                                     'Catatan ini berlaku hingga',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.grey,
                                       fontSize: 12.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   SizedBox(height: 12.h),
@@ -849,14 +880,44 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                           onPressed: state is AddEditMedicalNoteLoading
                               ? null
                               : () {
-                                  if (_selectedChild == null ||
-                                      _doctorNameCtrl.text.trim().isEmpty ||
-                                      _recommendationCtrl.text.trim().isEmpty ||
-                                      _validDate == null) {
+                                  if (_selectedChild == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          'Pastikan semua field wajib diisi',
+                                          'field Pilih Anak wajib diisi',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (_doctorNameCtrl.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'field Nama Dokter wajib diisi',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (_recommendationCtrl.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'field Rekomendasi Medis wajib diisi',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (_validDate == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'field Waktu Berlaku wajib diisi',
                                         ),
                                         backgroundColor: Colors.red,
                                       ),
@@ -929,8 +990,9 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                                 )
                               : Text(
                                   "Simpan Catatan",
-                                  style: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.w700,
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 15.sp,
                                   ),
                                 ),
@@ -985,7 +1047,8 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontSize: size,
             fontWeight: FontWeight.w600,
           ),
@@ -993,10 +1056,11 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
         if (isRequired)
           Text(
             'Wajib',
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: Colors.red,
               fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
       ],
@@ -1016,14 +1080,19 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
       maxLines: maxLines,
       readOnly: readOnly,
       onTap: onTap,
-      style: GoogleFonts.outfit(),
+      style: const TextStyle(
+        fontFamily: 'PlusJakartaSans',
+        fontWeight: FontWeight.w500,
+      ),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.outfit(
+        hintStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
           color: (readOnly && ctrl == null && hint != 'dd/mm/yyyy')
               ? Colors.black87
               : Colors.grey,
           fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         border: OutlineInputBorder(
@@ -1073,7 +1142,12 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
           SizedBox(height: 8.h),
           Text(
             title,
-            style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.black87),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 12.sp,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 16.h),
           Container(
@@ -1097,9 +1171,10 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
                 ),
                 Text(
                   value is double ? value.toMacroFormat() : value.toString(),
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 InkWell(
@@ -1121,7 +1196,12 @@ class _AddOrEditNotePageState extends State<AddOrEditNotePage> {
           SizedBox(height: 4.h),
           Text(
             unit,
-            style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.grey),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 12.sp,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

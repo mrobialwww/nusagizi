@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_summary_entity.dart';
 import 'package:nusagizi/core/widgets/status_badge.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nusagizi/router.dart';
 
 class FrontChildCard extends StatelessWidget {
   final ChildSummaryEntity childData;
@@ -18,34 +19,20 @@ class FrontChildCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final safeImage = ImageHelper.getSafeImageProvider(childData.imagePath);
+    final safeImage =
+        ImageHelper.getSafeImageProvider(childData.imagePath) ??
+        ImageHelper.getDefaultDailyCaptureImage(childData.gender);
 
     return GestureDetector(
       onTap: onFlip,
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: safeImage == null
-              ? ImageHelper.getAvatarColor(childData.name)
-              : null,
           borderRadius: BorderRadius.circular(32.r),
-          image: safeImage != null
-              ? DecorationImage(image: safeImage, fit: BoxFit.cover)
-              : null,
+          image: DecorationImage(image: safeImage, fit: BoxFit.cover),
         ),
         child: Stack(
           children: [
-            if (safeImage == null)
-              Center(
-                child: Text(
-                  ImageHelper.getInitials(childData.name),
-                  style: GoogleFonts.outfit(
-                    fontSize: 120.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white.withValues(alpha: 0.3),
-                  ),
-                ),
-              ),
             // Gradient for bottom text
             Positioned(
               bottom: 0,
@@ -84,15 +71,20 @@ class FrontChildCard extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.local_fire_department,
-                      color: Colors.orange,
+                      color: childData.streak == 0
+                          ? Colors.grey.shade400
+                          : Colors.orange,
                       size: 20.sp,
                     ),
                     SizedBox(width: 4.w),
                     Text(
                       '${childData.streak}',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w600,
+                        color: childData.streak == 0
+                            ? Colors.grey.shade400
+                            : Colors.orange,
                         fontSize: 16.sp,
                       ),
                     ),
@@ -156,7 +148,8 @@ class FrontChildCard extends StatelessWidget {
                               SizedBox(width: 4.w),
                               Text(
                                 childData.statusTag,
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   color: Colors.white,
                                   fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
@@ -168,16 +161,19 @@ class FrontChildCard extends StatelessWidget {
                         SizedBox(height: 8.h),
                         Text(
                           childData.name,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: Colors.white,
                             fontSize: 32.sp,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
                           childData.age,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: Colors.white,
+                            fontWeight: FontWeight.w500,
                             fontSize: 14.sp,
                           ),
                         ),
@@ -185,11 +181,27 @@ class FrontChildCard extends StatelessWidget {
                     ),
                   ),
                   // QR icon
-                  Image.asset(
-                    AppImages.qr,
-                    width: 56.w,
-                    height: 56.w,
-                    color: Colors.white,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.goNamed(
+                      AppRoutes.accessManagement.name,
+                      extra: childData.id,
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints.tightFor(
+                        width: 56.w,
+                        height: 56.w,
+                      ),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          AppImages.qr,
+                          width: 56.w,
+                          height: 56.w,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

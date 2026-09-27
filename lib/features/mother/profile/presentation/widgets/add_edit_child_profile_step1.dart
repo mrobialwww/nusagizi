@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/edit_child_profile_helpers.dart';
 import 'package:nusagizi/core/widgets/calendar/custom_date_picker_field.dart';
@@ -36,7 +35,6 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AddEditProfileCubit>();
-    // We only read the initial state once to avoid jumping cursor issues
     final initialState = cubit.state;
 
     return SingleChildScrollView(
@@ -52,55 +50,44 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
               onTap: _pickImage,
               child: Column(
                 children: [
-                  Container(
-                    width: 100.w,
-                    height: 100.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFF00A735),
-                        width: 2.w,
-                        style: BorderStyle.solid,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 50.r,
-                      backgroundColor:
-                          (pickedFile == null &&
-                              ImageHelper.getSafeImageProvider(
-                                    initialState.photoUrl,
-                                  ) ==
-                                  null)
-                          ? ImageHelper.getAvatarColor(initialState.fullName)
-                          : Colors.grey.shade200,
-                      backgroundImage: pickedFile != null
-                          ? FileImage(pickedFile!) as ImageProvider
-                          : ImageHelper.getSafeImageProvider(
-                              initialState.photoUrl,
-                            ),
-                      child:
-                          (pickedFile == null &&
-                              ImageHelper.getSafeImageProvider(
-                                    initialState.photoUrl,
-                                  ) ==
-                                  null)
-                          ? Text(
-                              ImageHelper.getInitials(initialState.fullName),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 40.sp,
-                              ),
-                            )
-                          : null,
-                    ),
+                  BlocBuilder<AddEditProfileCubit, AddEditProfileState>(
+                    buildWhen: (prev, curr) =>
+                        prev.gender != curr.gender ||
+                        prev.photoUrl != curr.photoUrl,
+                    builder: (context, state) {
+                      return Container(
+                        width: 100.w,
+                        height: 100.w,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF00A735),
+                            width: 2.w,
+                            style: BorderStyle.solid,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 50.r,
+                          backgroundColor: Colors.grey.shade200,
+                          backgroundImage: pickedFile != null
+                              ? FileImage(pickedFile!) as ImageProvider
+                              : (ImageHelper.getSafeImageProvider(
+                                      state.photoUrl,
+                                    ) ??
+                                    ImageHelper.getDefaultChildImage(
+                                      state.gender,
+                                    )),
+                        ),
+                      );
+                    },
                   ),
                   SizedBox(height: 8.h),
                   Text(
                     'Unggah Foto',
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: const Color(0xFF00A735),
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -111,7 +98,7 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
           buildLabel('Nama Lengkap', isRequired: true),
           _buildCustomTextField(
             initialValue: initialState.fullName,
-            hintText: 'Contoh: Muhammad Razky',
+            hintText: 'Masukkan Nama Lengkap',
             onChanged: (val) => cubit.updateStep1(
               fullName: val,
               birthDate: cubit.state.birthDate,
@@ -127,7 +114,7 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
             selector: (state) => state.birthDate,
             builder: (context, birthDate) {
               return CustomDatePickerField(
-                hint: 'Pilih Tanggal',
+                hint: 'Masukkan Tanggal Lahir',
                 initialDate: birthDate,
                 onDateSelected: (date) {
                   cubit.updateStep1(
@@ -177,7 +164,8 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
             SizedBox(height: 32.h),
             Text(
               'Data Pertumbuhan',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -250,11 +238,21 @@ class AddEditChildProfileStep1State extends State<AddEditChildProfileStep1> {
     return TextFormField(
       initialValue: initialValue,
       keyboardType: keyboardType,
-      style: GoogleFonts.outfit(fontSize: 13.sp, color: Colors.black87),
+      style: TextStyle(
+        fontFamily: 'PlusJakartaSans',
+        fontWeight: FontWeight.w500,
+        fontSize: 13.sp,
+        color: Colors.black87,
+      ),
       onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey, fontSize: 13.sp),
+        hintStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          fontWeight: FontWeight.w500,
+          color: Colors.grey,
+          fontSize: 13.sp,
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.r),

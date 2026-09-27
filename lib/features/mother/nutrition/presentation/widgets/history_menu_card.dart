@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/menu_action_cubit.dart';
@@ -101,7 +100,8 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                   SizedBox(width: 12.w),
                   Text(
                     buildMealType,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -116,9 +116,11 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                 ),
                 child: Text(
                   buildTimeStr,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
                     color: Colors.black87,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -148,7 +150,8 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                   children: [
                     Text(
                       widget.title,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -165,10 +168,11 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                       ),
                       child: Text(
                         statusText,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 10.sp,
                           color: statusColor,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -199,7 +203,8 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                     alignment: Alignment.center,
                     child: Text(
                       "Detail Resep",
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.black87,
@@ -265,7 +270,8 @@ class _HistoryMenuCardState extends State<HistoryMenuCard> {
                               SizedBox(width: 4.w),
                               Text(
                                 "Masak Lagi",
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,

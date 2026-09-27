@@ -27,6 +27,7 @@ class CaregiverHomeCubit extends Cubit<CaregiverHomeState> {
                 name: c.name,
                 age: c.age,
                 imagePath: c.imagePath,
+                gender: c.gender,
               ),
             )
             .toList();

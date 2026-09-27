@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/utils/number_extension.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
@@ -100,7 +99,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
               ),
               Text(
                 "Berapa banyak porsi yang dihabiskan?",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -123,7 +123,7 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
   Widget _buildPortionOption(String title, double portions) {
     return InkWell(
       onTap: () {
-        Navigator.pop(context); // Close bottom sheet
+        context.pop(); // Close bottom sheet
         setState(() => _isChecked = true);
         context.read<RecipeCompletionCubit>().updateCompletion(
           widget.recipeId!,
@@ -136,9 +136,10 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
           children: [
             Text(
               title,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 14.sp,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
             ),
@@ -196,7 +197,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                     SizedBox(width: 12.w),
                     Text(
                       buildMealType,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -214,9 +216,11 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                   ),
                   child: Text(
                     buildTimeStr,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 12.sp,
                       color: Colors.black87,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -246,7 +250,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                     children: [
                       Text(
                         widget.title,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                         ),
@@ -270,7 +275,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                             ),
                             child: Text(
                               tag,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontSize: 10.sp,
                                 color: textColor,
                                 fontWeight: FontWeight.w500,
@@ -290,9 +296,11 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                           SizedBox(width: 4.w),
                           Text(
                             "${widget.kcal.toMacroFormat()} Kcal",
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 12.sp,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           SizedBox(width: 16.w),
@@ -306,9 +314,11 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                             SizedBox(width: 4.w),
                             Text(
                               widget.specialInfo!,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontSize: 12.sp,
                                 color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ] else if (widget.protein > 0) ...[
@@ -320,9 +330,11 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                             SizedBox(width: 4.w),
                             Text(
                               "${widget.protein.toMacroFormat()} g P",
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontSize: 12.sp,
                                 color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -362,7 +374,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                       alignment: Alignment.center,
                       child: Text(
                         "Detail Resep",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: _isChecked ? green : Colors.black87,
@@ -417,7 +430,8 @@ class _DailyMenuCardState extends State<DailyMenuCard> {
                       SizedBox(width: 8.w),
                       Text(
                         "Ambil Foto Makanan",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,

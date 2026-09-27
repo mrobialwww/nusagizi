@@ -14,3 +14,9 @@ class CacheFailure extends Failure {
 class NetworkFailure extends Failure {
   const NetworkFailure({required super.message});
 }
+
+// Digunakan ketika user membatalkan proses (misalnya back dari browser OAuth).
+// Tidak menampilkan error — diabaikan di cubit.
+class CancelledFailure extends Failure {
+  CancelledFailure() : super(message: '');
+}

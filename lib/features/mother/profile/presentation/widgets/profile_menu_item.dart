@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
@@ -45,7 +44,8 @@ class ProfileMenuItem extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
@@ -55,19 +55,17 @@ class ProfileMenuItem extends StatelessWidget {
               if (trailingText != null) ...[
                 Text(
                   trailingText!,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
                     color: Colors.grey,
                   ),
                 ),
                 SizedBox(width: 8.w),
               ],
               if (!hideChevron)
-                Icon(
-                  Icons.chevron_right,
-                  color: Colors.grey,
-                  size: 20.sp,
-                ),
+                Icon(Icons.chevron_right, color: Colors.grey, size: 20.sp),
             ],
           ),
         ),

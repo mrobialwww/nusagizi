@@ -4,7 +4,6 @@ import 'package:nusagizi/core/utils/image_helper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_state.dart';
@@ -35,7 +34,8 @@ class ProfileCaregiverPage extends StatelessWidget {
               SizedBox(height: 16.h),
               Text(
                 'Profil',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -46,13 +46,13 @@ class ProfileCaregiverPage extends StatelessWidget {
               BlocBuilder<CaregiverProfileCubit, CaregiverProfileState>(
                 builder: (context, state) {
                   String? photoUrl;
-                  String name = '—';
                   if (state is CaregiverProfileLoaded) {
                     photoUrl = state.profile.photoUrl;
-                    name = state.profile.fullName;
                   }
 
                   return Container(
+                    width: 90.r,
+                    height: 90.r,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -65,26 +65,30 @@ class ProfileCaregiverPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: CircleAvatar(
-                      radius: 45.r,
-                      backgroundColor:
-                          ImageHelper.getSafeImageProvider(photoUrl) == null
-                          ? ImageHelper.getAvatarColor(name)
-                          : Colors.white,
-                      backgroundImage: ImageHelper.getSafeImageProvider(
-                        photoUrl,
-                      ),
-                      child: ImageHelper.getSafeImageProvider(photoUrl) == null
-                          ? Text(
-                              ImageHelper.getInitials(name),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 36.sp,
-                              ),
-                            )
-                          : null,
-                    ),
+                    child:
+                        (state is CaregiverProfileLoading ||
+                            state is CaregiverProfileInitial)
+                        ? Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            padding: EdgeInsets.all(30.r),
+                            child: const CircularProgressIndicator(
+                              color: Color(0xFF00A735),
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 45.r,
+                            backgroundColor: Colors.white,
+                            backgroundImage:
+                                ImageHelper.getSafeImageProvider(photoUrl) ??
+                                ImageHelper.getDefaultUserImage(
+                                  state is CaregiverProfileLoaded
+                                      ? state.profile.gender
+                                      : null,
+                                ),
+                          ),
                   );
                 },
               ),
@@ -102,17 +106,20 @@ class ProfileCaregiverPage extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 20.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
                       SizedBox(height: 4.h),
                       Text(
                         email,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey,
                         ),
                       ),
@@ -170,18 +177,17 @@ class ProfileCaregiverPage extends StatelessWidget {
                           title: 'Syarat & Ketentuan',
                           iconColor: Colors.grey[600]!,
                           iconBgColor: Colors.grey[200]!,
-                          onTap: () {
-                            // TODO: Add route for Terms and Conditions
-                          },
+                          onTap: () => context.pushNamed(
+                            AppRoutes.termsAndConditions.name,
+                          ),
                         ),
                         ProfileMenuItem(
                           icon: Icons.help,
                           title: 'Pusat Bantuan',
                           iconColor: Colors.grey[600]!,
                           iconBgColor: Colors.grey[200]!,
-                          onTap: () {
-                            // TODO: Add route for Help Center
-                          },
+                          onTap: () =>
+                              context.pushNamed(AppRoutes.helpCenter.name),
                         ),
                         ProfileMenuItem(
                           icon: Icons.language,
@@ -189,9 +195,9 @@ class ProfileCaregiverPage extends StatelessWidget {
                           iconColor: Colors.grey[600]!,
                           iconBgColor: Colors.grey[200]!,
                           trailingText: 'Bahasa Indonesia',
-                          onTap: () {
-                            // TODO: Add route for Language Settings
-                          },
+                          onTap: () => context.pushNamed(
+                            AppRoutes.languageSettings.name,
+                          ),
                         ),
                       ],
                     ),
@@ -224,7 +230,8 @@ class ProfileCaregiverPage extends StatelessWidget {
                         ),
                         label: Text(
                           'Keluar',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: const Color(0xFF00A735),
                             fontWeight: FontWeight.w600,
                             fontSize: 15.sp,

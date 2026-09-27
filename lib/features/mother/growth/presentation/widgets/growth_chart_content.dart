@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/growth/data/models/bb_sub_page_config.dart';
 import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_analyses_cubit.dart';
@@ -163,15 +163,18 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
                           children: [
                             Text(
                               widget.config.graficLabel,
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w700,
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 13.sp,
                                 color: Colors.black87,
                               ),
                             ),
                             Text(
                               widget.config.yAxisLabel,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 10.sp,
                                 color: Colors.black45,
                               ),
@@ -210,15 +213,18 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
                     children: [
                       Text(
                         widget.config.graficLabel,
-                        style: GoogleFonts.outfit(
-                          fontWeight: FontWeight.w700,
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
                           fontSize: 13.sp,
                           color: Colors.black87,
                         ),
                       ),
                       Text(
                         widget.config.yAxisLabel,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
                           fontSize: 10.sp,
                           color: Colors.black45,
                         ),
@@ -259,7 +265,12 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
           children: [
             Text(
               _chartRange.label,
-              style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black54),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+                fontSize: 11.sp,
+                color: Colors.black54,
+              ),
             ),
             SizedBox(width: 4.w),
             Icon(Icons.keyboard_arrow_down, size: 14.sp, color: Colors.black54),
@@ -296,8 +307,9 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
               ),
               Text(
                 'Tampilan Grafik',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.w700,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
                   fontSize: 16.sp,
                   color: Colors.black87,
                 ),
@@ -310,7 +322,9 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
                       contentPadding: EdgeInsets.zero,
                       title: Text(
                         range.label,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
                           fontSize: 14.sp,
                           color: Colors.black87,
                         ),
@@ -325,7 +339,7 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
                             ageRange: _toAgeRange(range),
                           );
                         }
-                        Navigator.pop(context);
+                        context.pop();
                       },
                     ),
                     if (range != ChartRange.values.last)
@@ -354,13 +368,23 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
             SizedBox(width: 6.w),
             Text(
               'Pertumbuhan ${widget.childName.split(' ').last}',
-              style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black54),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+                fontSize: 11.sp,
+                color: Colors.black54,
+              ),
             ),
           ],
         ),
         Text(
           xLabel,
-          style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black45),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            fontSize: 11.sp,
+            color: Colors.black45,
+          ),
         ),
       ],
     );
@@ -476,6 +500,8 @@ class _GrowthChartContentState extends State<GrowthChartContent> {
         LineChartBarData(
           spots: _getSpots(cfg, apiSpots),
           isCurved: true,
+          curveSmoothness: 0.1,
+          preventCurveOverShooting: true,
           color: widget.accentColor,
           barWidth: 2.5,
           isStrokeCapRound: true,

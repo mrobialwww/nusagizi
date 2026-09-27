@@ -17,7 +17,7 @@ class ChildDevelopmentRepositoryImpl implements ChildDevelopmentRepository {
   final ChildDevelopmentService service;
 
   @override
-  Future<Either<Failure, ChildDevelopmentSummaryEntity>>
+  Future<Either<Failure, ChildDevelopmentSummaryEntity?>>
   getChildDevelopmentSummary({required String childId}) async {
     try {
       final model = await service.getReport(childId);

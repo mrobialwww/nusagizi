@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
@@ -39,7 +39,8 @@ class ChildPickerBottomSheet extends StatelessWidget {
           ),
           Text(
             'Pilih Anak',
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontWeight: FontWeight.w600,
               fontSize: 16.sp,
               color: Colors.black87,
@@ -50,10 +51,14 @@ class ChildPickerBottomSheet extends StatelessWidget {
             builder: (context, childrenList) {
               if (childrenList.isEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(16.w),
                   child: Text(
                     'Belum ada data anak.',
-                    style: GoogleFonts.outfit(color: Colors.grey),
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey,
+                    ),
                   ),
                 );
               }
@@ -66,42 +71,26 @@ class ChildPickerBottomSheet extends StatelessWidget {
                   return Column(
                     children: [
                       ListTile(
-                        contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                        contentPadding: EdgeInsets.symmetric(vertical: 4.h),
                         leading: Stack(
                           children: [
                             CircleAvatar(
-                              radius: 20,
-                              backgroundColor:
+                              radius: 20.r,
+                              backgroundColor: const Color(0xFFDDEFDD),
+                              backgroundImage:
                                   ImageHelper.getSafeImageProvider(
-                                        child.imagePath,
-                                      ) ==
-                                      null
-                                  ? ImageHelper.getAvatarColor(child.name)
-                                  : const Color(0xFFDDEFDD),
-                              backgroundImage: ImageHelper.getSafeImageProvider(
-                                child.imagePath,
-                              ),
-                              child:
-                                  ImageHelper.getSafeImageProvider(
-                                        child.imagePath,
-                                      ) ==
-                                      null
-                                  ? Text(
-                                      ImageHelper.getInitials(child.name),
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                      ),
-                                    )
-                                  : null,
+                                    child.imagePath,
+                                  ) ??
+                                  ImageHelper.getDefaultChildImage(
+                                    child.gender,
+                                  ),
                             ),
                             if (isSelected)
                               Positioned(
                                 right: 0,
                                 top: 0,
                                 child: Container(
-                                  padding: const EdgeInsets.all(2),
+                                  padding: EdgeInsets.all(2.w),
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
@@ -117,21 +106,24 @@ class ChildPickerBottomSheet extends StatelessWidget {
                         ),
                         title: Text(
                           child.name,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 14.sp,
                             color: Colors.black87,
                           ),
                         ),
                         subtitle: Text(
                           child.age,
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
                             color: Colors.black54,
                           ),
                         ),
                         trailing: Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: EdgeInsets.all(4.w),
                           decoration: const BoxDecoration(
                             color: Color(0xFFF5F5F5),
                             shape: BoxShape.circle,
@@ -144,7 +136,7 @@ class ChildPickerBottomSheet extends StatelessWidget {
                         ),
                         onTap: () {
                           onChildSelected(index);
-                          Navigator.pop(context);
+                          context.pop();
                         },
                       ),
                       const Divider(

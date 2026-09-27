@@ -9,7 +9,7 @@ import 'package:nusagizi/features/mother/development/data/models/kpsp_question_m
 import 'package:nusagizi/features/mother/development/data/models/kpsp_request_model.dart';
 
 abstract class ChildDevelopmentService {
-  Future<ChildDevelopmentSummaryModel> getReport(String childId);
+  Future<ChildDevelopmentSummaryModel?> getReport(String childId);
   Future<List<ChildDevelopmentHistoryModel>> getDevelopmentHistory(
     String childId,
   );
@@ -44,20 +44,16 @@ class ChildDevelopmentServiceImpl implements ChildDevelopmentService {
   const ChildDevelopmentServiceImpl({required this.dio});
 
   @override
-  Future<ChildDevelopmentSummaryModel> getReport(String childId) async {
+  Future<ChildDevelopmentSummaryModel?> getReport(String childId) async {
     try {
       final response = await dio.get(
         '/children/$childId/development-reports/latest',
       );
+      if (response.data == null) return null;
       return ChildDevelopmentSummaryModel.fromJson(
         response.data as Map<String, dynamic>,
       );
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        throw const ServerException(
-          message: 'Belum ada laporan KPSP sama sekali',
-        );
-      }
       throw ServerException(message: e.message ?? 'Unknown error occurred');
     } catch (e) {
       throw ServerException(message: e.toString());

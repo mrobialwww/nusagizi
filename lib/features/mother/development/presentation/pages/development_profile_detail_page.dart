@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/development/domain/entities/development_recommendation_entity.dart';
@@ -57,7 +56,8 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
               SizedBox(height: 24.h),
               Text(
                 'Detail Domain',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                   color: Colors.black54,
@@ -92,8 +92,9 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
         children: [
           Text(
             'Ringkasan Domain',
-            style: GoogleFonts.outfit(
-              fontWeight: FontWeight.w700,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w600,
               fontSize: 16.sp,
               color: Colors.black87,
             ),
@@ -101,7 +102,12 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
           SizedBox(height: 4.h),
           Text(
             'Skor perkembangan anak bulan ini',
-            style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.black54),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 12.sp,
+              color: Colors.black54,
+            ),
           ),
           SizedBox(height: 24.h),
           DevelopmentRadarChart(
@@ -239,7 +245,8 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
                           children: [
                             Text(
                               _domainLabel(domain),
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14.sp,
                                 color: Colors.black87,
@@ -247,7 +254,9 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
                             ),
                             Text(
                               '${percentage.toInt()}% Tercapai',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 11.sp,
                                 color: Colors.black54,
                               ),
@@ -266,9 +275,10 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
                         ),
                         child: Text(
                           status,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 10.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: textColor,
                           ),
                         ),
@@ -279,7 +289,9 @@ class DevelopmentProfileDetailPage extends StatelessWidget {
                     SizedBox(height: 12.h),
                     Text(
                       actionText,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         fontSize: 14.sp,
                         color: Colors.black87,
                         height: 1.4,

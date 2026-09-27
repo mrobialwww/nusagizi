@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nusagizi/router.dart';
@@ -24,7 +24,13 @@ class MyHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
-  await dotenv.load(fileName: '.env');
+
+  // Lock orientation to portrait to prevent UI overflow on landscape
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   await initializeDateFormatting('id_ID', null);
 
   HydratedBloc.storage = await HydratedStorage.build(

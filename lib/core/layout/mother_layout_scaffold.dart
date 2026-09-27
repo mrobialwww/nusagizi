@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:nusagizi/core/data/models/destination_navbar.dart';
+import 'package:nusagizi/core/layout/destination_navbar.dart';
 
 final ValueNotifier<bool> hideMotherNavBarNotifier = ValueNotifier(false);
+
 /// Notifier untuk mengontrol tab aktif pada bottom nav bar Mother secara global.
 /// Gunakan [motherNavTabNotifier.value = index] untuk berpindah tab.
 final ValueNotifier<int> motherNavTabNotifier = ValueNotifier(0);
@@ -50,8 +51,11 @@ class MotherLayoutScaffold extends StatelessWidget {
                 destinations: motherDestinations
                     .map(
                       (destination) => NavigationDestination(
-                        icon: SvgPicture.asset(destination.icon,
-                            width: 30, height: 30),
+                        icon: SvgPicture.asset(
+                          destination.icon,
+                          width: 30,
+                          height: 30,
+                        ),
                         label: destination.label,
                         selectedIcon: SvgPicture.asset(
                           destination.selectedIcon,

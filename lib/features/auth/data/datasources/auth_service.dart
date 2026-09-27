@@ -6,7 +6,7 @@ import 'package:nusagizi/core/error/exceptions.dart';
 abstract class AuthService {
   Future<DatabaseUser> register(String email, String password, String username);
   Future<Credentials> login(String email, String password);
-  Future<Credentials> googleLogin();
+  Future<Credentials?> googleLogin();
   Future<void> logout();
   Future<Credentials?> getCurrentUser();
 
@@ -73,17 +73,26 @@ class AuthServiceImpl implements AuthService {
   }
 
   @override
-  Future<Credentials> googleLogin() async {
+  Future<Credentials?> googleLogin() async {
     try {
       final credentials = await auth0
-          .webAuthentication(scheme: 'https')
+          .webAuthentication(scheme: 'com.nexuskesehatanina.nusagizi')
           .login(
             audience: 'https://api.nusagizi.com',
+            scopes: {'openid', 'profile', 'email', 'offline_access'},
             parameters: {'connection': 'google-oauth2'},
           );
 
       await auth0.credentialsManager.storeCredentials(credentials);
       return credentials;
+    } on WebAuthenticationException catch (e) {
+      // User menekan back/close — abaikan tanpa error
+      if (e.code == 'a0.authentication_canceled' ||
+          e.details.toString().toLowerCase().contains('cancel') ||
+          e.details.toString().toLowerCase().contains('dismiss')) {
+        return null;
+      }
+      throw ServerException(message: e.details.toString());
     } on ApiException catch (e) {
       throw ServerException(message: _mapApiError(e));
     } catch (e) {
@@ -94,8 +103,9 @@ class AuthServiceImpl implements AuthService {
   @override
   Future<void> logout() async {
     try {
-      await auth0.webAuthentication(scheme: 'https').logout();
-      await auth0.credentialsManager.clearCredentials();
+      await auth0
+          .webAuthentication(scheme: 'com.nexuskesehatanina.nusagizi')
+          .logout();
     } catch (e) {
       throw ServerException(message: 'Logout gagal: $e');
     }
@@ -167,35 +177,3 @@ class AuthServiceImpl implements AuthService {
     return e.message.isNotEmpty ? e.message : 'Terjadi kesalahan, coba lagi.';
   }
 }
-
-// Future<void> createTodoWithDio(String title) async {
-//   // 1. Ambil credentials yang sudah tersimpan sebelumnya
-//   final credentials = await auth0.credentialsManager.credentials();
-//   final token = credentials.accessToken;
-//   debugPrint("Token yang akan dikirim: $token");
-//   final dio = Dio();
-//   try {
-//     // Memanggil API dengan cara lebih ringkas menggunakan Dio
-//     var response = await dio.post(
-//       'nusagizi-be-production.up.railway.app /todo',
-//       options: Options(
-//         headers: {
-//           "Content-Type": "application/json",
-//           "Authorization": "Bearer $token",
-//         },
-//       ),
-//       // Dio otomatis meng-handle konversi Map ke JSON String
-//       data: {"title": title, "completed": false},
-//     );
-//     debugPrint("Berhasil membuat Todo: ${response.data}");
-//   } on DioException catch (e) {
-//     debugPrint("Gagal membuat Todo");
-//     if (e.response != null) {
-//       debugPrint("Status code: ${e.response?.statusCode}");
-//       debugPrint("Response error: ${e.response?.data}");
-//     } else {
-//       debugPrint("Error koneksi: ${e.message}");
-//     }
-//     rethrow;
-//   }
-// }

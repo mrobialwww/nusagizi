@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:nusagizi/core/widgets/calendar/custom_calendar_picker.dart';
 
 class CustomDatePickerField extends StatefulWidget {
@@ -116,7 +117,8 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
                         padding: EdgeInsets.only(left: 8.w, bottom: 4.h),
                         child: Text(
                           'Pilih Tanggal',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             color: Colors.black54,
                             fontWeight: FontWeight.w500,
@@ -135,10 +137,11 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => context.pop(),
                             child: Text(
                               'Batal',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -146,7 +149,7 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
                           ),
                           SizedBox(width: 8.w),
                           ElevatedButton(
-                            onPressed: () => Navigator.pop(context, tempDate),
+                            onPressed: () => context.pop(tempDate),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00B14F),
                               foregroundColor: Colors.white,
@@ -161,7 +164,8 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
                             ),
                             child: Text(
                               'OK',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -210,15 +214,19 @@ class _CustomDatePickerFieldState extends State<CustomDatePickerField> {
       child: AbsorbPointer(
         child: TextFormField(
           controller: _controller,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontSize: 14.sp,
             color: Colors.black87,
+            fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: GoogleFonts.outfit(
+            hintStyle: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: Colors.grey,
               fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: 16.w,

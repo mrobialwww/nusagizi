@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class QuickAccessCard extends StatelessWidget {
   const QuickAccessCard({
@@ -74,8 +73,9 @@ class QuickAccessCard extends StatelessWidget {
                   SizedBox(height: 12.h),
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.w700,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w600,
                       fontSize: 13.sp,
                       color: Colors.black87,
                     ),
@@ -83,7 +83,9 @@ class QuickAccessCard extends StatelessWidget {
                   SizedBox(height: 4.h),
                   Text(
                     subtitle,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       fontSize: 11.sp,
                       color: Colors.black54,
                     ),
