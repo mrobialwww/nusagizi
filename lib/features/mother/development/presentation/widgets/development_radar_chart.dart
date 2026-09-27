@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class DevelopmentRadarChart extends StatelessWidget {
   final double motorikHalus;
@@ -67,7 +66,8 @@ class DevelopmentRadarChart extends StatelessWidget {
       titlePositionPercentageOffset: titlePositionPercentageOffset,
       titleTextStyle:
           titleTextStyle ??
-          GoogleFonts.outfit(
+          TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: Colors.black87,
             fontSize: 11.sp,
             fontWeight: FontWeight.w500,

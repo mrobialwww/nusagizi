@@ -6,7 +6,7 @@ class ChildProfileCubit extends Cubit<ChildProfileState> {
   final GetChildrenUseCase getChildrenUseCase;
 
   ChildProfileCubit({required this.getChildrenUseCase})
-      : super(ChildProfileInitial());
+    : super(ChildProfileInitial());
 
   Future<void> loadChildren() async {
     emit(ChildProfileLoading());

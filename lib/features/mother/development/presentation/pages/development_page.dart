@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nusagizi/core/config/assets/app_vectors.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/core/widgets/child_picker_bottom_sheet.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 import 'package:nusagizi/core/widgets/headers/header_primary_features.dart';
-import 'package:nusagizi/core/widgets/headers/header_action_button.dart';
+import 'package:nusagizi/core/widgets/headers/appbar_action_button.dart';
 import 'package:nusagizi/features/mother/development/domain/entities/child_development_summary_entity.dart';
 import 'package:nusagizi/features/mother/development/presentation/cubit/development_cubit.dart';
 import 'package:nusagizi/features/mother/development/presentation/cubit/development_state.dart';
@@ -154,7 +155,7 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                   );
                 },
                 actions: [
-                  HeaderActionButton(
+                  AppbarActionButton(
                     icon: Icons.history_rounded,
                     onTap: () => context.goNamed(
                       AppRoutes.developmentHistory.name,
@@ -179,6 +180,11 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                     }
 
                     final summary = state.summary;
+
+                    if (summary == null) {
+                      return _buildEmptyAssessment(context, validChild);
+                    }
+
                     return SingleChildScrollView(
                       padding: EdgeInsets.all(16.w),
                       child: Column(
@@ -188,8 +194,9 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                           SizedBox(height: 24.h),
                           Text(
                             "Akses Cepat",
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.w600,
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
                               fontSize: 14.sp,
                               color: Colors.black54,
                             ),
@@ -275,6 +282,69 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
     );
   }
 
+  Widget _buildEmptyAssessment(
+    BuildContext context,
+    ChildHeaderEntity validChild,
+  ) {
+    return Padding(
+      padding: EdgeInsets.all(16.w),
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppVectors.emptyNote, width: 240.w),
+                SizedBox(height: 24.h),
+                Text(
+                  'Belum Ada Asesmen',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                context.goNamed(
+                  AppRoutes.developmentKpsp.name,
+                  extra: KpspAssessmentExtra(
+                    childName: validChild.name,
+                    childAge: validChild.age,
+                    childId: validChild.id,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A735),
+                padding: EdgeInsets.symmetric(vertical: 16.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+              ),
+              child: Text(
+                'Mulai Asesmen',
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSummaryCard(
     ChildDevelopmentSummaryEntity summary,
     ChildHeaderEntity child,
@@ -321,7 +391,8 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
               children: [
                 Text(
                   'KPSP Sudah Dilakukan',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontWeight: FontWeight.w700,
                     fontSize: 18.sp,
                     color: const Color(0xFF00A735),
@@ -330,7 +401,9 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                 SizedBox(height: 16.h),
                 Text(
                   'Kamu sudah melakukan KPSP untuk periode usia ini. Hasil tersebut masih berlaku hingga periode berikutnya.',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w400,
                     fontSize: 14.sp,
                     color: Colors.black54,
                     height: 1.5,
@@ -339,7 +412,9 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                 SizedBox(height: 12.h),
                 Text(
                   'Jika kamu tetap ingin mengulang asesmen, hasil sebelumnya akan digantikan dengan hasil terbaru.',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w400,
                     fontSize: 14.sp,
                     color: Colors.black54,
                     height: 1.5,
@@ -351,7 +426,7 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          context.pop();
                           context.goNamed(
                             AppRoutes.developmentKpsp.name,
                             extra: KpspAssessmentExtra(
@@ -375,7 +450,8 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                           child: Text(
                             'Ulangi KPSP',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontWeight: FontWeight.w600,
                               fontSize: 14.sp,
                               color: const Color(0xFF00A735),
@@ -388,7 +464,7 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop();
+                          context.pop();
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -399,7 +475,8 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
                           child: Text(
                             'Batal',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontWeight: FontWeight.w600,
                               fontSize: 14.sp,
                               color: Colors.white,

@@ -9,22 +9,23 @@ class AppImages {
   static const String register = '${basePath}register$format';
   static const String caregiver = '${basePath}caregiver$format';
   static const String mother = '${basePath}mother$format';
-  static const String growth = '${basePath}growth$format';
-  static const String development = '${basePath}development$format';
-  static const String nutrition = '${basePath}nutrition$format';
   static const String asesment1 = '${basePath}asesment-1$format';
   static const String asesment2 = '${basePath}asesment-2$format';
   static const String asesment3 = '${basePath}asesment-3$format';
   static const String asesment4 = '${basePath}asesment-4$format';
   static const String childHome1 = '${basePath}child_home_1$format';
   static const String qr = '${basePath}qr$format';
-  static const String noInvitation = '${basePath}no_invitation$format';
-  static const String noCaregiver = '${basePath}no_caregiver$format';
-  static const String largerQR = '${basePath}larger_qr$format';
-  static const String forgotEmailProccess =
-      '${basePath}forgot_email_proccess$format';
-  static const String forgotEmailSuccess =
-      '${basePath}forgot_email_success$format';
   static const String qrBackground = '${basePath}qr_background$format';
-  static const String profile = '${basePath}profile$format';
+  static const String defaultMaleUserProfile =
+      '${basePath}default_male_user_profile$format';
+  static const String defaultUserProfile =
+      '${basePath}default_female_user_profile$format';
+  static const String defaultFemaleChildProfile =
+      '${basePath}default_female_child_profile$format';
+  static const String defaultMaleChildProfile =
+      '${basePath}default_male_child_profile$format';
+  static const String defaultDailyMaleCapture =
+      '${basePath}default_daily_male_capture.jpg';
+  static const String defaultDailyFemaleCapture =
+      '${basePath}default_daily_female_capture.jpg';
 }

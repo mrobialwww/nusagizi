@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,6 +63,7 @@ import 'package:nusagizi/features/mother/profile/presentation/pages/reminder_ala
 import 'package:nusagizi/features/mother/profile/presentation/pages/access_management_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/terms_and_conditions_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_engagement_cubit.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/access_history_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/help_center_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/language_settings_page.dart';
@@ -80,8 +81,8 @@ import 'package:nusagizi/features/caregiver/home/presentation/pages/social_careg
 import 'package:nusagizi/features/mother/social/presentation/cubit/gallery_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/photo_detail_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/pages/review_photos_page.dart';
-import 'package:nusagizi/features/mother/social/presentation/pages/edit_child_photo_page.dart';
-import 'package:nusagizi/features/mother/social/presentation/cubit/edit_child_photo_cubit.dart';
+import 'package:nusagizi/features/mother/social/presentation/pages/review_child_photo_page.dart';
+import 'package:nusagizi/features/mother/social/presentation/cubit/review_child_photo_cubit.dart';
 
 enum AppRoutes {
   splash,
@@ -104,7 +105,7 @@ enum AppRoutes {
   photoMemories,
   photoDetail,
   reviewPhotos,
-  editChildPhoto,
+  reviewChildPhoto,
   sharePhoto,
   growth,
   growthHistory,
@@ -563,7 +564,11 @@ class AppRouter {
               GoRoute(
                 path: '/social-mother',
                 name: AppRoutes.socialMother.name,
-                builder: (context, state) => const SocialMotherPage(),
+                builder: (context, state) {
+                  final String? retakeUrl =
+                      state.uri.queryParameters['retakeUrl'];
+                  return SocialMotherPage(retakeUrl: retakeUrl);
+                },
                 routes: [
                   GoRoute(
                     path: 'photo-memories',
@@ -617,8 +622,8 @@ class AppRouter {
                     builder: (context, state) => const ReviewPhotosPage(),
                   ),
                   GoRoute(
-                    path: 'edit-child-photo',
-                    name: AppRoutes.editChildPhoto.name,
+                    path: 'review-child-photo',
+                    name: AppRoutes.reviewChildPhoto.name,
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
                       final extra = state.extra as Map<String, dynamic>?;
@@ -628,9 +633,9 @@ class AppRouter {
                       final childId = extra?['childId'] as String?;
 
                       return BlocProvider(
-                        create: (_) => sl<EditChildPhotoCubit>(),
-                        child: EditChildPhotoPage(
-                          photoId: photoId,
+                        create: (_) => sl<ReviewChildPhotoCubit>(),
+                        child: ReviewChildPhotoPage(
+                          photoId: photoId ?? '',
                           imageUrl: imageUrl,
                           childId: childId,
                         ),
@@ -722,6 +727,7 @@ class AppRouter {
                               return cubit;
                             },
                             child: AddOrEditChildProfile(
+                              key: UniqueKey(),
                               childData: childData,
                               fromHome: fromHome,
                             ),
@@ -740,11 +746,20 @@ class AppRouter {
                     path: 'access-management',
                     name: AppRoutes.accessManagement.name,
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => BlocProvider(
-                      create: (_) =>
-                          sl<CaregiverEngagementCubit>()
-                            ..loadActiveEngagements(),
-                      child: const AccessManagementPage(),
+                    builder: (context, state) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                          create: (_) =>
+                              sl<CaregiverEngagementCubit>()
+                                ..loadActiveEngagements(),
+                        ),
+                        BlocProvider.value(value: sl<ChildrenCacheCubit>()),
+                      ],
+                      child: AccessManagementPage(
+                        initialChildId: state.extra is String
+                            ? state.extra as String
+                            : null,
+                      ),
                     ),
                     routes: [
                       GoRoute(

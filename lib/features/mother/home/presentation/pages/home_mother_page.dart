@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_cubit.dart';
@@ -22,15 +21,22 @@ class HomeMotherPage extends StatefulWidget {
   State<HomeMotherPage> createState() => _HomeMotherPageState();
 }
 
-class _HomeMotherPageState extends State<HomeMotherPage>
-    with WidgetsBindingObserver {
+class _HomeMotherPageState extends State<HomeMotherPage> {
   late final GoRouterDelegate _routerDelegate;
+  late final AppLifecycleListener _lifecycleListener;
+  bool _wasPaused = false;
 
   // Register lifecycle, navigation, and routing observers
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onPause: () => _wasPaused = true,
+      onResume: () {
+        if (_wasPaused && motherNavTabNotifier.value == 0) _refetch();
+        _wasPaused = false;
+      },
+    );
     motherNavTabNotifier.addListener(_onTabChanged);
 
     _routerDelegate = GoRouter.of(context).routerDelegate;
@@ -59,7 +65,7 @@ class _HomeMotherPageState extends State<HomeMotherPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleListener.dispose();
     motherNavTabNotifier.removeListener(_onTabChanged);
     _routerDelegate.removeListener(_onRouteChanged);
     super.dispose();
@@ -69,14 +75,6 @@ class _HomeMotherPageState extends State<HomeMotherPage>
   void _onTabChanged() {
     // Index 0 adalah HomeMotherPage
     if (motherNavTabNotifier.value == 0) {
-      _refetch();
-    }
-  }
-
-  // Re-fetch data automatically when the app is resumed from background
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && motherNavTabNotifier.value == 0) {
       _refetch();
     }
   }
@@ -132,10 +130,15 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                     children: [
                       BlocBuilder<UserProfileCubit, UserProfileState>(
                         builder: (context, state) {
-                          String firstName = 'Bunda';
+                          String title = 'Bunda';
+                          String firstName = '';
                           String? photoUrl;
 
                           if (state is UserProfileLoaded) {
+                            if (state.profile.gender == 'male') {
+                              title = 'Ayah';
+                            }
+
                             final fullName = state.profile.fullName;
                             if (fullName.isNotEmpty) {
                               firstName = fullName.split(' ').first;
@@ -158,43 +161,27 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                                     )
                                   : CircleAvatar(
                                       radius: 20.r,
-                                      backgroundColor:
-                                          ImageHelper.getSafeImageProvider(
-                                                photoUrl,
-                                              ) ==
-                                              null
-                                          ? ImageHelper.getAvatarColor(
-                                              firstName,
-                                            )
-                                          : Colors.grey.shade200,
+                                      backgroundColor: Colors.grey.shade200,
                                       backgroundImage:
                                           ImageHelper.getSafeImageProvider(
                                             photoUrl,
+                                          ) ??
+                                          ImageHelper.getDefaultUserImage(
+                                            state is UserProfileLoaded
+                                                ? state.profile.gender
+                                                : null,
                                           ),
-                                      child:
-                                          ImageHelper.getSafeImageProvider(
-                                                photoUrl,
-                                              ) ==
-                                              null
-                                          ? Text(
-                                              ImageHelper.getInitials(
-                                                firstName,
-                                              ),
-                                              style: GoogleFonts.outfit(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14.sp,
-                                              ),
-                                            )
-                                          : null,
                                     ),
+
                               SizedBox(width: 12.w),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Halo,',
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
+                                      fontWeight: FontWeight.w500,
                                       color: Colors.grey[600],
                                       fontSize: 14.sp,
                                     ),
@@ -203,17 +190,19 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                                           state is UserProfileInitial)
                                       ? LoadingEllipsisText(
                                           text: '',
-                                          style: GoogleFonts.outfit(
+                                          style: TextStyle(
+                                            fontFamily: 'PlusJakartaSans',
                                             color: Colors.black,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w600,
                                             fontSize: 18.sp,
                                           ),
                                         )
                                       : Text(
-                                          'Bunda $firstName 👋',
-                                          style: GoogleFonts.outfit(
+                                          '$title${firstName.isNotEmpty ? ' $firstName' : ''} 👋',
+                                          style: TextStyle(
+                                            fontFamily: 'PlusJakartaSans',
                                             color: Colors.black,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.w600,
                                             fontSize: 18.sp,
                                           ),
                                         ),
@@ -265,17 +254,19 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                     children: [
                       Text(
                         'Apa kabar si kecil',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 22.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
                       Text(
                         'hari ini?',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 22.sp,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: const Color(0xFF00A735),
                         ),
                       ),
@@ -310,7 +301,9 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                                 padding: EdgeInsets.symmetric(horizontal: 32.w),
                                 child: Text(
                                   state.message,
-                                  style: GoogleFonts.outfit(
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.red.shade400,
                                     fontSize: 14.sp,
                                   ),
@@ -331,7 +324,8 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                                 ),
                                 label: Text(
                                   "Coba Lagi",
-                                  style: GoogleFonts.outfit(
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
                                     color: const Color(0xFF00A735),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -357,7 +351,11 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                           return Center(
                             child: Text(
                               'Belum ada data anak.',
-                              style: GoogleFonts.outfit(color: Colors.grey),
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
                             ),
                           );
                         }
@@ -366,7 +364,7 @@ class _HomeMotherPageState extends State<HomeMotherPage>
                           options: CarouselOptions(
                             height: double.infinity,
                             enlargeCenterPage: true,
-                            enableInfiniteScroll: state.children.length > 1,
+                            enableInfiniteScroll: false,
                             viewportFraction: 0.8,
                             clipBehavior: Clip.none,
                           ),

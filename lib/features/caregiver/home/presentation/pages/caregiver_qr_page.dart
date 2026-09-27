@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
@@ -66,7 +65,13 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('QR Code tidak valid atau bukan QR Nusagizi.'),
+            content: Text(
+              'QR Code tidak valid atau bukan QR Nusagizi.',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -97,7 +102,13 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Tidak ada QR yang terdeteksi di gambar ini.'),
+            content: Text(
+              'Tidak ada QR yang terdeteksi di gambar ini.',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -116,7 +127,13 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('QR Code tidak valid atau bukan QR Nusagizi.'),
+            content: Text(
+              'QR Code tidak valid atau bukan QR Nusagizi.',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -137,12 +154,18 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
   /// This is crucial because scanning is immediately paused upon detecting a QR code.
   /// If the user cancels the check-in or if an API error occurs (e.g., 404 Not Found),
   /// this method ensures the camera unfreezes so they can try scanning again.
-  void _resumeScanning() {
-    // Clear the last scanned value so the same QR can be scanned again
-    // on an explicit user-initiated retry.
+  Future<void> _resumeScanning() async {
+    // Clear the last scanned value so the same QR can be scanned again on an explicit user-initiated retry.
     _lastScannedValue = null;
     setState(() => _isScanning = true);
-    _controller.start();
+
+    // Always stop before starting to avoid the "MobileScannerController is already running" error.
+    try {
+      await _controller.stop();
+    } catch (_) {}
+    try {
+      await _controller.start();
+    } catch (_) {}
   }
 
   // Returns `true` for success, `false` for conflict, or `null` on error.
@@ -160,12 +183,18 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
       return state.isNewEngagement;
     } else if (state is CaregiverQRError) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(
-          content: Text(state.message),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              state.message,
+              style: const TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
       return null;
     }
@@ -193,18 +222,24 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
       listener: (context, state) async {
         if (state is CaregiverQRPreviewSuccess) {
           await _showCheckinSheet(state.data, state.token);
-          _resumeScanning();
+          await _resumeScanning();
         } else if (state is CaregiverQRError && !state.isCheckinError) {
           // Do NOT auto-resume here. Auto-resuming causes an infinite loop:
           // camera restarts → same QR still in frame → onDetect fires again
           // → same API error → resume → repeat.
           // The user must tap "Scan Ulang" to explicitly retry.
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(
-            content: Text(state.message),
-            backgroundColor: Colors.red,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.message,
+                style: const TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -242,7 +277,9 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
                             child: Text(
                               'Pindai QR Code yang dibagikan oleh orang tua untuk membantu menjalankan rutinitas harian anak',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 13.sp,
                                 color: const Color(0xE6FFFFFF),
                               ),
@@ -331,7 +368,7 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: const Color(0x33FFFFFF),
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(32.r),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -340,7 +377,8 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
             SizedBox(width: 8.w),
             Text(
               'Scan Ulang',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white,
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
@@ -360,7 +398,7 @@ class _CaregiverQRPageState extends State<CaregiverQRPage> {
         Container(
           width: 250.w,
           height: 250.w,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.r)),
           clipBehavior: Clip.hardEdge,
           child: MobileScanner(controller: _controller, onDetect: _onDetect),
         ),

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
-import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/child_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/child_profile_state.dart';
+import 'package:nusagizi/core/utils/image_helper.dart';
 
 class ChildProfilePage extends StatefulWidget {
   const ChildProfilePage({super.key});
@@ -40,7 +39,10 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
       final location = _routerDelegate.currentConfiguration.uri.toString();
       if (location == '/profile-mother/child-profile') {
         if (crudFlag) {
-          context.read<ChildProfileCubit>().loadChildren();
+          final cubit = context.read<ChildProfileCubit>();
+          if (!cubit.isClosed) {
+            cubit.loadChildren();
+          }
           crudFlag = false;
         }
       }
@@ -94,8 +96,6 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
                   children: [
                     ...state.children.asMap().entries.map((entry) {
                       final child = entry.value;
-                      final imageAsset = AppImages.childHome1;
-
                       return Padding(
                         padding: EdgeInsets.only(bottom: 16.0.h),
                         child: GestureDetector(
@@ -106,8 +106,8 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
                           child: _buildChildCard(
                             name: child.fullName,
                             age: child.age,
-                            imageAsset: child.photoUrl ?? imageAsset,
-                            isNetworkImage: child.photoUrl != null,
+                            gender: child.gender,
+                            photoUrl: child.photoUrl,
                           ),
                         ),
                       );
@@ -137,8 +137,9 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
             ),
             child: Text(
               'Tambah Profil Anak',
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
                 fontSize: 15.sp,
               ),
             ),
@@ -151,8 +152,8 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
   Widget _buildChildCard({
     required String name,
     required String age,
-    required String imageAsset,
-    bool isNetworkImage = false,
+    required String gender,
+    String? photoUrl,
   }) {
     return Container(
       padding: EdgeInsets.all(16.w),
@@ -165,9 +166,10 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
         children: [
           CircleAvatar(
             radius: 25.r,
-            backgroundImage: isNetworkImage
-                ? NetworkImage(imageAsset)
-                : AssetImage(imageAsset) as ImageProvider,
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage:
+                ImageHelper.getSafeImageProvider(photoUrl) ??
+                ImageHelper.getDefaultChildImage(gender),
           ),
           SizedBox(width: 16.w),
           Expanded(
@@ -176,7 +178,8 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
               children: [
                 Text(
                   name,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.black87,
                     fontWeight: FontWeight.w600,
                     fontSize: 15.sp,
@@ -185,8 +188,10 @@ class _ChildProfilePageState extends State<ChildProfilePage> {
                 SizedBox(height: 4.h),
                 Text(
                   age,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.grey,
+                    fontWeight: FontWeight.w500,
                     fontSize: 13.sp,
                   ),
                 ),

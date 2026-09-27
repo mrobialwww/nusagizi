@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/utils/number_extension.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/entities/recipe_detail_entity.dart';
@@ -60,7 +59,11 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
                   return Center(
                     child: Text(
                       state.message,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w400,
+                        color: Colors.red,
+                      ),
                     ),
                   );
                 } else if (state is CaregiverRecipeDetailLoaded) {
@@ -119,7 +122,8 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
                 ),
                 child: Text(
                   data.mealTexture,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[700],
@@ -131,7 +135,8 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
           SizedBox(height: 16.h),
           Text(
             data.name,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
@@ -140,7 +145,9 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
           SizedBox(height: 8.h),
           Text(
             data.description,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w400,
               fontSize: 14.sp,
               color: Colors.grey[600],
               height: 1.5,
@@ -165,7 +172,8 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
           children: [
             Text(
               "Informasi Gizi",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -225,7 +233,8 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
           SizedBox(height: 8.h),
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
@@ -233,7 +242,12 @@ class _CaregiverRecipeDetailPageState extends State<CaregiverRecipeDetailPage> {
           ),
           Text(
             label,
-            style: GoogleFonts.outfit(fontSize: 10.sp, color: Colors.grey),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w400,
+              fontSize: 10.sp,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),

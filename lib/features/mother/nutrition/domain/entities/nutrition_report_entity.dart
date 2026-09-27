@@ -4,7 +4,7 @@ class NutritionReportEntity extends Equatable {
   final String id;
   final DateTime createdAt;
   final double calories;
-  final double targetCalories;
+  final String status;
   final double protein;
   final double fat;
   final double carbohydrate;
@@ -14,7 +14,7 @@ class NutritionReportEntity extends Equatable {
     required this.id,
     required this.createdAt,
     required this.calories,
-    required this.targetCalories,
+    required this.status,
     required this.protein,
     required this.fat,
     required this.carbohydrate,
@@ -26,7 +26,7 @@ class NutritionReportEntity extends Equatable {
     id,
     createdAt,
     calories,
-    targetCalories,
+    status,
     protein,
     fat,
     carbohydrate,

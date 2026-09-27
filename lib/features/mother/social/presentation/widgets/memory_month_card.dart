@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
 import 'package:nusagizi/features/mother/social/domain/entities/child_photo_entity.dart';
@@ -49,10 +48,11 @@ class MemoryMonthCard extends StatelessWidget {
             ),
             child: Text(
               monthYearStr,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white,
                 fontSize: 16.sp,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

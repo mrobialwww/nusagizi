@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
@@ -9,7 +8,7 @@ import 'package:nusagizi/features/mother/growth/domain/entities/growth_record_en
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 import 'package:nusagizi/core/widgets/headers/header_primary_features.dart';
-import 'package:nusagizi/core/widgets/headers/header_action_button.dart';
+import 'package:nusagizi/core/widgets/headers/appbar_action_button.dart';
 import 'package:nusagizi/core/widgets/child_picker_bottom_sheet.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/features/mother/growth/presentation/widgets/add_new_data_bottom_sheets.dart';
@@ -105,7 +104,9 @@ class _GrowthPageState extends State<GrowthPage> {
       validChild.id,
     );
     context.read<GrowthHistoryCubit>().fetchHistory(validChild.id);
-    context.read<GrowthAnalysesCubit>().fetch(
+    final analysesCubit = context.read<GrowthAnalysesCubit>();
+    analysesCubit.invalidateCache();
+    analysesCubit.fetch(
       childId: validChild.id,
       analysisType: 'weight_for_age',
       ageRange: '0-60',
@@ -246,7 +247,7 @@ class _GrowthPageState extends State<GrowthPage> {
                     );
                   },
                   actions: [
-                    HeaderActionButton(
+                    AppbarActionButton(
                       icon: Icons.history_rounded,
                       onTap: () => context.goNamed(
                         AppRoutes.growthHistory.name,
@@ -348,7 +349,8 @@ class _GrowthPageState extends State<GrowthPage> {
                   child: Center(
                     child: Text(
                       labels[e.key],
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12.sp,
                         fontWeight: isActive
                             ? FontWeight.w700

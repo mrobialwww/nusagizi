@@ -7,6 +7,7 @@ abstract class ImageApiService {
     required String category,
     required String contentType,
     String? ownerId,
+    String? existingObjectKey,
   });
 }
 
@@ -20,6 +21,7 @@ class ImageApiServiceImpl implements ImageApiService {
     required String category,
     required String contentType,
     String? ownerId,
+    String? existingObjectKey,
   }) async {
     try {
       final Map<String, dynamic> requestData = {
@@ -32,6 +34,9 @@ class ImageApiServiceImpl implements ImageApiService {
             ? 'child_id'
             : 'owner_id';
         requestData[key] = ownerId;
+      }
+      if (existingObjectKey != null) {
+        requestData['object_key'] = existingObjectKey;
       }
 
       final response = await dio.post(

@@ -6,8 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_engagement_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_engagement_state.dart';
 
-import 'package:google_fonts/google_fonts.dart';
-
 class AccessHistoryPage extends StatelessWidget {
   const AccessHistoryPage({super.key});
 
@@ -38,9 +36,11 @@ class AccessHistoryPage extends StatelessWidget {
                 return Center(
                   child: Text(
                     'Belum ada riwayat akses',
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: Colors.grey.shade600,
                       fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 );
@@ -59,8 +59,8 @@ class AccessHistoryPage extends StatelessWidget {
                           child: AccessCard(
                             name: engagement.caregiverName,
                             role: 'Pengasuh', // Hardcoded as agreed
-                            location: engagement.phoneNumber ?? '-',
-                            locationIcon: Icons.phone,
+                            callNumber: engagement.phoneNumber ?? '-',
+                            callNumberIcon: Icons.phone,
                             isPlaceholderAvatar: true,
                             isActive: false,
                             badgeText: engagement.childName,

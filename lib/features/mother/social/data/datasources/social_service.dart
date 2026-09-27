@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 import 'package:nusagizi/features/mother/social/data/models/create_child_photo_request_model.dart';
 import 'package:nusagizi/core/error/exceptions.dart';
 import 'package:nusagizi/features/mother/social/data/models/child_photo_model.dart';
-import 'package:nusagizi/features/mother/social/data/models/edit_child_photo_request_model.dart';
+import 'package:nusagizi/features/mother/social/data/models/review_child_photo_request_model.dart';
 import 'package:nusagizi/features/mother/social/data/models/contact_model.dart';
 
 abstract class SocialService {
@@ -13,10 +13,10 @@ abstract class SocialService {
   Future<List<ChildPhotoModel>> getAllChildPhotos();
   Future<ChildPhotoModel> getPhotoDetail(String childPhotoId);
   Future<String> createChildPhoto(CreateChildPhotoRequestModel request);
-  Future<void> editChildPhoto(
+  Future<void> reviewChildPhoto(
     String childId,
     String childPhotoId,
-    EditChildPhotoRequestModel request,
+    ReviewChildPhotoRequestModel request,
   );
 }
 
@@ -167,10 +167,10 @@ class SocialServiceImpl implements SocialService {
   }
 
   @override
-  Future<void> editChildPhoto(
+  Future<void> reviewChildPhoto(
     String childId,
     String childPhotoId,
-    EditChildPhotoRequestModel request,
+    ReviewChildPhotoRequestModel request,
   ) async {
     try {
       final endpoint = '/children/$childId/photos/$childPhotoId';

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/edit_child_profile_helpers.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/add_edit_profile_cubit.dart';
@@ -41,7 +40,7 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
       text: allergies['animal']?.join(', ') ?? '',
     );
     _otherAllergyCtrl = TextEditingController(
-      text: allergies['others']?.join(', ') ?? '',
+      text: allergies['other']?.join(', ') ?? '',
     );
 
     _alergiMakanan = allergies.isNotEmpty ? 'Ada' : 'Tidak';
@@ -90,7 +89,7 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
             .toList();
       }
       if (_otherAllergyCtrl.text.isNotEmpty) {
-        newAllergies['others'] = _otherAllergyCtrl.text
+        newAllergies['other'] = _otherAllergyCtrl.text
             .split(',')
             .map((e) => e.trim())
             .toList();
@@ -127,7 +126,7 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
         children: [
           buildStepHeader('Langkah 2', 'Riwayat Kesehatan & Alergi'),
           SizedBox(height: 32.h),
-          buildLabel('Ada alergi makanan?'),
+          buildLabel('Ada alergi makanan?', isRequired: true),
           RadioGroup<String>(
             groupValue: _alergiMakanan,
             onChanged: (val) {
@@ -147,7 +146,7 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
           if (_alergiMakanan == 'Ada') _buildAlergiDetails(),
 
           SizedBox(height: 24.h),
-          buildLabel('Ada kondisi kronis?'),
+          buildLabel('Ada kondisi kronis?', isRequired: true),
           RadioGroup<String>(
             groupValue: _kondisiKronis,
             onChanged: (val) {
@@ -167,7 +166,7 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
           if (_kondisiKronis == 'Ada') _buildKronisDetails(),
 
           SizedBox(height: 24.h),
-          buildLabel('Ada diet khusus?'),
+          buildLabel('Ada diet khusus?', isRequired: true),
           RadioGroup<String>(
             groupValue: _dietKhusus,
             onChanged: (val) {
@@ -202,18 +201,30 @@ class _AddEditChildProfileStep2State extends State<AddEditChildProfileStep2> {
         children: [
           Text(
             label,
-            style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13.sp),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              color: Colors.black87,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           SizedBox(height: 8.h),
           TextFormField(
             controller: controller,
             onChanged: (val) => _updateCubit(),
-            style: GoogleFonts.outfit(color: Colors.black87, fontSize: 13.sp),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              color: Colors.black87,
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w500,
+            ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.outfit(
+              hintStyle: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.grey.shade400,
                 fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
               ),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,

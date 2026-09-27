@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nusagizi/core/config/assets/app_vectors.dart';
@@ -45,7 +44,9 @@ class _CaregiverNotificationPageState extends State<CaregiverNotificationPage> {
                       child: Text(
                         state.message,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w500,
                           color: Colors.red,
                           fontSize: 14.sp,
                         ),
@@ -61,12 +62,14 @@ class _CaregiverNotificationPageState extends State<CaregiverNotificationPage> {
                         children: [
                           SvgPicture.asset(
                             AppVectors.emptyNotification,
-                            height: 180.h,
+                            height: 175.h,
                           ),
                           SizedBox(height: 24.h),
                           Text(
-                            'Belum ada notifikasi',
-                            style: GoogleFonts.outfit(
+                            'Belum Ada Notifikasi',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w400,
                               color: Colors.black54,
                               fontSize: 14.sp,
                             ),
@@ -145,17 +148,20 @@ class _CaregiverNotificationPageState extends State<CaregiverNotificationPage> {
             children: [
               Text(
                 notif.title,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   color: Colors.black87,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w600,
                   height: 1.3,
                 ),
               ),
               SizedBox(height: 4.h),
               Text(
                 notif.message.isNotEmpty ? notif.message : displayTime,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w400,
                   color: Colors.grey[500],
                   fontSize: 12.sp,
                 ),

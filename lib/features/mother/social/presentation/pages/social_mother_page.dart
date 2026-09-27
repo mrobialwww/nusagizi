@@ -1,12 +1,13 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
-
+import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/features/mother/social/presentation/widgets/social_friends_bottom_sheet.dart';
 import 'package:nusagizi/features/mother/social/presentation/widgets/gallery_bottom_sheet.dart';
 import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
@@ -17,16 +18,20 @@ import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_
 import 'package:nusagizi/features/mother/social/presentation/cubit/create_child_photo_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/create_child_photo_state.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
+import 'package:nusagizi/features/mother/social/presentation/cubit/retake_photo_cubit.dart';
+import 'package:nusagizi/features/mother/social/presentation/cubit/retake_photo_state.dart';
+// import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class SocialMotherPage extends StatefulWidget {
-  const SocialMotherPage({super.key});
+  final String? retakeUrl;
+  const SocialMotherPage({super.key, this.retakeUrl});
 
   @override
   State<SocialMotherPage> createState() => _SocialMotherPageState();
 }
 
-class _SocialMotherPageState extends State<SocialMotherPage>
-    with WidgetsBindingObserver {
+class _SocialMotherPageState extends State<SocialMotherPage> {
+  late final AppLifecycleListener _lifecycleListener;
   bool isPhotoTaken = false;
   String _visibilityMode = 'all';
   final List<String> _selectedContactIds = [];
@@ -40,10 +45,37 @@ class _SocialMotherPageState extends State<SocialMotherPage>
   bool _isCameraInitialized = false;
   final TextEditingController _captionController = TextEditingController();
 
+  /// Mengaktifkan kembali sensor kamera saat modal/halaman lain ditutup,
+  /// karena plugin camera sering membeku saat kehilangan fokus.
+  void _onModalClosed() {
+    if (mounted) {
+      if (!isPhotoTaken) {
+        _setupCameraController();
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onInactive: () {
+        if (_cameraController != null &&
+            _cameraController!.value.isInitialized) {
+          try {
+            _cameraController?.dispose();
+          } catch (e) {
+            debugPrint('Error disposing on inactive: $e');
+          }
+        }
+      },
+      onResume: () {
+        if (_cameraController != null &&
+            _cameraController!.value.isInitialized) {
+          _setupCameraController();
+        }
+      },
+    );
     _initializeCamera();
   }
 
@@ -65,6 +97,21 @@ class _SocialMotherPageState extends State<SocialMotherPage>
   Future<void> _setupCameraController() async {
     if (_cameras.isEmpty) return;
 
+    if (mounted) {
+      setState(() {
+        _isCameraInitialized = false;
+      });
+    }
+
+    if (_cameraController != null) {
+      try {
+        await _cameraController!.dispose();
+      } catch (e) {
+        debugPrint('Error disposing old camera controller in setup: $e');
+      }
+      _cameraController = null;
+    }
+
     final camera = _cameras[_selectedCameraIndex];
     _cameraController = CameraController(
       camera,
@@ -85,23 +132,30 @@ class _SocialMotherPageState extends State<SocialMotherPage>
     }
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return;
-    }
+  Future<XFile> _fixFrontCameraImage(XFile originalFile) async {
+    final bytes = await originalFile.readAsBytes();
+    final decoded = img.decodeImage(bytes);
+    if (decoded == null) return originalFile;
 
-    if (state == AppLifecycleState.inactive) {
-      _cameraController?.dispose();
-    } else if (state == AppLifecycleState.resumed) {
-      _setupCameraController();
-    }
+    final flipped = img.flipHorizontal(decoded);
+    // Tulis ulang byte yang sudah di-flip ke file ASLI
+    File(
+      originalFile.path,
+    ).writeAsBytesSync(img.encodeJpg(flipped, quality: 92));
+
+    return originalFile;
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _cameraController?.dispose();
+    _lifecycleListener.dispose();
+    if (_cameraController != null) {
+      try {
+        _cameraController!.dispose();
+      } catch (e) {
+        debugPrint('Error disposing camera controller: $e');
+      }
+    }
     _captionController.dispose();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       hideMotherNavBarNotifier.value = false;
@@ -116,25 +170,74 @@ class _SocialMotherPageState extends State<SocialMotherPage>
         BlocProvider(create: (context) => sl<ContactsCubit>()..fetchContacts()),
         BlocProvider.value(value: sl<ChildrenCacheCubit>()),
         BlocProvider(create: (context) => sl<CreateChildPhotoCubit>()),
+        BlocProvider(create: (context) => sl<RetakePhotoCubit>()),
       ],
-      child: BlocListener<CreateChildPhotoCubit, CreateChildPhotoState>(
-        listener: (context, state) {
-          if (state is CreateChildPhotoSuccess) {
-            setState(() {
-              isPhotoTaken = false;
-              _capturedImage = null;
-              _captionController.clear();
-              hideMotherNavBarNotifier.value = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Foto berhasil diunggah')),
-            );
-          } else if (state is CreateChildPhotoFailure) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<RetakePhotoCubit, RetakePhotoState>(
+            listener: (context, state) async {
+              if (state is RetakePhotoFailure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.message,
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } else if (state is RetakePhotoSuccess) {
+                if (context.mounted) {
+                  setState(() {
+                    isPhotoTaken = false;
+                    _capturedImage = null;
+                    _captionController.clear();
+                    hideMotherNavBarNotifier.value = false;
+                  });
+                  context.goNamed(AppRoutes.socialMother.name);
+                }
+              }
+            },
+          ),
+          BlocListener<CreateChildPhotoCubit, CreateChildPhotoState>(
+            listener: (context, state) {
+              if (state is CreateChildPhotoSuccess) {
+                setState(() {
+                  isPhotoTaken = false;
+                  _capturedImage = null;
+                  _captionController.clear();
+                  hideMotherNavBarNotifier.value = false;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Foto berhasil diunggah',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                );
+              } else if (state is CreateChildPhotoFailure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      state.message,
+                      style: const TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
         child: Builder(
           builder: (context) {
             return Scaffold(
@@ -174,7 +277,8 @@ class _SocialMotherPageState extends State<SocialMotherPage>
           child: Center(
             child: Text(
               'Bagikan',
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white,
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -187,35 +291,40 @@ class _SocialMotherPageState extends State<SocialMotherPage>
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0.w, vertical: 16.0.h),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: widget.retakeUrl != null
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.spaceBetween,
         children: [
           // Calendar Button
-          GestureDetector(
-            onTap: () {
-              String? activeChildId;
-              final children = context.read<ChildrenCacheCubit>().state;
-              if (children.isNotEmpty &&
-                  _selectedChildIndex < children.length) {
-                activeChildId = children[_selectedChildIndex].id;
-              }
-              context.pushNamed(
-                AppRoutes.photoMemories.name,
-                extra: activeChildId,
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.calendar_today,
-                color: Colors.white,
-                size: 24.sp,
+          if (widget.retakeUrl == null)
+            GestureDetector(
+              onTap: () {
+                String? activeChildId;
+                final children = context.read<ChildrenCacheCubit>().state;
+                if (children.isNotEmpty &&
+                    _selectedChildIndex < children.length) {
+                  activeChildId = children[_selectedChildIndex].id;
+                }
+                context
+                    .pushNamed(
+                      AppRoutes.photoMemories.name,
+                      extra: activeChildId,
+                    )
+                    .then((_) => _onModalClosed());
+              },
+              child: Container(
+                padding: EdgeInsets.all(12.w),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.calendar_today,
+                  color: Colors.white,
+                  size: 24.sp,
+                ),
               ),
             ),
-          ),
 
           // Friends Chip
           GestureDetector(
@@ -223,12 +332,13 @@ class _SocialMotherPageState extends State<SocialMotherPage>
               showModalBottomSheet(
                 context: context,
                 isScrollControlled: true,
+                useRootNavigator: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => const FractionallySizedBox(
                   heightFactor: 0.95,
                   child: SocialFriendsBottomSheet(),
                 ),
-              );
+              ).then((_) => _onModalClosed());
             },
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
@@ -248,7 +358,8 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                       }
                       return Text(
                         countStr,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.white,
                           fontSize: 15.sp,
                           fontWeight: FontWeight.w600,
@@ -322,14 +433,16 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                   ),
                   child: TextField(
                     controller: _captionController,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: Colors.white,
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Tambah pesan',
-                      hintStyle: GoogleFonts.inter(
+                      hintStyle: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.white70,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
@@ -429,13 +542,28 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                         ? children[_selectedChildIndex].id
                         : '';
 
-                    context.read<CreateChildPhotoCubit>().submitPhoto(
-                      imageFile: File(_capturedImage!.path),
-                      childId: childId,
-                      caption: _captionController.text.trim(),
-                      visibility: visibility,
-                      listVisibility: listVisibility,
-                    );
+                    if (widget.retakeUrl != null) {
+                      String existingObjectKey = widget.retakeUrl!;
+                      try {
+                        final uri = Uri.parse(widget.retakeUrl!);
+                        existingObjectKey = uri.path.startsWith('/')
+                            ? uri.path.substring(1)
+                            : uri.path;
+                      } catch (_) {}
+
+                      context.read<RetakePhotoCubit>().retake(
+                        imageFile: File(_capturedImage!.path),
+                        existingObjectKey: existingObjectKey,
+                      );
+                    } else {
+                      context.read<CreateChildPhotoCubit>().submitPhoto(
+                        imageFile: File(_capturedImage!.path),
+                        childId: childId,
+                        caption: _captionController.text.trim(),
+                        visibility: visibility,
+                        listVisibility: listVisibility,
+                      );
+                    }
                   },
                   child: Container(
                     width: 85.w,
@@ -455,10 +583,22 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                 if (_cameraController != null &&
                     _cameraController!.value.isInitialized) {
                   try {
-                    final image = await _cameraController!.takePicture();
+                    final rawImage = await _cameraController!.takePicture();
+
+                    // Perbaiki mirror untuk front camera di level pixel
+                    final isFront =
+                        _cameras.isNotEmpty &&
+                        _cameras[_selectedCameraIndex].lensDirection ==
+                            CameraLensDirection.front;
+
+                    final finalImage = isFront
+                        ? await _fixFrontCameraImage(rawImage)
+                        : rawImage;
+
                     hideMotherNavBarNotifier.value = true;
+
                     setState(() {
-                      _capturedImage = image;
+                      _capturedImage = finalImage;
                       isPhotoTaken = true;
                     });
                   } catch (e) {
@@ -551,9 +691,7 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                       final isSelected = _selectedContactIds.contains(
                         contact.contactId,
                       );
-                      final fallbackInitial = ImageHelper.getInitials(
-                        contact.fullName,
-                      );
+
                       final imageProvider = ImageHelper.getSafeImageProvider(
                         contact.photoUrl,
                       );
@@ -589,32 +727,14 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                                     width: 2,
                                   ),
                                 ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: imageProvider != null
-                                        ? DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
-                                    color: imageProvider == null
-                                        ? ImageHelper.getAvatarColor(
-                                            contact.fullName,
-                                          )
-                                        : null,
-                                  ),
-                                  child: imageProvider == null
-                                      ? Center(
-                                          child: Text(
-                                            fallbackInitial,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        )
-                                      : null,
+                                child: CircleAvatar(
+                                  radius: 24.r,
+                                  backgroundColor: Colors.grey.shade200,
+                                  backgroundImage:
+                                      imageProvider ??
+                                      const AssetImage(
+                                        AppImages.defaultUserProfile,
+                                      ),
                                 ),
                               ),
                               SizedBox(height: 6.h),
@@ -623,6 +743,8 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                                 child: Text(
                                   contact.fullName,
                                   style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontWeight: FontWeight.w500,
                                     color: Colors.white,
                                     fontSize: 11.sp,
                                   ),
@@ -648,15 +770,17 @@ class _SocialMotherPageState extends State<SocialMotherPage>
 
     return GestureDetector(
       onTap: () {
+        if (widget.retakeUrl != null) return;
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
+          useRootNavigator: true,
           backgroundColor: Colors.transparent,
           builder: (context) => const FractionallySizedBox(
             heightFactor: 0.95,
             child: GalleryBottomSheet(),
           ),
-        );
+        ).then((_) => _onModalClosed());
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -680,7 +804,8 @@ class _SocialMotherPageState extends State<SocialMotherPage>
             SizedBox(width: 12.w),
             Text(
               'Galeri',
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white,
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -733,7 +858,8 @@ class _SocialMotherPageState extends State<SocialMotherPage>
             SizedBox(height: 8.h),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.white70,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,
@@ -778,31 +904,19 @@ class _SocialMotherPageState extends State<SocialMotherPage>
                   children: [
                     CircleAvatar(
                       radius: 14.r,
-                      backgroundColor:
-                          ImageHelper.getSafeImageProvider(child.imagePath) ==
-                              null
-                          ? ImageHelper.getAvatarColor(child.name)
-                          : const Color(0xFF00A735).withValues(alpha: 0.2),
-                      backgroundImage: ImageHelper.getSafeImageProvider(
-                        child.imagePath,
-                      ),
-                      child:
-                          ImageHelper.getSafeImageProvider(child.imagePath) ==
-                              null
-                          ? Text(
-                              ImageHelper.getInitials(child.name),
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10.sp,
-                              ),
-                            )
-                          : null,
+                      backgroundColor: const Color(
+                        0xFF00A735,
+                      ).withValues(alpha: 0.2),
+                      backgroundImage:
+                          ImageHelper.getSafeImageProvider(child.imagePath) ??
+                          ImageHelper.getDefaultChildImage(child.gender),
                     ),
                     SizedBox(width: 12.w),
                     Text(
                       child.name,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                         fontSize: 14.sp,
                       ),
@@ -814,24 +928,10 @@ class _SocialMotherPageState extends State<SocialMotherPage>
           },
           child: CircleAvatar(
             radius: 18.r,
-            backgroundColor:
-                ImageHelper.getSafeImageProvider(activeChild.imagePath) == null
-                ? ImageHelper.getAvatarColor(activeChild.name)
-                : const Color(0xFF00A735).withValues(alpha: 0.2),
-            backgroundImage: ImageHelper.getSafeImageProvider(
-              activeChild.imagePath,
-            ),
-            child:
-                ImageHelper.getSafeImageProvider(activeChild.imagePath) == null
-                ? Text(
-                    ImageHelper.getInitials(activeChild.name),
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14.sp,
-                    ),
-                  )
-                : null,
+            backgroundColor: const Color(0xFF00A735).withValues(alpha: 0.2),
+            backgroundImage:
+                ImageHelper.getSafeImageProvider(activeChild.imagePath) ??
+                ImageHelper.getDefaultChildImage(activeChild.gender),
           ),
         );
       },

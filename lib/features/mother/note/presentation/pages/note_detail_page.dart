@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
@@ -72,8 +71,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       child: Row(
                         children: [
                           Container(
-                            width: 6,
-                            height: 6,
+                            width: 6.w,
+                            height: 6.w,
                             decoration: BoxDecoration(
                               color: isExpired
                                   ? Colors.grey
@@ -84,12 +83,13 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                           SizedBox(width: 4.w),
                           Text(
                             isExpired ? 'Kadaluwarsa' : 'Aktif',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: isExpired
                                   ? Colors.grey
                                   : const Color(0xFF00A735),
                               fontSize: 10.sp,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -141,7 +141,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                         isExpired
                                             ? 'Catatan telah kedaluwarsa'
                                             : 'Catatan masih berlaku',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           color: isExpired
                                               ? const Color(0xFFF44336)
                                               : const Color(0xFF00A735),
@@ -152,10 +153,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                       SizedBox(height: 2.h),
                                       Text(
                                         'Berlaku hingga $formattedValidDate.',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           color: isExpired
                                               ? const Color(0xFFE53935)
                                               : const Color(0xFF4CAF50),
+                                          fontWeight: FontWeight.w400,
                                           fontSize: 12.sp,
                                         ),
                                       ),
@@ -171,10 +174,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                               title: 'Rekomendasi Medis',
                               child: Text(
                                 detail.recommendation,
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   color: Colors.black87,
                                   fontSize: 14.sp,
                                   height: 1.5,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ),
@@ -190,63 +195,22 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                   crossAxisCount: 2,
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
+                                  crossAxisSpacing: 12.w,
+                                  mainAxisSpacing: 12.h,
                                   childAspectRatio: 2.2,
                                   children: detail.dailyNutritionTargets.map((
                                     n,
                                   ) {
-                                    IconData icon;
-                                    Color color;
-                                    Color bgColor;
-                                    String unit = 'g/hari';
-                                    String nutrientLabel = n.nutrient;
-                                    final nutrientLower = n.nutrient
-                                        .toLowerCase();
-
-                                    if (nutrientLower.contains('kalori') ||
-                                        nutrientLower.contains('calori')) {
-                                      icon = Icons.local_fire_department;
-                                      color = Colors.red;
-                                      bgColor = Colors.red.shade50;
-                                      unit = 'kcal/hari';
-                                      nutrientLabel = 'Kalori';
-                                    } else if (nutrientLower.contains(
-                                      'protein',
-                                    )) {
-                                      icon = Icons.egg_alt;
-                                      color = Colors.orange;
-                                      bgColor = Colors.orange.shade50;
-                                      nutrientLabel = 'Protein';
-                                    } else if (nutrientLower.contains(
-                                          'lemak',
-                                        ) ||
-                                        nutrientLower.contains('fat')) {
-                                      icon = Icons.water_drop;
-                                      color = Colors.green;
-                                      bgColor = Colors.green.shade50;
-                                      nutrientLabel = 'Lemak';
-                                    } else {
-                                      icon = Icons.grain;
-                                      color = Colors.blue;
-                                      bgColor = Colors.blue.shade50;
-                                      if (nutrientLower.contains(
-                                            'karbohidrat',
-                                          ) ||
-                                          nutrientLower.contains(
-                                            'carbohydrate',
-                                          )) {
-                                        nutrientLabel = 'Karbohidrat';
-                                      }
-                                    }
-
+                                    final info = _getNutrientInfo(n.nutrient);
                                     return _buildNutritionItem(
-                                      icon: icon,
-                                      iconColor: color,
-                                      iconBgColor: bgColor,
-                                      label: nutrientLabel,
+                                      icon: info.icon,
+                                      iconColor: info.color,
+                                      iconBgColor: info.color.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      label: info.label,
                                       value: n.quantity.toMacroFormat(),
-                                      unit: unit,
+                                      unit: info.unit,
                                     );
                                   }).toList(),
                                 ),
@@ -266,7 +230,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                     )) ...[
                                       Text(
                                         'Pantangan, hindari makanan berikut',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           color: Colors.red.shade400,
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w500,
@@ -297,7 +262,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                     )) ...[
                                       Text(
                                         'Alergi, perhatikan reaksi tubuh anak',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           color: Colors.orange.shade400,
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w500,
@@ -323,6 +289,21 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                                   ],
                                 ),
                               ),
+                            // Disclaimer
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Text(
+                                'Catatan konsultasi ini hanya dapat dilihat. Untuk mengubah isinya, lakukan pembaruan saat sesi konsultasi berikutnya.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  color: Colors.black54,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 24.h),
                           ],
                         ),
                       ),
@@ -349,8 +330,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                           ),
                           child: Text(
                             "Ubah Catatan",
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.w700,
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
                               fontSize: 15.sp,
                             ),
                           ),
@@ -387,9 +369,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       padding: EdgeInsets.symmetric(horizontal: 32.w),
                       child: Text(
                         state.message,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.red.shade400,
                           fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -405,7 +389,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       ),
                       label: Text(
                         "Coba Lagi",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: const Color(0xFF00A735),
                           fontWeight: FontWeight.w600,
                         ),
@@ -471,7 +456,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         children: [
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: Colors.black87,
               fontSize: 15.sp,
               fontWeight: FontWeight.w600,
@@ -481,7 +467,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             SizedBox(height: 4.h),
             Text(
               subtitle,
-              style: GoogleFonts.outfit(color: Colors.black54, fontSize: 12.sp),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                color: Colors.black54,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
           SizedBox(height: 16.h),
@@ -524,9 +515,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.black54,
                     fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -537,18 +530,21 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   children: [
                     Text(
                       value,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.black87,
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(width: 2.w),
                     Text(
                       unit,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.black38,
                         fontSize: 9.sp,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
@@ -575,7 +571,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           SizedBox(width: 6.w),
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: color,
               fontSize: 11.sp,
               fontWeight: FontWeight.w500,
@@ -585,4 +582,39 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       ),
     );
   }
+
+  ({IconData icon, Color color, String label, String unit}) _getNutrientInfo(
+    String nutrient,
+  ) => switch (nutrient.toLowerCase()) {
+    'calorie' => (
+      icon: Icons.local_fire_department,
+      color: Colors.red,
+      label: 'Kalori',
+      unit: 'kcal/hari',
+    ),
+    'protein' => (
+      icon: Icons.egg_alt,
+      color: Colors.orange,
+      label: 'Protein',
+      unit: 'g/hari',
+    ),
+    'fat' => (
+      icon: Icons.water_drop,
+      color: Colors.green,
+      label: 'Lemak',
+      unit: 'g/hari',
+    ),
+    'carbohydrate' => (
+      icon: Icons.grain,
+      color: Colors.blue,
+      label: 'Karbohidrat',
+      unit: 'g/hari',
+    ),
+    _ => (
+      icon: Icons.grain,
+      color: Colors.grey,
+      label: nutrient,
+      unit: 'g/hari',
+    ),
+  };
 }

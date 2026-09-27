@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_summary_entity.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/core/widgets/status_badge.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/daily_focus_cubit.dart';
 
 class BackChildCard extends StatefulWidget {
   final ChildSummaryEntity childData;
@@ -21,8 +23,6 @@ class BackChildCard extends StatefulWidget {
 }
 
 class _BackChildCardState extends State<BackChildCard> {
-  final Set<int> _checkedFocuses = {};
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -35,23 +35,22 @@ class _BackChildCardState extends State<BackChildCard> {
           borderRadius: BorderRadius.circular(32.r),
           border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
-        // Gunakan SingleChildScrollView agar tidak overflow
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
                       'Ringkasan ${widget.childData.name}',
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 20.sp,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         color: Colors.black,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -64,316 +63,435 @@ class _BackChildCardState extends State<BackChildCard> {
                 ],
               ),
               SizedBox(height: 16.h),
-
-              // Tumbuh & Kembang row - pakai IntrinsicHeight agar tinggi sama
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Tumbuh
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => context.goNamed(
-                          AppRoutes.growth.name,
-                          extra: widget.childData.id,
-                        ),
-                        child: Container(
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF4F6F4),
-                            borderRadius: BorderRadius.circular(16.r),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Tumbuh',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.grey[700],
-                                  fontSize: 14.sp,
-                                ),
-                              ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.monitor_weight_outlined,
-                                    size: 18.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 6.w),
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text:
-                                            '${widget.childData.weightKg.toStringAsFixed(1).replaceAll('.', ',')} ',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.sp,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: 'kg',
-                                            style: GoogleFonts.outfit(
-                                              color: Colors.black,
-                                              fontSize: 12.sp,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 6.h),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.straighten,
-                                    size: 18.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 6.w),
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text:
-                                            '${widget.childData.heightCm.toStringAsFixed(0)} ',
-                                        style: GoogleFonts.outfit(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16.sp,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: 'cm',
-                                            style: GoogleFonts.outfit(
-                                              color: Colors.black,
-                                              fontSize: 12.sp,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 14.h),
-                              StatusBadge(
-                                status: widget.childData.growthStatus,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildGrowthCard(context),
                     SizedBox(width: 12.w),
+                    _buildDevelopmentCard(context),
+                  ],
+                ),
+              ),
+              SizedBox(height: 12.h),
+              _buildNutritionCard(context),
+              SizedBox(height: 12.h),
+              _buildDailyFocusCard(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-                    // Kembang
+  Widget _buildGrowthCard(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () =>
+            context.goNamed(AppRoutes.growth.name, extra: widget.childData.id),
+        child: Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF4F6F4),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Tumbuh',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                    fontSize: 14.sp,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.monitor_weight_outlined,
+                      size: 18.sp,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(width: 6.w),
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () => context.goNamed(
-                          AppRoutes.development.name,
-                          extra: widget.childData.id,
-                        ),
-                        child: Container(
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF4F6F4),
-                            borderRadius: BorderRadius.circular(16.r),
+                      child: RichText(
+                        text: TextSpan(
+                          text:
+                              '${widget.childData.weightKg.toStringAsFixed(1).replaceAll('.', ',')} ',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            fontSize: 16.sp,
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Kembang',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.grey[700],
-                                  fontSize: 14.sp,
-                                ),
+                          children: [
+                            TextSpan(
+                              text: 'kg',
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                                fontSize: 12.sp,
                               ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.assignment_turned_in_outlined,
-                                    size: 18.sp,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(width: 6.w),
-                                  Expanded(
-                                    child: Text(
-                                      '${widget.childData.developmentScore}/${widget.childData.developmentMaxScore}',
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.sp,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 14.h),
-                              StatusBadge(
-                                status: widget.childData.developmentStatus,
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 12.h),
-
-              // Gizi
-              GestureDetector(
-                onTap: () => context.goNamed(
-                  AppRoutes.nutrition.name,
-                  extra: widget.childData.id,
+                SizedBox(height: 6.h),
+                Row(
+                  children: [
+                    Icon(Icons.straighten, size: 18.sp, color: Colors.grey),
+                    SizedBox(width: 6.w),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          text:
+                              '${widget.childData.heightCm.toStringAsFixed(0)} ',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'cm',
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F6F4),
-                    borderRadius: BorderRadius.circular(16.r),
+                SizedBox(height: 14.h),
+                StatusBadge(
+                  status: widget.childData.growthStatus,
+                  fontWeight: FontWeight.w700,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDevelopmentCard(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => context.goNamed(
+          AppRoutes.development.name,
+          extra: widget.childData.id,
+        ),
+        child: Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF4F6F4),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Kembang',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[700],
+                    fontSize: 14.sp,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Gizi',
-                              style: GoogleFonts.outfit(
+                ),
+                // Empty state if max score is 0
+                if (widget.childData.developmentMaxScore == 0) ...[
+                  SizedBox(height: 12.h),
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Yuk mulai\nasesmen',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                            fontSize: 13.sp,
+                            height: 1.3,
+                          ),
+                        ),
+                        SizedBox(height: 6.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Mulai asesmen',
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 color: Colors.grey[700],
-                                fontSize: 14.sp,
+                                fontSize: 11.sp,
                               ),
                             ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Flexible(
-                            child: StatusBadge(
-                              status: widget.childData.nutritionStatus,
+                            Icon(
+                              Icons.chevron_right,
+                              size: 14.sp,
+                              color: Colors.grey[700],
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                ] else ...[
+                  SizedBox(height: 8.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.assignment_turned_in_outlined,
+                        size: 18.sp,
+                        color: Colors.grey,
                       ),
-                      SizedBox(height: 10.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Protein',
-                            style: GoogleFonts.outfit(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16.sp,
-                            ),
+                      SizedBox(width: 6.w),
+                      Expanded(
+                        child: Text(
+                          '${widget.childData.developmentScore}/${widget.childData.developmentMaxScore}',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            fontSize: 16.sp,
                           ),
-                          SizedBox(width: 8.w),
-                          Flexible(
-                            child: RichText(
-                              textAlign: TextAlign.right,
-                              text: TextSpan(
-                                text: '${widget.childData.proteinCurrent}g ',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.sp,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        '/ ${widget.childData.proteinTarget}g',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.grey,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10.h),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4.r),
-                        child: LinearProgressIndicator(
-                          value: widget.childData.proteinTarget > 0
-                              ? (widget.childData.proteinCurrent /
-                                        widget.childData.proteinTarget)
-                                    .clamp(0.0, 1.0)
-                              : 0,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.orange,
-                          ),
-                          minHeight: 6,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
+                  SizedBox(height: 14.h),
+                  StatusBadge(
+                    status: widget.childData.developmentStatus,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNutritionCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () =>
+          context.goNamed(AppRoutes.nutrition.name, extra: widget.childData.id),
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF4F6F4),
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.childData.proteinTarget == 0) ...[
+              SizedBox(height: 18.h),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Yuk mulai penuhi gizi',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Lihat resep hari ini',
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[700],
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right,
+                          size: 16.sp,
+                          color: Colors.grey[700],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-
-              SizedBox(height: 12.h),
-
-              // Fokus Hari Ini
-              GestureDetector(
-                onTap:
-                    () {}, // Mencegah event tap merambat ke parent (flip card)
-                child: Container(
-                  padding: EdgeInsets.all(16.w),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF4F6F4),
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Fokus Hari Ini',
-                        style: GoogleFonts.outfit(
-                          color: Colors.grey[700],
-                          fontSize: 14.sp,
-                        ),
+              SizedBox(height: 10.h),
+            ] else ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Gizi',
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                        fontSize: 14.sp,
                       ),
-                      SizedBox(height: 10.h),
-                      ...List.generate(widget.childData.dailyFocuses.length, (
-                        index,
-                      ) {
-                        final focusText = widget.childData.dailyFocuses[index];
-                        final isChecked = _checkedFocuses.contains(index);
-                        return _buildCheckboxItem(focusText, isChecked, () {
-                          setState(() {
-                            if (isChecked) {
-                              _checkedFocuses.remove(index);
-                            } else {
-                              _checkedFocuses.add(index);
-                            }
-                          });
-                        });
-                      }),
-                    ],
+                    ),
                   ),
+                  SizedBox(width: 8.w),
+                  Flexible(
+                    child: StatusBadge(
+                      status: widget.childData.nutritionStatus,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Protein',
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Flexible(
+                    child: RichText(
+                      textAlign: TextAlign.right,
+                      text: TextSpan(
+                        text: '${widget.childData.proteinCurrent}g ',
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                          fontSize: 16.sp,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: '/ ${widget.childData.proteinTarget}g',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4.r),
+                child: LinearProgressIndicator(
+                  value: widget.childData.proteinTarget > 0
+                      ? (widget.childData.proteinCurrent /
+                                widget.childData.proteinTarget)
+                            .clamp(0.0, 1.0)
+                      : 0,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    Colors.orange,
+                  ),
+                  minHeight: 6,
                 ),
               ),
             ],
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyFocusCard() {
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF4F6F4),
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Fokus Hari Ini',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[700],
+                fontSize: 14.sp,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            BlocBuilder<DailyFocusCubit, Map<String, List<int>>>(
+              bloc: sl<DailyFocusCubit>(),
+              builder: (context, state) {
+                final focusOptions = [
+                  'Berikan makan siang sesuai rekomendasi',
+                  'Upload foto makan siang',
+                  'Apakah sudah membeli semua bahan masakan?',
+                ];
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(focusOptions.length, (index) {
+                    final focusText = focusOptions[index];
+                    final isChecked = sl<DailyFocusCubit>().isChecked(
+                      widget.childData.id,
+                      index,
+                    );
+                    return _buildCheckboxItem(focusText, isChecked, () {
+                      sl<DailyFocusCubit>().toggleFocus(
+                        widget.childData.id,
+                        index,
+                      );
+                    });
+                  }),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -408,7 +526,9 @@ class _BackChildCardState extends State<BackChildCard> {
             Expanded(
               child: Text(
                 text,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   color: Colors.black87,
                   fontSize: 14.sp,
                 ),

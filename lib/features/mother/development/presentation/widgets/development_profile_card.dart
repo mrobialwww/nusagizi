@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/router.dart';
 import 'package:nusagizi/core/routes/route_args.dart';
 import 'package:nusagizi/features/mother/development/presentation/widgets/development_radar_chart.dart';
@@ -72,8 +71,9 @@ class DevelopmentProfileCard extends StatelessWidget {
                   children: [
                     Text(
                       'Profil Perkembangan',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w700,
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         fontSize: 16.sp,
                         color: Colors.black87,
                       ),
@@ -81,7 +81,9 @@ class DevelopmentProfileCard extends StatelessWidget {
                     SizedBox(height: 2.h),
                     Text(
                       'Berdasarkan asesmen terakhir',
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         fontSize: 12.sp,
                         color: Colors.black54,
                       ),
@@ -115,7 +117,12 @@ class DevelopmentProfileCard extends StatelessWidget {
             borderWidth: 1.5,
             radarBorderColor: Colors.transparent,
             gridBorderColor: Colors.grey.withValues(alpha: 0.3),
-            titleTextStyle: TextStyle(fontSize: 9.sp, color: Colors.black87),
+            titleTextStyle: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 9.sp,
+              color: Colors.black87,
+            ),
           ),
           SizedBox(height: 30.h),
           // Legend
@@ -178,11 +185,18 @@ class DevelopmentProfileCard extends StatelessWidget {
           child: RichText(
             text: TextSpan(
               text: '$label ',
-              style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.black87),
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
+                fontSize: 12.sp,
+                color: Colors.black87,
+              ),
               children: [
                 TextSpan(
                   text: '($status)',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w500,
                     fontSize: 12.sp,
                     color: Colors.black54,
                   ),

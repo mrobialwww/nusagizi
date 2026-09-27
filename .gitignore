@@ -46,3 +46,9 @@ app.*.map.json
 
 # Environment variables - JANGAN DI-COMMIT
 .env
+config/env.json
+
+# Android App Signing (Keystore & Properties) - JANGAN DI-COMMIT
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore

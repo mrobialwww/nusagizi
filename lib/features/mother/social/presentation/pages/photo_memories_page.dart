@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/gallery_cubit.dart';
@@ -28,7 +27,8 @@ class PhotoMemoriesPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 24.h),
                     child: Text(
                       'Memori',
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.white,
                         fontSize: 20.sp,
                         fontWeight: FontWeight.w600,
@@ -48,7 +48,11 @@ class PhotoMemoriesPage extends StatelessWidget {
                           return Center(
                             child: Text(
                               state.message,
-                              style: const TextStyle(color: Colors.red),
+                              style: const TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red,
+                              ),
                             ),
                           );
                         } else if (state is GalleryLoaded) {
@@ -56,7 +60,11 @@ class PhotoMemoriesPage extends StatelessWidget {
                             return Center(
                               child: Text(
                                 'Belum ada memori.',
-                                style: GoogleFonts.outfit(color: Colors.grey),
+                                style: const TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                ),
                               ),
                             );
                           }
@@ -116,7 +124,7 @@ class PhotoMemoriesPage extends StatelessWidget {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  height: 140,
+                  height: 140.h,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -132,8 +140,8 @@ class PhotoMemoriesPage extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () => context.pop(), // Acts like a back button
                       child: Container(
-                        width: 60,
-                        height: 60,
+                        width: 60.w,
+                        height: 60.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),

@@ -7,7 +7,7 @@ class CaregiverChildrenCacheCubit
   CaregiverChildrenCacheCubit() : super([]);
 
   void save(List<ChildHeaderEntity> children) {
-    emit(children);
+    if (!isClosed) emit(children);
   }
 
   @override

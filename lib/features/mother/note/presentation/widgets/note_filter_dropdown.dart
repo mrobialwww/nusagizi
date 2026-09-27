@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class NoteFilterDropdown extends StatelessWidget {
   final String text;
@@ -28,7 +27,8 @@ class NoteFilterDropdown extends StatelessWidget {
           children: [
             Text(
               text,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.black87,
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w500,

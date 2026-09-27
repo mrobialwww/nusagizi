@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nusagizi/core/config/assets/app_vectors.dart';
 
 class NoteEmptyState extends StatelessWidget {
   final String title;
   final String description;
-
   const NoteEmptyState({
     super.key,
     required this.title,
@@ -19,22 +19,15 @@ class NoteEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 180,
-            width: 180,
-            decoration: const BoxDecoration(
-              color: Color(0xFFE8F5E9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.search, size: 100.sp, color: Color(0xFF00A735)),
-          ),
-          SizedBox(height: 32.h),
+          SvgPicture.asset(AppVectors.emptyNote, height: 250.h),
+          SizedBox(height: 24.h),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: Colors.black87,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               fontSize: 16.sp,
             ),
           ),
@@ -42,8 +35,10 @@ class NoteEmptyState extends StatelessWidget {
           Text(
             description,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               color: Colors.black54,
+              fontWeight: FontWeight.w500,
               fontSize: 12.sp,
               height: 1.5,
             ),

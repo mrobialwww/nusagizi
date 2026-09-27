@@ -21,12 +21,14 @@ class ImageUploadRepositoryImpl implements ImageUploadRepository {
     required String category,
     required String contentType,
     String? ownerId,
+    String? existingObjectKey,
   }) async {
     try {
       final result = await apiService.presignUpload(
         category: category,
         contentType: contentType,
         ownerId: ownerId,
+        existingObjectKey: existingObjectKey,
       );
       return Right(result);
     } on ServerException catch (e) {

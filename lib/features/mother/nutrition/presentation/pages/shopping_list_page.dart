@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/entities/shopping_item_entity.dart';
@@ -114,7 +113,8 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                   children: [
                     Text(
                       "$checkedCount dari ${displayGroups.length} bahan sudah dicentang",
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
@@ -131,9 +131,10 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                     SizedBox(height: 16.h),
                     Text(
                       "Ketuk > untuk lihat rincian per anak. Ketuk Tukar untuk ganti bahan.",
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -201,7 +202,8 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                 children: [
                   Text(
                     item.name,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -210,9 +212,10 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                   if (showSubtitle)
                     Text(
                       "untuk ${_formatChildName(item.childName)}",
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w700,
                         color: const Color(0xFF00A735),
                       ),
                     ),
@@ -225,9 +228,10 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                 item.unit,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 14.sp,
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                   color: Colors.grey.shade600,
                 ),
               ),
@@ -329,18 +333,20 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                   children: [
                     Text(
                       group.name,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       _calculateTotalQuantity(group.items),
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 13.sp,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         color: Colors.grey.shade600,
                       ),
                     ),
@@ -383,9 +389,10 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                     SizedBox(width: 10.w),
                     Text(
                       _formatChildName(childName),
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 15.sp,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         color: Colors.black87,
                       ),
                     ),
@@ -394,9 +401,10 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
                       child: Text(
                         displayUnit,
                         textAlign: TextAlign.right,
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 13.sp,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -525,7 +533,8 @@ class _ShoppingListPageState extends State<ShoppingListPage> {
             SizedBox(width: 4.w),
             Text(
               isLoading ? "Memproses..." : "Tukar",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 14.sp,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF00A735),

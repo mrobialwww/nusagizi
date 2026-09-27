@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AccessCard extends StatelessWidget {
   final String name;
   final String role;
-  final String location;
+  final String callNumber;
   final String? imageUrl;
-  final IconData locationIcon;
+  final IconData callNumberIcon;
   final bool isPlaceholderAvatar;
   final bool isActive;
   final List<Widget>? actions;
@@ -17,9 +16,9 @@ class AccessCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.role,
-    required this.location,
+    required this.callNumber,
     this.imageUrl,
-    this.locationIcon = Icons.local_hospital,
+    this.callNumberIcon = Icons.local_hospital,
     this.isPlaceholderAvatar = false,
     required this.isActive,
     this.actions,
@@ -94,7 +93,8 @@ class AccessCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.black87,
                               fontWeight: FontWeight.w600,
                               fontSize: 16.sp,
@@ -117,7 +117,8 @@ class AccessCard extends StatelessWidget {
                             ),
                             child: Text(
                               badgeText!,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: isActive
                                     ? const Color(0xFF00A735)
                                     : Colors.black54,
@@ -131,21 +132,25 @@ class AccessCard extends StatelessWidget {
                     SizedBox(height: 4.h),
                     Text(
                       role,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         color: Colors.black87,
                         fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 4.h),
                     Row(
                       children: [
-                        Icon(locationIcon, size: 14.sp, color: Colors.grey),
+                        Icon(callNumberIcon, size: 14.sp, color: Colors.grey),
                         SizedBox(width: 4.w),
                         Text(
-                          location,
-                          style: GoogleFonts.outfit(
+                          callNumber,
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: Colors.grey,
                             fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_home_cubit.dart';
 import 'package:nusagizi/core/config/assets/app_vectors.dart';
@@ -29,16 +28,23 @@ class HomeCaregiverPage extends StatefulWidget {
   State<HomeCaregiverPage> createState() => _HomeCaregiverPageState();
 }
 
-class _HomeCaregiverPageState extends State<HomeCaregiverPage>
-    with WidgetsBindingObserver {
+class _HomeCaregiverPageState extends State<HomeCaregiverPage> {
   int _selectedChildIndex = 0;
   late final GoRouterDelegate _routerDelegate;
+  late final AppLifecycleListener _lifecycleListener;
+  bool _wasPaused = false;
 
   // Register lifecycle, navigation, and routing observers
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onPause: () => _wasPaused = true,
+      onResume: () {
+        if (_wasPaused && caregiverNavTabNotifier.value == 0) _refetch();
+        _wasPaused = false;
+      },
+    );
     caregiverNavTabNotifier.addListener(_onTabChanged);
 
     _routerDelegate = GoRouter.of(context).routerDelegate;
@@ -69,7 +75,7 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
   // Clean up and remove all listeners to prevent memory leaks
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleListener.dispose();
     caregiverNavTabNotifier.removeListener(_onTabChanged);
     _routerDelegate.removeListener(_onRouteChanged);
     super.dispose();
@@ -79,15 +85,6 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
   void _onTabChanged() {
     // Index 0 adalah HomeCaregiverPage
     if (caregiverNavTabNotifier.value == 0) {
-      _refetch();
-    }
-  }
-
-  // Re-fetch data automatically when the app is resumed from background
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed &&
-        caregiverNavTabNotifier.value == 0) {
       _refetch();
     }
   }
@@ -218,7 +215,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                               // Greeting
                               Text(
                                 'Berikut rekomendasi menu untuk\nanak-anak hari ini',
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   fontSize: 18.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
@@ -277,7 +275,11 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                                   child: Center(
                                     child: Text(
                                       homeError ?? menuError ?? 'Error',
-                                      style: const TextStyle(color: Colors.red),
+                                      style: const TextStyle(
+                                        fontFamily: 'PlusJakartaSans',
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.red,
+                                      ),
                                       textAlign: TextAlign.center,
                                     ),
                                   ),
@@ -301,7 +303,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                                 // Meal schedule
                                 Text(
                                   'Jadwal Makan',
-                                  style: GoogleFonts.outfit(
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
@@ -355,7 +358,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
               children: [
                 Text(
                   'Menu Hari Ini untuk $fullName',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -364,7 +368,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                 SizedBox(height: 4.h),
                 Text(
                   '${DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(DateTime.now())} - $completedText',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 11.sp,
                     color: const Color(0xFF00A735),
                     fontWeight: FontWeight.w500,
@@ -381,9 +386,10 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
             ),
             child: Text(
               '$progress%',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: const Color(0xFF00A735),
               ),
             ),
@@ -400,7 +406,12 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
         child: Center(
           child: Text(
             'Belum ada rekomendasi menu\nuntuk anak hari ini.',
-            style: GoogleFonts.outfit(fontSize: 14.sp, color: Colors.black54),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w600,
+              fontSize: 14.sp,
+              color: Colors.black54,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -431,7 +442,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
               SizedBox(width: 8.w),
               Text(
                 "Daftar Belanja Hari Ini",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -461,7 +473,9 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                         Expanded(
                           child: Text(
                             item.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
                               fontSize: 14.sp,
                               color: Colors.black87,
                             ),
@@ -472,7 +486,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                         SizedBox(width: 8.w),
                         Text(
                           item.unit,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -498,7 +513,8 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
                   padding: EdgeInsets.symmetric(vertical: 8.h),
                   child: Text(
                     "Lihat Selengkapnya",
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
@@ -522,9 +538,10 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
           SizedBox(height: 24.h),
           Text(
             'Yuk, Hubungkan Profil Anak!',
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 20.sp,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
             textAlign: TextAlign.center,
@@ -532,7 +549,9 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
           SizedBox(height: 10.h),
           Text(
             'Scan QR dari orang tua untuk mulai melihat informasi dan resep anak yang kamu asuh.',
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
               fontSize: 14.sp,
               color: Colors.black54,
               height: 1.5,
@@ -556,9 +575,10 @@ class _HomeCaregiverPageState extends State<HomeCaregiverPage>
               ),
               child: Text(
                 'Scan QR',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
               ),

@@ -1,7 +1,4 @@
-// AUTH FEATURE - DATA LAYER
-// Repository Implementation: implementasi dari domain/repository contract
 import 'package:dartz/dartz.dart';
-import 'package:flutter/material.dart';
 import 'package:nusagizi/core/error/exceptions.dart';
 import 'package:nusagizi/core/error/failures.dart';
 import 'package:nusagizi/core/utils/jwt_utils.dart';
@@ -54,7 +51,6 @@ class AuthRepositoryImpl implements AuthRepository {
         userLogin.password,
       );
 
-      debugPrint("INI TOKEN SAYA: ${credentials.accessToken}");
       final user = credentials.user;
       // Role langsung diambil dari JWT — Auth0 Post-Login Action selalu menyertakan role claim.
       final String role = JwtUtils.decodeRole(credentials.accessToken);
@@ -78,6 +74,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> googleLogin() async {
     try {
       final credentials = await service.googleLogin();
+
+      // Jika null, artinya user menekan back/close — tidak ada error, abaikan saja.
+      if (credentials == null) {
+        return Left(CancelledFailure());
+      }
+
       final user = credentials.user;
       // Role langsung diambil dari JWT.
       final String role = JwtUtils.decodeRole(credentials.accessToken);

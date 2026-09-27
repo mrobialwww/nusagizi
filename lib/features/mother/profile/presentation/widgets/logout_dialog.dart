@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
 
 class LogoutDialog extends StatelessWidget {
@@ -38,7 +38,8 @@ class LogoutDialog extends StatelessWidget {
               SizedBox(height: 20.h),
               Text(
                 'Keluar dari NusaGizi?',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -48,8 +49,10 @@ class LogoutDialog extends StatelessWidget {
               SizedBox(height: 8.h),
               Text(
                 'Apakah Anda yakin ingin keluar?',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
                   color: Colors.black54,
                 ),
                 textAlign: TextAlign.center,
@@ -59,7 +62,7 @@ class LogoutDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF00A735)),
                         padding: EdgeInsets.symmetric(vertical: 14.h),
@@ -69,7 +72,8 @@ class LogoutDialog extends StatelessWidget {
                       ),
                       child: Text(
                         'Batal',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: const Color(0xFF00A735),
                           fontWeight: FontWeight.w600,
                         ),
@@ -92,7 +96,8 @@ class LogoutDialog extends StatelessWidget {
                       ),
                       child: Text(
                         'Keluar',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                         ),

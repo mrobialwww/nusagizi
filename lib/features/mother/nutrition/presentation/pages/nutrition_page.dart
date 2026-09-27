@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 import 'package:nusagizi/core/widgets/headers/header_primary_features.dart';
 import 'package:nusagizi/core/utils/number_extension.dart';
-import 'package:nusagizi/core/widgets/headers/header_action_button.dart';
+import 'package:nusagizi/core/widgets/headers/appbar_action_button.dart';
 import 'package:nusagizi/core/widgets/child_picker_bottom_sheet.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/widgets/daily_menu_card.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/nutrition_today_cubit.dart';
@@ -32,8 +31,9 @@ class NutritionPage extends StatefulWidget {
   State<NutritionPage> createState() => _NutritionPageState();
 }
 
-class _NutritionPageState extends State<NutritionPage>
-    with WidgetsBindingObserver {
+class _NutritionPageState extends State<NutritionPage> {
+  late final AppLifecycleListener _lifecycleListener;
+  bool _wasPaused = false;
   int _selectedChildIndex = 0;
   bool _showShoppingList = true;
   final _nutritionTodayCubit = sl<NutritionTodayCubit>();
@@ -45,7 +45,13 @@ class _NutritionPageState extends State<NutritionPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onPause: () => _wasPaused = true,
+      onResume: () {
+        if (_wasPaused) _checkAndGenerate();
+        _wasPaused = false;
+      },
+    );
     _routerDelegate = GoRouter.of(context).routerDelegate;
     _routerDelegate.addListener(_onRouteChanged);
 
@@ -109,13 +115,6 @@ class _NutritionPageState extends State<NutritionPage>
     } catch (_) {}
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkAndGenerate();
-    }
-  }
-
   // Fetch latest nutrition data for the active child.
   void _refetch() {
     if (!mounted) return;
@@ -129,7 +128,7 @@ class _NutritionPageState extends State<NutritionPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleListener.dispose();
     _routerDelegate.removeListener(_onRouteChanged);
     _midnightTimer?.cancel();
     _nutritionTodayCubit.close();
@@ -148,6 +147,22 @@ class _NutritionPageState extends State<NutritionPage>
       ],
       child: MultiBlocListener(
         listeners: [
+          // It automatically fetches the child's nutrition data the exact moment their profile is loaded into the app's cache for the very first time.
+          BlocListener<ChildrenCacheCubit, List<ChildHeaderEntity>>(
+            listenWhen: (prev, curr) => prev.isEmpty && curr.isNotEmpty,
+            listener: (context, children) {
+              if (!mounted) return;
+              final initialId = widget.initialChildId;
+              final index = initialId != null
+                  ? children.indexWhere((c) => c.id == initialId)
+                  : -1;
+              final targetIndex = index != -1 ? index : 0;
+              setState(() => _selectedChildIndex = targetIndex);
+              _nutritionTodayCubit.fetchNutritionToday(
+                children[targetIndex].id,
+              );
+            },
+          ),
           BlocListener<MenuActionCubit, MenuActionState>(
             bloc: sl<MenuActionCubit>(),
             listener: (context, state) {
@@ -213,166 +228,188 @@ class _NutritionPageState extends State<NutritionPage>
                 ? _selectedChildIndex
                 : 0;
 
-            return Scaffold(
-              backgroundColor: const Color(0xFFF7F7F7),
-              appBar: HeaderPrimaryFeatures(
-                profile: validChild,
-                accentColor: accentColor,
-                onPickerTapped: () {
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
-                    ),
-                    builder: (context) {
-                      return BlocProvider.value(
-                        value: sl<ChildrenCacheCubit>(),
-                        child: ChildPickerBottomSheet(
-                          selectedIndex: validIndex,
-                          onChildSelected: (index) {
-                            setState(() {
-                              _selectedChildIndex = index;
-                              _showShoppingList = true;
-                            });
-                            _nutritionTodayCubit.fetchNutritionToday(
-                              childrenList[index].id,
-                            );
-                          },
-                          accentColor: accentColor,
-                        ),
-                      );
-                    },
-                  );
-                },
-                actions: [
-                  HeaderActionButton(
-                    icon: Icons.history_rounded,
-                    onTap: () => context.goNamed(
-                      AppRoutes.nutritionHistory.name,
-                      extra: validChild,
-                    ),
-                  ),
-                  HeaderActionButton(
-                    icon: Icons.bookmark_border_rounded,
-                    onTap: () => context.goNamed(
-                      AppRoutes.savedRecipe.name,
-                      extra: validChild.id,
-                    ),
-                  ),
-                ],
-              ),
-              body: SafeArea(
-                child: BlocBuilder<MenuActionCubit, MenuActionState>(
-                  bloc: sl<MenuActionCubit>(),
-                  builder: (context, menuActionState) {
-                    // Jika menu sedang di-generate (midnight generation), tampilkan
-                    // full-screen loading daripada empty state teks.
-                    if (menuActionState is MenuActionGenerateLoading) {
-                      return _buildGeneratingMenuScreen();
-                    }
-
+            return BlocBuilder<MenuActionCubit, MenuActionState>(
+              bloc: sl<MenuActionCubit>(),
+              builder: (context, menuActionState) {
+                return BlocBuilder<
+                  RecipeCompletionCubit,
+                  RecipeCompletionState
+                >(
+                  builder: (context, completionState) {
                     return BlocBuilder<
-                      RecipeCompletionCubit,
-                      RecipeCompletionState
+                      NutritionTodayCubit,
+                      NutritionTodayState
                     >(
-                      builder: (context, completionState) {
-                        return BlocBuilder<
-                          NutritionTodayCubit,
-                          NutritionTodayState
-                        >(
-                          builder: (context, state) {
-                            if (state is NutritionTodayLoading ||
-                                completionState is RecipeCompletionLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  color: accentColor,
+                      builder: (context, state) {
+                        final isGenerating =
+                            menuActionState is MenuActionGenerateLoading;
+                        bool isMenuEmpty = false;
+
+                        if (state is NutritionTodayLoaded) {
+                          if (state.data.menu == null ||
+                              state.data.menu!.recipes.isEmpty) {
+                            isMenuEmpty = true;
+                          }
+                        }
+
+                        if (isGenerating || isMenuEmpty) {
+                          return _buildGeneratingMenuScreen();
+                        }
+
+                        return Scaffold(
+                          backgroundColor: const Color(0xFFF7F7F7),
+                          appBar: HeaderPrimaryFeatures(
+                            profile: validChild,
+                            accentColor: accentColor,
+                            onPickerTapped: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
                                 ),
+                                builder: (context) {
+                                  return BlocProvider.value(
+                                    value: sl<ChildrenCacheCubit>(),
+                                    child: ChildPickerBottomSheet(
+                                      selectedIndex: validIndex,
+                                      onChildSelected: (index) {
+                                        setState(() {
+                                          _selectedChildIndex = index;
+                                          _showShoppingList = true;
+                                        });
+                                        _nutritionTodayCubit
+                                            .fetchNutritionToday(
+                                              childrenList[index].id,
+                                            );
+                                      },
+                                      accentColor: accentColor,
+                                    ),
+                                  );
+                                },
                               );
-                            } else if (state is NutritionTodayError) {
-                              return Center(child: Text(state.message));
-                            } else if (state is NutritionTodayLoaded) {
-                              final data = state.data;
-
-                              // Menu null/kosong & tidak sedang generate → tampilkan full-screen loading
-                              if (data.menu == null ||
-                                  data.menu!.recipes.isEmpty) {
-                                return _buildGeneratingMenuScreen();
-                              }
-
-                              return SingleChildScrollView(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 16.h,
+                            },
+                            actions: [
+                              AppbarActionButton(
+                                icon: Icons.history_rounded,
+                                onTap: () => context.goNamed(
+                                  AppRoutes.nutritionHistory.name,
+                                  extra: validChild,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    _buildNutritionStatusCard(data),
-                                    SizedBox(height: 16.h),
-                                    if (_showShoppingList &&
-                                        data.shoppingList.isNotEmpty)
-                                      _buildShoppingListCard(data.shoppingList),
-                                    SizedBox(height: 24.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                              ),
+                              AppbarActionButton(
+                                icon: Icons.bookmark_border_rounded,
+                                onTap: () => context.goNamed(
+                                  AppRoutes.savedRecipe.name,
+                                  extra: validChild.id,
+                                ),
+                              ),
+                            ],
+                          ),
+                          body: SafeArea(
+                            child: Builder(
+                              builder: (context) {
+                                if (state is NutritionTodayLoading ||
+                                    completionState
+                                        is RecipeCompletionLoading) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: accentColor,
+                                    ),
+                                  );
+                                } else if (state is NutritionTodayError) {
+                                  return Center(child: Text(state.message));
+                                } else if (state is NutritionTodayLoaded) {
+                                  final data = state.data;
+
+                                  return SingleChildScrollView(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w,
+                                      vertical: 16.h,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
                                       children: [
-                                        Text(
-                                          "Menu Hari ini",
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 16.sp,
-                                            fontWeight: FontWeight.w600,
+                                        _buildNutritionStatusCard(data),
+                                        if (data.hasAnyNutrition) ...[
+                                          SizedBox(height: 16.h),
+                                          _buildInsightCard(
+                                            data,
+                                            validChild.name,
                                           ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            final shouldRefresh = await context
-                                                .pushNamed<bool>(
-                                                  AppRoutes
-                                                      .nutritionAllMenu
-                                                      .name,
-                                                  extra: {
-                                                    'childId': validChild.id,
-                                                    'reportId': data.id,
-                                                  },
-                                                );
-                                            if (shouldRefresh == true &&
-                                                context.mounted) {
-                                              _nutritionTodayCubit
-                                                  .fetchNutritionToday(
-                                                    validChild.id,
-                                                  );
-                                            }
-                                          },
-                                          child: Text(
-                                            "Lihat Semua",
-                                            style: GoogleFonts.outfit(
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.green,
+                                        ],
+                                        SizedBox(height: 16.h),
+                                        if (_showShoppingList &&
+                                            data.shoppingList.isNotEmpty)
+                                          _buildShoppingListCard(
+                                            data.shoppingList,
+                                          ),
+                                        SizedBox(height: 24.h),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              "Menu Hari ini",
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
+                                                fontSize: 16.sp,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
-                                          ),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                final shouldRefresh =
+                                                    await context
+                                                        .pushNamed<bool>(
+                                                          AppRoutes
+                                                              .nutritionAllMenu
+                                                              .name,
+                                                          extra: {
+                                                            'childId':
+                                                                validChild.id,
+                                                            'reportId': data.id,
+                                                          },
+                                                        );
+                                                if (shouldRefresh == true &&
+                                                    context.mounted) {
+                                                  _nutritionTodayCubit
+                                                      .fetchNutritionToday(
+                                                        validChild.id,
+                                                      );
+                                                }
+                                              },
+                                              child: Text(
+                                                "Lihat Semua",
+                                                style: TextStyle(
+                                                  fontFamily: 'PlusJakartaSans',
+                                                  fontSize: 14.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                        SizedBox(height: 16.h),
+                                        _buildMenuRecipes(data),
                                       ],
                                     ),
-                                    SizedBox(height: 16.h),
-                                    _buildMenuRecipes(data),
-                                  ],
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
+                                  );
+                                }
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                          ),
                         );
                       },
                     );
                   },
-                ),
-              ),
+                );
+              },
             );
           },
         ),
@@ -382,34 +419,45 @@ class _NutritionPageState extends State<NutritionPage>
 
   // Full-screen loading UI saat menu sedang di-generate oleh backend (midnight job).
   Widget _buildGeneratingMenuScreen() {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(color: Color(0xFF00A735)),
-            SizedBox(height: 32.h),
-            Text(
-              'Sedang menyiapkan menu hari ini...',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.w),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(color: Color(0xFF00A735)),
+                  SizedBox(height: 32.h),
+                  Text(
+                    'Sedang menyiapkan menu hari ini...',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    'AI sedang memilihkan resep terbaik untuk si kecil. Ini hanya membutuhkan beberapa saat.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14.sp,
+                      color: Colors.grey,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 12.h),
-            Text(
-              'AI sedang memilihkan resep terbaik untuk si kecil. Ini hanya membutuhkan beberapa saat.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 14.sp,
-                color: Colors.grey,
-                height: 1.5,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -452,7 +500,8 @@ class _NutritionPageState extends State<NutritionPage>
             children: [
               Text(
                 "Status Gizi Hari Ini",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                 ),
@@ -473,7 +522,8 @@ class _NutritionPageState extends State<NutritionPage>
                     SizedBox(width: 4.w),
                     Text(
                       data.status,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12.sp,
                         color: _getStatusColor(data.status),
                         fontWeight: FontWeight.w500,
@@ -491,14 +541,20 @@ class _NutritionPageState extends State<NutritionPage>
             children: [
               Text(
                 data.calories.toMacroFormat(),
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 28.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 " / ${data.targetCalories.toMacroFormat()} kcal",
-                style: GoogleFonts.outfit(fontSize: 14.sp, color: Colors.grey),
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontSize: 14.sp,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -516,7 +572,7 @@ class _NutritionPageState extends State<NutritionPage>
                   Colors.orange,
                 ),
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: 8.w),
               Expanded(
                 child: _buildProgressBar(
                   "Lemak",
@@ -524,6 +580,18 @@ class _NutritionPageState extends State<NutritionPage>
                   "${data.targetFat.toMacroFormat()}g",
                   data.targetFat > 0 ? data.fat / data.targetFat : 0.0,
                   Colors.green,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: _buildProgressBar(
+                  "Karbo",
+                  "${data.carbohydrate.toMacroFormat()}g",
+                  "${data.targetCarbohydrate.toMacroFormat()}g",
+                  data.targetCarbohydrate > 0
+                      ? data.carbohydrate / data.targetCarbohydrate
+                      : 0.0,
+                  Colors.blue,
                 ),
               ),
             ],
@@ -568,21 +636,23 @@ class _NutritionPageState extends State<NutritionPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.outfit(
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                "$current/$total",
-                style: GoogleFonts.outfit(fontSize: 12.sp, color: Colors.grey),
-              ),
-            ],
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            "$current/$total",
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 11.sp,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 8.h),
           LinearProgressIndicator(
@@ -612,7 +682,8 @@ class _NutritionPageState extends State<NutritionPage>
               SizedBox(width: 8.w),
               Text(
                 "Daftar Belanja Hari Ini",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
@@ -642,9 +713,11 @@ class _NutritionPageState extends State<NutritionPage>
                         Expanded(
                           child: Text(
                             item.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 14.sp,
                               color: Colors.black87,
+                              fontWeight: FontWeight.w500,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -653,7 +726,8 @@ class _NutritionPageState extends State<NutritionPage>
                         SizedBox(width: 8.w),
                         Text(
                           item.unit,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -676,7 +750,8 @@ class _NutritionPageState extends State<NutritionPage>
                   padding: EdgeInsets.symmetric(vertical: 8.h),
                   child: Text(
                     "Lihat Selengkapnya",
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
@@ -685,6 +760,98 @@ class _NutritionPageState extends State<NutritionPage>
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInsightCard(NutritionTodayEntity data, String childName) {
+    double proteinPercentage = data.targetProtein > 0
+        ? (data.protein / data.targetProtein)
+        : 0.0;
+    double fatPercentage = data.targetFat > 0
+        ? (data.fat / data.targetFat)
+        : 0.0;
+    double karboPercentage = data.targetCarbohydrate > 0
+        ? (data.carbohydrate / data.targetCarbohydrate)
+        : 0.0;
+
+    String highestNutrientName = 'protein';
+    double highestPercentage = proteinPercentage;
+
+    if (fatPercentage > highestPercentage) {
+      highestNutrientName = 'lemak';
+      highestPercentage = fatPercentage;
+    }
+
+    if (karboPercentage > highestPercentage) {
+      highestNutrientName = 'karbohidrat';
+      highestPercentage = karboPercentage;
+    }
+
+    highestPercentage = highestPercentage.clamp(0.0, 1.0);
+    final int displayPercentage = (highestPercentage * 100).toInt();
+
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDF4),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: const Color(0xFFDCFCE7)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(10.w),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.lightbulb, color: Color(0xFF00A735)),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Insight Hari Ini",
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 13.sp,
+                      color: Colors.black87,
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    children: [
+                      const TextSpan(text: "Asupan "),
+                      TextSpan(
+                        text: highestNutrientName,
+                        style: const TextStyle(
+                          color: Color(0xFF00A735),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      TextSpan(
+                        text:
+                            " $childName hari ini sudah tercapai $displayPercentage%. Teruskan!",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

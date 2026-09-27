@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -25,9 +24,10 @@ class NoteMotherPage extends StatefulWidget {
   State<NoteMotherPage> createState() => _NoteMotherPageState();
 }
 
-class _NoteMotherPageState extends State<NoteMotherPage>
-    with WidgetsBindingObserver {
+class _NoteMotherPageState extends State<NoteMotherPage> {
   late final GoRouterDelegate _routerDelegate;
+  late final AppLifecycleListener _lifecycleListener;
+  bool _wasPaused = false;
   String _selectedChild = 'Semua Anak';
   late String _selectedMonth;
   late final MedicalNotesCubit _notesCubit;
@@ -50,7 +50,13 @@ class _NoteMotherPageState extends State<NoteMotherPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onPause: () => _wasPaused = true,
+      onResume: () {
+        if (_wasPaused && motherNavTabNotifier.value == 1) _fetchNotes();
+        _wasPaused = false;
+      },
+    );
     motherNavTabNotifier.addListener(_onTabChanged);
 
     _routerDelegate = GoRouter.of(context).routerDelegate;
@@ -76,7 +82,7 @@ class _NoteMotherPageState extends State<NoteMotherPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _lifecycleListener.dispose();
     motherNavTabNotifier.removeListener(_onTabChanged);
     _routerDelegate.removeListener(_onRouteChanged);
     super.dispose();
@@ -85,13 +91,6 @@ class _NoteMotherPageState extends State<NoteMotherPage>
   void _onTabChanged() {
     // Index 1 adalah NoteMotherPage
     if (motherNavTabNotifier.value == 1) {
-      _fetchNotes();
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && motherNavTabNotifier.value == 1) {
       _fetchNotes();
     }
   }
@@ -177,9 +176,11 @@ class _NoteMotherPageState extends State<NoteMotherPage>
                                   ),
                                   child: Text(
                                     state.message,
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: Colors.red.shade400,
                                       fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -194,7 +195,8 @@ class _NoteMotherPageState extends State<NoteMotherPage>
                                   ),
                                   label: Text(
                                     "Coba Lagi",
-                                    style: GoogleFonts.outfit(
+                                    style: TextStyle(
+                                      fontFamily: 'PlusJakartaSans',
                                       color: const Color(0xFF00A735),
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -246,8 +248,9 @@ class _NoteMotherPageState extends State<NoteMotherPage>
                         ),
                         child: Text(
                           "Tambah Catatan Konsultasi",
-                          style: GoogleFonts.outfit(
-                            fontWeight: FontWeight.w700,
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
                             fontSize: 15.sp,
                           ),
                         ),
@@ -298,7 +301,8 @@ class _NoteMotherPageState extends State<NoteMotherPage>
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Text(
               '${notes.length} Catatan',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.grey.shade600,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,

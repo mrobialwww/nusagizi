@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/daily_menu_cubit.dart';
@@ -37,17 +36,18 @@ class _HistoryMenuPageState extends State<HistoryMenuPage> {
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: const HeaderBasic(
         backgroundColor: Color(0xFFF3F4F6),
-        title: "Detail Menu Riwayat",
+        title: "Resep yang Dimasak",
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
         children: [
           Text(
             widget.dateStr ?? "Detail Menu",
-            style: GoogleFonts.outfit(
-              fontSize: 12.sp,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontSize: 14.sp,
               color: Colors.black87,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
           SizedBox(height: 16.h),
@@ -67,7 +67,11 @@ class _HistoryMenuPageState extends State<HistoryMenuPage> {
                     padding: EdgeInsets.all(32.w),
                     child: Text(
                       state.message,
-                      style: GoogleFonts.outfit(color: Colors.red),
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        color: Colors.red,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 );
@@ -75,7 +79,17 @@ class _HistoryMenuPageState extends State<HistoryMenuPage> {
                 return Column(
                   children: [
                     ...state.menu.recipes.map(
-                      (recipe) => _buildMenuCard(recipe),
+                      (recipe) => Padding(
+                        padding: EdgeInsets.only(bottom: 16.h),
+                        child: HistoryMenuCard(
+                          rawMealTime: recipe.mealTime,
+                          imageUrl: recipe.imageUrl,
+                          title: recipe.name,
+                          portionsConsumed: recipe.portionsConsumed,
+                          recipeId: recipe.id,
+                          childId: widget.childId!,
+                        ),
+                      ),
                     ),
                   ],
                 );
@@ -84,20 +98,6 @@ class _HistoryMenuPageState extends State<HistoryMenuPage> {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMenuCard(recipe) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: HistoryMenuCard(
-        rawMealTime: recipe.mealTime,
-        imageUrl: recipe.imageUrl,
-        title: recipe.name,
-        portionsConsumed: recipe.portionsConsumed ?? 0.0,
-        recipeId: recipe.id,
-        childId: widget.childId!,
       ),
     );
   }

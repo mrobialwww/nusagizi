@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CustomCalendarPicker extends StatefulWidget {
   final DateTime initialDate;
@@ -86,7 +85,8 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
         Center(
           child: Text(
             day,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 13.sp,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
@@ -103,7 +103,12 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
         Center(
           child: Text(
             '$dayNumber',
-            style: GoogleFonts.outfit(fontSize: 13.sp, color: Colors.black38),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 13.sp,
+              color: Colors.black38,
+            ),
           ),
         ),
       );
@@ -138,10 +143,11 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
               alignment: Alignment.center,
               child: Text(
                 '$i',
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 13.sp,
                   color: isSelected ? Colors.white : Colors.black87,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
             ),
@@ -158,7 +164,12 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
         Center(
           child: Text(
             '$i',
-            style: GoogleFonts.outfit(fontSize: 13.sp, color: Colors.black38),
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              fontWeight: FontWeight.w500,
+              fontSize: 13.sp,
+              color: Colors.black38,
+            ),
           ),
         ),
       );
@@ -182,7 +193,8 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
             SizedBox(width: 24.w),
             Text(
               '${_getMonthName(_currentMonth.month)} ${_currentMonth.year}',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 15.sp,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,

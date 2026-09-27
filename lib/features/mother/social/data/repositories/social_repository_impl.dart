@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+﻿import 'package:dartz/dartz.dart';
 import 'package:nusagizi/core/error/exceptions.dart';
 import 'package:nusagizi/core/error/failures.dart';
 import 'package:nusagizi/features/mother/social/data/datasources/social_service.dart';
@@ -6,7 +6,7 @@ import 'package:nusagizi/features/mother/social/domain/entities/child_photo_enti
 import 'package:nusagizi/features/mother/social/domain/entities/contact_entity.dart';
 import 'package:nusagizi/features/mother/social/domain/repositories/social_repository.dart';
 import 'package:nusagizi/features/mother/social/data/models/create_child_photo_request_model.dart';
-import 'package:nusagizi/features/mother/social/data/models/edit_child_photo_request_model.dart';
+import 'package:nusagizi/features/mother/social/data/models/review_child_photo_request_model.dart';
 
 class SocialRepositoryImpl implements SocialRepository {
   final SocialService remoteDataSource;
@@ -106,11 +106,11 @@ class SocialRepositoryImpl implements SocialRepository {
   }
 
   @override
-  Future<Either<Failure, void>> editChildPhoto(
-    EditChildPhotoRequestModel request,
+  Future<Either<Failure, void>> reviewChildPhoto(
+    ReviewChildPhotoRequestModel request,
   ) async {
     try {
-      await remoteDataSource.editChildPhoto(
+      await remoteDataSource.reviewChildPhoto(
         request.childId,
         request.childPhotoId,
         request,

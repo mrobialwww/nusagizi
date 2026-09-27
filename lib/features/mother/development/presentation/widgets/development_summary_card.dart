@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/status_badge.dart';
 
 class DevelopmentSummaryCard extends StatelessWidget {
@@ -78,9 +77,10 @@ class DevelopmentSummaryCard extends StatelessWidget {
       children: [
         Text(
           'Ringkasan\nPerkembangan',
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontWeight: FontWeight.w700,
-            fontSize: 16.sp,
+            fontSize: 18.sp,
             color: Colors.black87,
             height: 1.2,
           ),
@@ -88,7 +88,12 @@ class DevelopmentSummaryCard extends StatelessWidget {
         SizedBox(height: 6.h),
         Text(
           'Terakhir dicek: $lastCheck',
-          style: GoogleFonts.outfit(fontSize: 11.sp, color: Colors.black54),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w400,
+            fontSize: 12.sp,
+            color: Colors.black54,
+          ),
         ),
       ],
     );
@@ -115,21 +120,30 @@ class DevelopmentSummaryCard extends StatelessWidget {
               SizedBox(width: 4.w),
               Text(
                 label,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   fontSize: 12.sp,
                   color: Colors.black54,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
-          Text(
-            value,
-            style: GoogleFonts.outfit(
-              fontWeight: FontWeight.w700,
-              fontSize: valueFontSize,
-              color: Colors.black87,
-            ),
+          SizedBox(height: 4.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w700,
+                  fontSize: valueFontSize,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
           ),
         ],
       ),

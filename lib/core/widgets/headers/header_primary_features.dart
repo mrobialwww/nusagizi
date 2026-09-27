@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
 import 'package:nusagizi/core/utils/image_helper.dart';
 
@@ -60,30 +59,12 @@ class HeaderPrimaryFeatures extends StatelessWidget
                       padding: EdgeInsets.all(4.w),
                       child: CircleAvatar(
                         radius: 20.r,
-                        backgroundColor:
+                        backgroundColor: accentColor.withValues(alpha: 0.2),
+                        backgroundImage:
                             ImageHelper.getSafeImageProvider(
-                                  profile.imagePath,
-                                ) ==
-                                null
-                            ? ImageHelper.getAvatarColor(profile.name)
-                            : accentColor.withValues(alpha: 0.2),
-                        backgroundImage: ImageHelper.getSafeImageProvider(
-                          profile.imagePath,
-                        ),
-                        child:
-                            ImageHelper.getSafeImageProvider(
-                                  profile.imagePath,
-                                ) ==
-                                null
-                            ? Text(
-                                ImageHelper.getInitials(profile.name),
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                ),
-                              )
-                            : null,
+                              profile.imagePath,
+                            ) ??
+                            ImageHelper.getDefaultChildImage(profile.gender),
                       ),
                     ),
                     SizedBox(width: 12.w),
@@ -95,7 +76,8 @@ class HeaderPrimaryFeatures extends StatelessWidget
                         children: [
                           Text(
                             profile.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontWeight: FontWeight.w600,
                               fontSize: 16.sp,
                               color: Colors.black87,
@@ -106,7 +88,9 @@ class HeaderPrimaryFeatures extends StatelessWidget
                           SizedBox(height: 2.h),
                           Text(
                             profile.age,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
                               fontSize: 12.sp,
                               color: Colors.black54,
                             ),

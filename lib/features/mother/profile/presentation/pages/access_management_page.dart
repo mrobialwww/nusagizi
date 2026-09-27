@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
@@ -14,13 +13,42 @@ import 'package:nusagizi/features/mother/profile/presentation/widgets/invite_acc
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
 class AccessManagementPage extends StatefulWidget {
-  const AccessManagementPage({super.key});
+  final String? initialChildId;
+
+  const AccessManagementPage({super.key, this.initialChildId});
 
   @override
   State<AccessManagementPage> createState() => _AccessManagementPageState();
 }
 
 class _AccessManagementPageState extends State<AccessManagementPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialChildId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _openInviteBottomSheet(widget.initialChildId!);
+      });
+    }
+  }
+
+  Future<void> _openInviteBottomSheet(String childId) async {
+    final childrenCacheCubit = context.read<ChildrenCacheCubit>();
+    final cubit = context.read<CaregiverEngagementCubit>();
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BlocProvider.value(
+        value: childrenCacheCubit,
+        child: InviteAccessBottomSheet(childId: childId),
+      ),
+    );
+    if (!mounted) return;
+    cubit.loadActiveEngagements();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +82,7 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
                 ),
               );
             } else if (state is CaregiverEngagementDeleteSuccess) {
-              Navigator.pop(context); // Close loading dialog
+              context.pop(); // Close loading dialog
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Akses pengasuh berhasil dicabut'),
@@ -62,7 +90,7 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
                 ),
               );
             } else if (state is CaregiverEngagementDeleteError) {
-              Navigator.pop(context); // Close loading dialog
+              context.pop(); // Close loading dialog
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.message),
@@ -100,36 +128,7 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
                           );
                         } else if (state is CaregiverEngagementLoaded) {
                           if (state.engagements.isEmpty) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    AppVectors.emptyCaregiver,
-                                    height: 160.h,
-                                  ),
-                                  SizedBox(height: 24.h),
-                                  Text(
-                                    'Belum ada pengasuh yang terhubung',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15.sp,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.h),
-                                  Text(
-                                    'Undang pengasuh agar dapat membantu\nmenjalankan rutinitas harian anak.',
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.black54,
-                                      fontSize: 12.sp,
-                                      height: 1.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                            return _buildEmptyState();
                           }
 
                           return SingleChildScrollView(
@@ -153,22 +152,11 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
           child: ElevatedButton(
             onPressed: () async {
               final childrenCacheCubit = context.read<ChildrenCacheCubit>();
-              final cubit = context.read<CaregiverEngagementCubit>();
               final children = childrenCacheCubit.state;
-
               if (children.isEmpty) return;
+
               final defaultChildId = children.first.id;
-              await showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) => BlocProvider.value(
-                  value: childrenCacheCubit,
-                  child: InviteAccessBottomSheet(childId: defaultChildId),
-                ),
-              );
-              if (!mounted) return;
-              cubit.loadActiveEngagements();
+              await _openInviteBottomSheet(defaultChildId);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF00A735),
@@ -180,8 +168,9 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
             ),
             child: Text(
               'Tambah Pengasuh',
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.w700,
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                fontWeight: FontWeight.w500,
                 fontSize: 15.sp,
               ),
             ),
@@ -200,7 +189,8 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
             padding: EdgeInsets.only(bottom: 12.0.h),
             child: Text(
               'Pengasuh Aktif',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.black87,
                 fontWeight: FontWeight.w600,
                 fontSize: 15.sp,
@@ -213,8 +203,8 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
               child: AccessCard(
                 name: engagement.caregiverName,
                 role: 'Pengasuh',
-                location: engagement.phoneNumber ?? '-',
-                locationIcon: Icons.phone,
+                callNumber: engagement.phoneNumber ?? '-',
+                callNumberIcon: Icons.phone,
                 isPlaceholderAvatar: true,
                 isActive: true,
                 badgeText: engagement.childName,
@@ -225,45 +215,121 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
                         showDialog(
                           context: context,
                           builder: (BuildContext dialogContext) {
-                            return AlertDialog(
-                              title: Text(
-                                'Cabut Akses',
-                                style: GoogleFonts.outfit(
-                                  fontWeight: FontWeight.bold,
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              backgroundColor: Colors.white,
+                              child: Padding(
+                                padding: EdgeInsets.all(24.w),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 80.w,
+                                      height: 80.w,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red[50],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                        size: 40.sp,
+                                      ),
+                                    ),
+                                    SizedBox(height: 20.h),
+                                    Text(
+                                      'Hapus Akses Pengasuh?',
+                                      style: TextStyle(
+                                        fontFamily: 'PlusJakartaSans',
+                                        fontSize: 18.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
+                                      'Pengasuh tidak lagi dapat mengakses resep dan mengirim dokumentasi anak.',
+                                      style: TextStyle(
+                                        fontFamily: 'PlusJakartaSans',
+                                        fontSize: 14.sp,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 24.h),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            onPressed: () =>
+                                                dialogContext.pop(),
+                                            style: OutlinedButton.styleFrom(
+                                              side: const BorderSide(
+                                                color: Colors.red,
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 14.h,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Batal',
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 12.w),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              dialogContext
+                                                  .pop(); // Close dialog
+                                              context
+                                                  .read<
+                                                    CaregiverEngagementCubit
+                                                  >()
+                                                  .revokeEngagement(
+                                                    engagement
+                                                        .caregiverEngagementId,
+                                                  );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red,
+                                              elevation: 0,
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 14.h,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Hapus',
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              content: const Text(
-                                'Apakah Anda yakin ingin mencabut akses untuk pengasuh ini?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(dialogContext),
-                                  child: Text(
-                                    'Batal',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(
-                                      dialogContext,
-                                    ); // Close dialog
-                                    context
-                                        .read<CaregiverEngagementCubit>()
-                                        .revokeEngagement(
-                                          engagement.caregiverEngagementId,
-                                        );
-                                  },
-                                  child: Text(
-                                    'Ya, Cabut',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             );
                           },
                         );
@@ -283,9 +349,10 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
                       ),
                       label: Text(
                         'Hapus Akses',
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           color: Colors.red,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -296,34 +363,42 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
           ),
         ] else ...[
           SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-          Center(
-            child: Column(
-              children: [
-                SvgPicture.asset(AppVectors.emptyCaregiver, height: 160),
-                SizedBox(height: 24.h),
-                Text(
-                  'Belum ada pengasuh yang terhubung',
-                  style: GoogleFonts.outfit(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15.sp,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Undang pengasuh agar dapat membantu\nmenjalankan rutinitas harian anak.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    color: Colors.black54,
-                    fontSize: 12.sp,
-                    height: 1.5,
-                  ),
-                ),
-              ],
+          _buildEmptyState(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(AppVectors.emptySearch, height: 200.h),
+          SizedBox(height: 24.h),
+          Text(
+            'Belum ada pengasuh yang terhubung',
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+              fontSize: 15.sp,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            'Undang pengasuh agar dapat membantu\nmenjalankan rutinitas harian anak.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
+              color: Colors.black54,
+              fontSize: 12.sp,
+              height: 1.5,
+              fontWeight: FontWeight.w400,
             ),
           ),
         ],
-      ],
+      ),
     );
   }
 }

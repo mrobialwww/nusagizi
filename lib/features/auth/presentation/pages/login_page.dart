@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/router.dart';
@@ -174,7 +173,8 @@ class _LoginPageState extends State<LoginPage>
                                 ),
                                 child: Text(
                                   'Lupa kata sandi?',
-                                  style: GoogleFonts.outfit(
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
                                     color: const Color(0xFF00A735),
                                     fontSize: 13.sp,
                                     fontWeight: FontWeight.w500,
@@ -210,9 +210,10 @@ class _LoginPageState extends State<LoginPage>
                                       ),
                                       child: Text(
                                         'Masuk',
-                                        style: GoogleFonts.outfit(
+                                        style: TextStyle(
+                                          fontFamily: 'PlusJakartaSans',
                                           fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w500,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -230,9 +231,11 @@ class _LoginPageState extends State<LoginPage>
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Text(
                               'Atau Masuk dengan',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.grey,
                                 fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -253,7 +256,8 @@ class _LoginPageState extends State<LoginPage>
                           ), // Placeholder for Google icon
                           label: Text(
                             'Masuk dengan Google',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: const Color(0xFF00A735),
                               fontWeight: FontWeight.w500,
                               fontSize: 15.sp,
@@ -278,19 +282,22 @@ class _LoginPageState extends State<LoginPage>
                         children: [
                           Text(
                             'Belum memiliki akun? ',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.grey,
                               fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                           GestureDetector(
                             onTap: _navigateToRegister,
                             child: Text(
                               'Daftar',
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: const Color(0xFF00A735),
                                 fontSize: 14.sp,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
@@ -315,17 +322,19 @@ class _LoginPageState extends State<LoginPage>
       return RichText(
         text: TextSpan(
           text: baseText,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             color: Colors.black87,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontSize: 14.sp,
           ),
           children: [
             TextSpan(
               text: '*',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.red,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontSize: 14.sp,
               ),
             ),
@@ -336,9 +345,10 @@ class _LoginPageState extends State<LoginPage>
 
     return Text(
       text,
-      style: GoogleFonts.outfit(
+      style: TextStyle(
+        fontFamily: 'PlusJakartaSans',
         color: Colors.black87,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         fontSize: 14.sp,
       ),
     );
@@ -356,11 +366,19 @@ class _LoginPageState extends State<LoginPage>
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: GoogleFonts.outfit(color: Colors.black),
+      style: const TextStyle(
+        fontFamily: 'PlusJakartaSans',
+        color: Colors.black,
+      ),
       validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey, fontSize: 14.sp),
+        hintStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
+          color: Colors.grey,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w500,
+        ),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
@@ -383,11 +401,12 @@ class _LoginPageState extends State<LoginPage>
           borderRadius: BorderRadius.circular(12.r),
           borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
         ),
-        errorStyle: GoogleFonts.outfit(
+        errorStyle: TextStyle(
+          fontFamily: 'PlusJakartaSans',
           color: Colors.redAccent,
           fontSize: 12.sp,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       ),
     );
   }

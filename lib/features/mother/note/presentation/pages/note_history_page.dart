@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -28,8 +27,18 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
   late final MedicalNotesCubit _notesCubit;
 
   static const List<String> _months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
   ];
 
   @override
@@ -83,9 +92,11 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
                           return Center(
                             child: Text(
                               state.message,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.red,
                                 fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           );
@@ -114,12 +125,15 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
       children: [
         SizedBox(height: 16.h),
         _buildFilters(childrenList),
-        const Expanded(
-          child: Center(
-            child: NoteEmptyState(
-              title: 'Belum ada riwayat konsultasi',
-              description:
-                  'Catatan konsultasi yang telah berakhir masa berlakunya\nakan otomatis tersimpan di sini sebagai riwayat.',
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 90.h),
+            child: const Center(
+              child: NoteEmptyState(
+                title: 'Belum ada riwayat konsultasi',
+                description:
+                    'Catatan konsultasi yang telah berakhir masa berlakunya\nakan otomatis tersimpan di sini sebagai riwayat.',
+              ),
             ),
           ),
         ),
@@ -142,7 +156,8 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
             padding: EdgeInsets.symmetric(horizontal: 24.w),
             child: Text(
               '${notes.length} Catatan',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.grey.shade600,
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
@@ -157,7 +172,8 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
               child: NoteCard(
                 id: note.id,
                 childName: note.childName,
-                date: '${_formatDate(note.createdAt)} - ${_formatDate(note.validUntil)}',
+                date:
+                    '${_formatDate(note.createdAt)} - ${_formatDate(note.validUntil)}',
                 desc: note.recommendation,
                 pantangan: note.prohibitionCount,
                 alergi: note.allergyCount,
@@ -172,7 +188,7 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
 
   Widget _buildFilters(List<ChildHeaderEntity> childrenList) {
     final childItems = ['Semua Anak', ...childrenList.map((e) => e.name)];
-    
+
     final currentMonthIndex = DateTime.now().month - 1;
     // Tampilkan dari Januari hingga bulan saat ini (inklusif)
     final availableMonths = _months.sublist(0, currentMonthIndex + 1);

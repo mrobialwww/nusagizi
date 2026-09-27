@@ -60,4 +60,6 @@ class NutritionTodayEntity extends Equatable {
     menu,
     shoppingList,
   ];
+
+  bool get hasAnyNutrition => protein > 0 || fat > 0 || carbohydrate > 0;
 }

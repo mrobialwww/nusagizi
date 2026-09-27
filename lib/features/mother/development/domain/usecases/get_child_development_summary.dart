@@ -5,13 +5,13 @@ import 'package:nusagizi/features/mother/development/domain/entities/child_devel
 import 'package:nusagizi/features/mother/development/domain/repositories/child_development_repository.dart';
 
 class GetChildDevelopmentSummary
-    implements UseCase<ChildDevelopmentSummaryEntity, String> {
+    implements UseCase<ChildDevelopmentSummaryEntity?, String> {
   final ChildDevelopmentRepository repository;
 
   GetChildDevelopmentSummary(this.repository);
 
   @override
-  Future<Either<Failure, ChildDevelopmentSummaryEntity>> call(
+  Future<Either<Failure, ChildDevelopmentSummaryEntity?>> call(
     String childId,
   ) async {
     return await repository.getChildDevelopmentSummary(childId: childId);

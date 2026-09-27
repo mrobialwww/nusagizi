@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
@@ -136,7 +135,49 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
             listener: (context, state) {
               if (state is CreateCaregiverChildPhotoSuccess) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Foto berhasil dikirim!')),
+                  SnackBar(
+                    backgroundColor: const Color(0xFFEAF7EE),
+                    behavior: SnackBarBehavior.floating,
+                    margin: EdgeInsets.all(16.w),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.w,
+                      vertical: 14.h,
+                    ),
+                    content: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: const Color(0xFF00A735),
+                          size: 24.w,
+                        ),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Text(
+                            'Berhasil Terkirim ke Ibu!',
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.sp,
+                              color: const Color(0xFF00A735),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          },
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                            size: 20.w,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
                 context.pop();
               } else if (state is CreateCaregiverChildPhotoFailure) {
@@ -165,7 +206,8 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
                           child: Center(
                             child: Text(
                               'Bagikan',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.white,
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.w600,
@@ -186,7 +228,8 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
                             // Teks Ambil Foto (tengah pas)
                             Text(
                               'Ambil Foto',
-                              style: GoogleFonts.inter(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
                                 color: Colors.white,
                                 fontSize: 18.sp,
                                 fontWeight: FontWeight.w600,
@@ -283,6 +326,7 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Left Button
           if (_capturedImage != null)
             IconButton(
               onPressed: () {
@@ -302,6 +346,7 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
               ),
             ),
 
+          // Middle Button
           if (_capturedImage != null)
             BlocBuilder<
               CreateCaregiverChildPhotoCubit,
@@ -364,6 +409,7 @@ class _CaregiverCameraPageState extends State<CaregiverCameraPage> {
               ),
             ),
 
+          // Right Button
           if (_capturedImage != null)
             IconButton(
               onPressed: () {}, // Dummy download action

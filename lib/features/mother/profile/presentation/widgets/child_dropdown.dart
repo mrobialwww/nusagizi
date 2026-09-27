@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
 class ChildDropdown extends StatefulWidget {
-  final String initialValue;
+  final String? initialChildId;
   final ValueChanged<String>? onChanged;
 
-  const ChildDropdown({super.key, required this.initialValue, this.onChanged});
+  const ChildDropdown({super.key, this.initialChildId, this.onChanged});
 
   @override
   State<ChildDropdown> createState() => _ChildDropdownState();
 }
 
 class _ChildDropdownState extends State<ChildDropdown> {
-  late String _selectedChildName;
+  String? _selectedChildId;
 
   @override
   void initState() {
     super.initState();
-    _selectedChildName = widget.initialValue;
+    _selectedChildId = widget.initialChildId;
   }
 
   String _getAvatarForIndex(int index) {
@@ -60,9 +60,9 @@ class _ChildDropdownState extends State<ChildDropdown> {
                   final child = children[index];
                   return InkWell(
                     onTap: () {
-                      setState(() => _selectedChildName = child.name);
-                      widget.onChanged?.call(child.name);
-                      Navigator.pop(context);
+                      setState(() => _selectedChildId = child.id);
+                      widget.onChanged?.call(child.id);
+                      context.pop();
                     },
                     child: Padding(
                       padding: EdgeInsets.symmetric(
@@ -80,9 +80,10 @@ class _ChildDropdownState extends State<ChildDropdown> {
                           SizedBox(width: 16.w),
                           Text(
                             child.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.black87,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               fontSize: 16.sp,
                             ),
                           ),
@@ -100,13 +101,33 @@ class _ChildDropdownState extends State<ChildDropdown> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            _selectedChildName,
-            style: GoogleFonts.outfit(
-              color: Colors.black87,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-            ),
+          Builder(
+            builder: (context) {
+              final children = context.read<ChildrenCacheCubit>().state;
+              String displayName = 'Anak';
+              if (children.isNotEmpty) {
+                if (_selectedChildId != null) {
+                  try {
+                    displayName = children
+                        .firstWhere((c) => c.id == _selectedChildId)
+                        .name;
+                  } catch (_) {
+                    displayName = children.first.name;
+                  }
+                } else {
+                  displayName = children.first.name;
+                }
+              }
+              return Text(
+                displayName,
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  color: Colors.black87,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              );
+            },
           ),
           SizedBox(width: 8.w),
           Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),

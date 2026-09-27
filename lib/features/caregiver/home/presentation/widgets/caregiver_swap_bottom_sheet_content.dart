@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/caregiver/home/domain/entities/caregiver_substitute_item_entity.dart';
 import 'package:go_router/go_router.dart';
 
@@ -63,7 +62,8 @@ class _CaregiverSwapBottomSheetContentState
             widget.childName != null
                 ? "Ganti untuk ${widget.childName}"
                 : "Ganti ${widget.itemName}",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
@@ -81,9 +81,10 @@ class _CaregiverSwapBottomSheetContentState
                   children: [
                     Text(
                       widget.itemName,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         color: Colors.black87,
                       ),
                     ),
@@ -95,7 +96,8 @@ class _CaregiverSwapBottomSheetContentState
                       children: [
                         Text(
                           "(${widget.amount})",
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 13.sp,
                             fontWeight: FontWeight.w400,
                             color: Colors.grey.shade600,
@@ -108,9 +110,10 @@ class _CaregiverSwapBottomSheetContentState
                         ),
                         Text(
                           "Pilih di bawah",
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 13.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: const Color(0xFF00A735),
                           ),
                         ),
@@ -159,7 +162,8 @@ class _CaregiverSwapBottomSheetContentState
                         children: [
                           Text(
                             option.name,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w500,
                               color: Colors.black87,
@@ -168,7 +172,8 @@ class _CaregiverSwapBottomSheetContentState
                           SizedBox(height: 4.h),
                           Text(
                             option.unit,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w400,
                               color: Colors.grey.shade600,
@@ -216,9 +221,10 @@ class _CaregiverSwapBottomSheetContentState
               ),
               child: Text(
                 "Ganti ke ${widget.options[_selectedIndex].name}",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: Colors.white,
                 ),
               ),
@@ -240,9 +246,10 @@ class _CaregiverSwapBottomSheetContentState
               ),
               child: Text(
                 "Batalkan",
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
                   fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   color: const Color(0xFF00A735),
                 ),
               ),

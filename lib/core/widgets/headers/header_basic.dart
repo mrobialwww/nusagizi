@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HeaderBasic extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -59,9 +58,10 @@ class HeaderBasic extends StatelessWidget implements PreferredSizeWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'PlusJakartaSans',
               fontSize: 20.sp,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: textColor ?? Colors.black87,
             ),
           ),
@@ -69,7 +69,8 @@ class HeaderBasic extends StatelessWidget implements PreferredSizeWidget {
             SizedBox(height: 2.h),
             Text(
               subtitle!,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w400,
                 color: textColor?.withValues(alpha: 0.7) ?? Colors.black54,

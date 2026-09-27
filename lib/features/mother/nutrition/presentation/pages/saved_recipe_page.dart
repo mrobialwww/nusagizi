@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/entities/recipe_entity.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/saved_recipe_cubit.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/saved_recipe_state.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/widgets/saved_menu_card.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:nusagizi/core/config/assets/app_vectors.dart';
+import 'package:nusagizi/router.dart';
 
 class SavedRecipePage extends StatelessWidget {
   final String? childId;
@@ -56,7 +59,9 @@ class SavedRecipePage extends StatelessWidget {
                         SizedBox(height: 16.h),
                         Text(
                           state.message,
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
+                            fontWeight: FontWeight.w500,
                             fontSize: 14.sp,
                             color: Colors.grey[600],
                           ),
@@ -68,7 +73,7 @@ class SavedRecipePage extends StatelessWidget {
                 );
               } else if (state is SavedRecipeLoaded) {
                 if (state.recipes.isEmpty) {
-                  return _buildEmptyState();
+                  return _buildEmptyState(context);
                 }
                 return ListView(
                   padding: EdgeInsets.all(16.w),
@@ -77,7 +82,7 @@ class SavedRecipePage extends StatelessWidget {
                       .toList(),
                 );
               }
-              return _buildEmptyState();
+              return _buildEmptyState(context);
             },
           ),
         ),
@@ -85,30 +90,68 @@ class SavedRecipePage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
+  Widget _buildEmptyState(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20.w),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.bookmark_border, size: 80.sp, color: Colors.grey[300]),
-          SizedBox(height: 16.h),
-          Text(
-            'Belum ada resep tersimpan',
-            style: GoogleFonts.outfit(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[500],
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(AppVectors.emptySearch, height: 200.h),
+                SizedBox(height: 24.h),
+                Text(
+                  'Belum Ada Resep Tersimpan',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Text(
+                  'Simpan resep favorit si kecil di sini agar mudah ditemukan saat dibutuhkan nanti.',
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 12.sp,
+                    color: Colors.black54,
+                    height: 1.5,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 8.h),
-          Text(
-            'Tekan ikon bookmark pada halaman\ndetail resep untuk menyimpan resep.',
-            style: GoogleFonts.outfit(
-              fontSize: 13.sp,
-              color: Colors.grey[400],
-              height: 1.5,
+          SizedBox(
+            width: double.infinity,
+            height: 50.h,
+            child: ElevatedButton(
+              onPressed: () {
+                context.goNamed(
+                  AppRoutes.nutritionAllMenu.name,
+                  extra: {'childId': childId},
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A735),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Lihat Menu Hari Ini',
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15.sp,
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

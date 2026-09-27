@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
@@ -45,24 +44,14 @@ class CaregiverHomeHeader extends StatelessWidget {
                       )
                     : CircleAvatar(
                         radius: 20.r,
-                        backgroundColor:
-                            ImageHelper.getSafeImageProvider(photoUrl) == null
-                            ? ImageHelper.getAvatarColor(firstName)
-                            : Colors.grey.shade200,
-                        backgroundImage: ImageHelper.getSafeImageProvider(
-                          photoUrl,
-                        ),
-                        child:
-                            ImageHelper.getSafeImageProvider(photoUrl) == null
-                            ? Text(
-                                ImageHelper.getInitials(firstName),
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.sp,
-                                ),
-                              )
-                            : null,
+                        backgroundColor: Colors.grey.shade200,
+                        backgroundImage:
+                            ImageHelper.getSafeImageProvider(photoUrl) ??
+                            ImageHelper.getDefaultUserImage(
+                              state is CaregiverProfileLoaded
+                                  ? state.profile.gender
+                                  : null,
+                            ),
                       ),
                 SizedBox(width: 12.w),
                 Column(
@@ -70,7 +59,9 @@ class CaregiverHomeHeader extends StatelessWidget {
                   children: [
                     Text(
                       'Halo,',
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         color: Colors.grey[700],
                         fontSize: 13.sp,
                       ),
@@ -79,17 +70,19 @@ class CaregiverHomeHeader extends StatelessWidget {
                             state is CaregiverProfileInitial)
                         ? LoadingEllipsisText(
                             text: '',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.black87,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               fontSize: 16.sp,
                             ),
                           )
                         : Text(
                             'Pengasuh $firstName 👋',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               color: Colors.black87,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w700,
                               fontSize: 16.sp,
                             ),
                           ),

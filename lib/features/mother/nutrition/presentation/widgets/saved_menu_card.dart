@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/utils/number_extension.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/menu_action_cubit.dart';
@@ -84,7 +83,8 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                   SizedBox(width: 12.w),
                   Text(
                     buildMealType,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -99,9 +99,11 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                 ),
                 child: Text(
                   buildTimeStr,
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 12.sp,
                     color: Colors.black87,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -131,7 +133,8 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                   children: [
                     Text(
                       widget.title,
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
                       ),
@@ -155,7 +158,8 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                           ),
                           child: Text(
                             tag,
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 10.sp,
                               color: textColor,
                               fontWeight: FontWeight.w500,
@@ -175,9 +179,11 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                         SizedBox(width: 4.w),
                         Text(
                           "${widget.calories.toMacroFormat()} Kcal",
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             fontSize: 12.sp,
                             color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         SizedBox(width: 16.w),
@@ -190,9 +196,11 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                           SizedBox(width: 4.w),
                           Text(
                             "${widget.protein.toMacroFormat()} g P",
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 12.sp,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -262,7 +270,8 @@ class _SavedMenuCardState extends State<SavedMenuCard> {
                               SizedBox(width: 4.w),
                               Text(
                                 "Masak Lagi",
-                                style: GoogleFonts.outfit(
+                                style: TextStyle(
+                                  fontFamily: 'PlusJakartaSans',
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,

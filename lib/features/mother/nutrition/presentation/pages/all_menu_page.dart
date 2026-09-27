@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
@@ -75,9 +75,10 @@ class _AllMenuPageState extends State<AllMenuPage> {
                       SizedBox(height: 24.h),
                       Text(
                         "menu baru sedang di generate....",
-                        style: GoogleFonts.outfit(
+                        style: TextStyle(
+                          fontFamily: 'PlusJakartaSans',
                           fontSize: 16.sp,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
                       ),
@@ -93,7 +94,7 @@ class _AllMenuPageState extends State<AllMenuPage> {
                   backgroundColor: const Color(0xFFF3F4F6),
                   appBar: const HeaderBasic(
                     backgroundColor: Color(0xFFF3F4F6),
-                    title: "Semua Menu Hari ini",
+                    title: "Menu Hari ini",
                   ),
                   body: BlocBuilder<RecipeCompletionCubit, RecipeCompletionState>(
                     builder: (context, completionState) {
@@ -113,11 +114,12 @@ class _AllMenuPageState extends State<AllMenuPage> {
                         ),
                         children: [
                           Text(
-                            "Hari ini, 22 Mei",
-                            style: GoogleFonts.outfit(
-                              fontSize: 12.sp,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
+                            "Hari ini, ${DateFormat("d MMMM", "id_ID").format(DateTime.now())}",
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
+                              fontSize: 16.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           SizedBox(height: 16.h),
@@ -127,7 +129,11 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                 padding: EdgeInsets.all(32.w),
                                 child: Text(
                                   state.message,
-                                  style: GoogleFonts.outfit(color: Colors.red),
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ),
@@ -192,9 +198,10 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                           SizedBox(height: 16.h),
                                           Text(
                                             'Menu hari ini sudah tersedia',
-                                            style: GoogleFonts.outfit(
+                                            style: TextStyle(
+                                              fontFamily: 'PlusJakartaSans',
                                               fontSize: 16.sp,
-                                              fontWeight: FontWeight.w700,
+                                              fontWeight: FontWeight.w600,
                                               color: Colors.black,
                                             ),
                                             textAlign: TextAlign.center,
@@ -202,10 +209,12 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                           SizedBox(height: 8.h),
                                           Text(
                                             'Kamu sudah memasak salah satu menu hari ini. Buat menu baru akan tersedia lagi besok.',
-                                            style: GoogleFonts.outfit(
+                                            style: TextStyle(
+                                              fontFamily: 'PlusJakartaSans',
                                               fontSize: 12.sp,
                                               color: Colors.white,
                                               height: 1.5,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
@@ -252,7 +261,8 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                         SizedBox(height: 16.h),
                                         Text(
                                           "Belum cocok dengan menu ini?",
-                                          style: GoogleFonts.outfit(
+                                          style: TextStyle(
+                                            fontFamily: 'PlusJakartaSans',
                                             fontSize: 16.sp,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.black87,
@@ -262,10 +272,12 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                         SizedBox(height: 8.h),
                                         Text(
                                           "Sesuaikan rekomendasi berdasarkan bahan,\npreferensi, atau kondisi yang perlu diperhatikan.",
-                                          style: GoogleFonts.outfit(
+                                          style: TextStyle(
+                                            fontFamily: 'PlusJakartaSans',
                                             fontSize: 12.sp,
                                             color: Colors.black,
                                             height: 1.5,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
@@ -300,7 +312,8 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                             ),
                                             label: Text(
                                               "Buat Menu Baru",
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 fontSize: 14.sp,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -313,9 +326,11 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                           ),
                                           child: Text(
                                             "atau",
-                                            style: GoogleFonts.outfit(
+                                            style: TextStyle(
+                                              fontFamily: 'PlusJakartaSans',
                                               fontSize: 12.sp,
                                               color: Colors.black,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
@@ -349,7 +364,8 @@ class _AllMenuPageState extends State<AllMenuPage> {
                                             ),
                                             label: Text(
                                               "Tambah Catatan Konsultasi Dokter",
-                                              style: GoogleFonts.outfit(
+                                              style: TextStyle(
+                                                fontFamily: 'PlusJakartaSans',
                                                 fontSize: 14.sp,
                                                 fontWeight: FontWeight.w500,
                                               ),

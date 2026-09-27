@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/development/domain/entities/checklist_milestone_task_entity.dart';
 import 'package:nusagizi/features/mother/development/presentation/cubit/checklist_milestone_cubit.dart';
+import 'package:nusagizi/features/mother/development/presentation/cubit/checklist_milestone_state.dart';
+import 'package:nusagizi/core/utils/age_parser.dart';
 
 class ChecklistMilestonePage extends StatefulWidget {
   final String childId;
@@ -45,12 +46,17 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
   late int _selectedMonth;
   final GlobalKey _selectedTabKey = GlobalKey();
 
+  int _snapToPeriod(int months) {
+    return _months.lastWhere((p) => p <= months, orElse: () => _months.first);
+  }
+
   @override
   void initState() {
     super.initState();
     _cubit = sl<ChecklistMilestoneCubit>();
-    _selectedMonth = _cubit.getSelectedMonth(widget.childAge);
-    _cubit.loadTasks(childId: widget.childId, childAge: widget.childAge);
+    final totalMonths = parseAgeToMonths(widget.childAge);
+    _selectedMonth = _snapToPeriod(totalMonths);
+    _cubit.loadTasks(childId: widget.childId, monthTarget: _selectedMonth);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_selectedTabKey.currentContext != null) {
@@ -131,11 +137,8 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
                       if (state is ChecklistMilestoneError) {
                         return Center(child: Text(state.message));
                       }
-                      if (state is ChecklistMilestoneLoaded ||
-                          state is ChecklistMilestoneSyncSuccess) {
-                        final tasks = state is ChecklistMilestoneLoaded
-                            ? state.tasks
-                            : (state as ChecklistMilestoneSyncSuccess).tasks;
+                      if (state is ChecklistMilestoneLoaded) {
+                        final tasks = state.tasks;
                         final grouped = _groupByDomain(tasks);
                         return ListView.builder(
                           padding: EdgeInsets.symmetric(
@@ -185,7 +188,7 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
                     });
                     _cubit.loadTasks(
                       childId: widget.childId,
-                      childAge: widget.childAge,
+                      monthTarget: _selectedMonth,
                     );
                   }
                 : null,
@@ -213,8 +216,9 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
                 ),
                 child: Text(
                   '$month Bulan',
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w600,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontWeight: FontWeight.w700,
                     fontSize: 13.sp,
                     color: isSelected ? Colors.white : _green,
                   ),
@@ -278,7 +282,8 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
                   children: [
                     Text(
                       _domainLabel(domain),
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                         color: Colors.black87,
@@ -287,7 +292,9 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
                     SizedBox(height: 2.h),
                     Text(
                       '$completedCount/$totalCount selesai',
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
+                        fontWeight: FontWeight.w500,
                         fontSize: 12.sp,
                         color: Colors.black54,
                       ),
@@ -350,7 +357,9 @@ class _ChecklistMilestonePageState extends State<ChecklistMilestonePage> {
             Expanded(
               child: Text(
                 task.questionText,
-                style: GoogleFonts.outfit(
+                style: TextStyle(
+                  fontFamily: 'PlusJakartaSans',
+                  fontWeight: FontWeight.w500,
                   fontSize: 13.sp,
                   color: Colors.black87,
                   height: 1.4,

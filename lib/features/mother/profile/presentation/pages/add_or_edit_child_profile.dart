@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nusagizi/router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
+import 'package:nusagizi/core/layout/mother_layout_scaffold.dart';
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/features/mother/profile/domain/entities/child_profile_entity.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/add_edit_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/child_profile_form_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/add_edit_profile_state.dart';
-import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_cubit.dart';
 import 'package:nusagizi/core/services/image_upload/presentation/cubit/image_upload_cubit.dart';
 import 'package:nusagizi/core/services/image_upload/presentation/cubit/image_upload_state.dart';
-
 import 'package:nusagizi/features/mother/profile/data/models/child_profile_request_model.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/add_edit_child_profile_step1.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/add_edit_child_profile_step2.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/add_edit_child_profile_step3.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
 class AddOrEditChildProfile extends StatefulWidget {
   final ChildProfileEntity? childData;
@@ -63,13 +62,20 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
             listener: (context, state) {
               if (state is ChildProfileFormSuccess) {
                 crudFlag = true;
-                sl<MotherHomeCubit>().getChildrenSummary();
                 _showSuccessDialog(context, widget.childData != null);
               } else if (state is ChildProfileFormDeleteSuccess) {
                 crudFlag = true;
-                sl<MotherHomeCubit>().getChildrenSummary();
-                Navigator.pop(context);
-                Navigator.pop(context);
+
+                sl<ChildrenCacheCubit>().remove(
+                  widget.childData!.id,
+                ); // hapus data anak dari hydrated bloc
+
+                if (sl<ChildrenCacheCubit>().state.isEmpty) {
+                  crudFlag = false;
+                  context.pushReplacementNamed(AppRoutes.editChildProfile.name);
+                } else {
+                  context.pop();
+                }
               } else if (state is ChildProfileFormFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -92,7 +98,7 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
                     _currentStep--;
                   });
                 } else if (!widget.fromHome) {
-                  Navigator.pop(context, result);
+                  context.pop(result);
                 }
               },
               child: Scaffold(
@@ -112,7 +118,7 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
                               _currentStep--;
                             });
                           } else {
-                            Navigator.pop(context);
+                            context.pop();
                           }
                         },
                   actions: [
@@ -121,7 +127,8 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
                         onPressed: () => _showDeleteConfirmation(context),
                         child: Text(
                           'Hapus',
-                          style: GoogleFonts.outfit(
+                          style: TextStyle(
+                            fontFamily: 'PlusJakartaSans',
                             color: Colors.red,
                             fontWeight: FontWeight.w600,
                           ),
@@ -198,8 +205,9 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
                                   _currentStep == 2
                                       ? 'Simpan Profil'
                                       : 'Selanjutnya',
-                                  style: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.w700,
+                                  style: TextStyle(
+                                    fontFamily: 'PlusJakartaSans',
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 15.sp,
                                   ),
                                 ),
@@ -275,27 +283,37 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
       builder: (ctx) => AlertDialog(
         title: Text(
           'Hapus Profil Anak?',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w700,
+          ),
         ),
         content: Text(
           'Data profil anak akan dihapus. Tindakan ini tidak dapat dibatalkan.',
-          style: GoogleFonts.outfit(),
+          style: TextStyle(fontFamily: 'PlusJakartaSans'),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Batal', style: GoogleFonts.outfit(color: Colors.grey)),
+            onPressed: () => ctx.pop(),
+            child: Text(
+              'Batal',
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
+                color: Colors.grey,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(ctx);
+              ctx.pop();
               context.read<ChildProfileFormCubit>().deleteChildProfile(
                 widget.childData!.id,
               );
             },
             child: Text(
               'Hapus',
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 color: Colors.red,
                 fontWeight: FontWeight.w600,
               ),
@@ -376,20 +394,22 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
     );
   }
 
-  void _showSuccessDialog(BuildContext context, bool isEdit) {
+  void _showSuccessDialog(BuildContext context, bool isEdit) async {
+    bool isDialogClosed = false;
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
       barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 700),
+      transitionDuration: const Duration(milliseconds: 500),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
           child: Material(
             color: Colors.transparent,
             child: Container(
               margin: EdgeInsets.symmetric(horizontal: 24.w),
-              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 40.h),
+              padding: EdgeInsets.fromLTRB(24.w, 40.h, 24.w, 40.h),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24.r),
@@ -397,58 +417,55 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: const Color(0xFF00A735),
-                    size: 80.w,
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(
-                    isEdit ? 'Profil Diperbarui!' : 'Profil Dibuat!',
-                    style: GoogleFonts.outfit(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w700,
+                  Container(
+                    width: 120.w,
+                    height: 120.w,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00A735).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 80.w,
+                        height: 80.w,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF00A735),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 48.sp,
+                          weight: 700,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 8.h),
+                  SizedBox(height: 32.h),
                   Text(
                     isEdit
-                        ? 'Data profil anak berhasil diperbarui.'
-                        : 'Profil anak berhasil ditambahkan.',
+                        ? 'Profile Berhasil Diperbarui 🎉'
+                        : 'Profile Berhasil Dibuat 🎉',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      fontSize: 14.sp,
-                      color: Colors.grey,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF00A735),
                     ),
                   ),
-                  SizedBox(height: 24.h),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50.h,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Menutup dialog
-                        if (!isEdit) {
-                          context.goNamed(AppRoutes.homeMother.name);
-                        } else {
-                          Navigator.pop(context); // Kembali ke list
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A735),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14.r),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Kembali',
-                        style: GoogleFonts.outfit(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15.sp,
-                        ),
-                      ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    isEdit
+                        ? 'Perubahan data anak telah berhasil disimpan'
+                        : 'Semua siap! Yuk, mulai pantau pertumbuhan,\nperkembangan, dan kebutuhan si kecil',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontSize: 14.sp,
+                      color: Colors.grey.shade600,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
@@ -457,6 +474,34 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
           ),
         );
       },
-    );
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                  reverseCurve: Curves.easeInCubic,
+                ),
+              ),
+          child: child,
+        );
+      },
+    ).then((_) {
+      isDialogClosed = true;
+      if (context.mounted) {
+        if (isEdit) {
+          context.pop();
+        } else {
+          motherNavTabNotifier.value = 0;
+          context.goNamed(AppRoutes.homeMother.name);
+        }
+      }
+    });
+
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (context.mounted && !isDialogClosed) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
   }
 }

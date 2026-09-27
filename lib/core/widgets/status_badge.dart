@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class StatusBadge extends StatelessWidget {
   final String status;
+  final FontWeight fontWeight;
 
-  const StatusBadge({super.key, required this.status});
+  const StatusBadge({
+    super.key,
+    required this.status,
+    this.fontWeight = FontWeight.w500,
+  });
 
   static Color getColorForStatus(String status) {
     final statusLower = status.toLowerCase();
@@ -66,9 +70,10 @@ class StatusBadge extends StatelessWidget {
           Flexible(
             child: Text(
               status,
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'PlusJakartaSans',
                 fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
+                fontWeight: fontWeight,
                 color: color,
               ),
               overflow: TextOverflow.ellipsis,

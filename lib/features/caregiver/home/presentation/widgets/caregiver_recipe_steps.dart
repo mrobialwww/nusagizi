@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/entities/recipe_detail_entity.dart';
 
 class CaregiverRecipeSteps extends StatelessWidget {
@@ -26,7 +25,8 @@ class CaregiverRecipeSteps extends StatelessWidget {
               children: [
                 Text(
                   "Cara Membuat",
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -44,7 +44,8 @@ class CaregiverRecipeSteps extends StatelessWidget {
                       data.cookingTime.isNotEmpty
                           ? data.cookingTime
                           : "15 Menit",
-                      style: GoogleFonts.outfit(
+                      style: TextStyle(
+                        fontFamily: 'PlusJakartaSans',
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF4CAF50),
@@ -76,7 +77,8 @@ class CaregiverRecipeSteps extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Text(
                             "${step.stepNumber}",
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
+                              fontFamily: 'PlusJakartaSans',
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -107,7 +109,9 @@ class CaregiverRecipeSteps extends StatelessWidget {
                           children: [
                             Text(
                               step.instruction,
-                              style: GoogleFonts.outfit(
+                              style: TextStyle(
+                                fontFamily: 'PlusJakartaSans',
+                                fontWeight: FontWeight.w500,
                                 fontSize: 13.sp,
                                 color: Colors.black87,
                                 height: 1.5,

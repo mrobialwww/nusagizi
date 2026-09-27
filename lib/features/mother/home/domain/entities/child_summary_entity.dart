@@ -3,6 +3,7 @@ class ChildSummaryEntity {
   final String name;
   final String age;
   final String imagePath;
+  final String gender;
   final int streak;
   final String statusTag;
 
@@ -29,6 +30,7 @@ class ChildSummaryEntity {
     required this.name,
     required this.age,
     required this.imagePath,
+    required this.gender,
     required this.streak,
     required this.statusTag,
     required this.weightKg,
@@ -48,6 +50,7 @@ class ChildSummaryEntity {
     String? name,
     String? age,
     String? imagePath,
+    String? gender,
     int? streak,
     String? statusTag,
     double? weightKg,
@@ -66,6 +69,7 @@ class ChildSummaryEntity {
       name: name ?? this.name,
       age: age ?? this.age,
       imagePath: imagePath ?? this.imagePath,
+      gender: gender ?? this.gender,
       streak: streak ?? this.streak,
       statusTag: statusTag ?? this.statusTag,
       weightKg: weightKg ?? this.weightKg,

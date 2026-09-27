@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nusagizi/features/caregiver/home/domain/entities/child_preview_entity.dart';
 import 'package:nusagizi/router.dart';
+import 'package:nusagizi/core/config/assets/app_images.dart';
 
 class CheckinAccessBottomSheet extends StatefulWidget {
   final ChildPreviewEntity data;
@@ -32,7 +32,7 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
     if (!mounted) return;
 
     if (result == null) {
-      Navigator.pop(context);
+      context.pop();
       return;
     }
 
@@ -43,7 +43,7 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
   }
 
   void _close() {
-    Navigator.pop(context);
+    context.pop();
   }
 
   @override
@@ -76,9 +76,9 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
               child: Center(
                 child: SingleChildScrollView(
                   child: _isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
-                          child: CircularProgressIndicator(
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40.h),
+                          child: const CircularProgressIndicator(
                             color: Color(0xFF00A735),
                           ),
                         )
@@ -126,21 +126,24 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: const Color(0xFFE8F5E9), width: 6.r),
-            image: widget.data.photoUrl != null
+            image:
+                (widget.data.photoUrl != null &&
+                    widget.data.photoUrl!.isNotEmpty)
                 ? DecorationImage(
                     image: NetworkImage(widget.data.photoUrl!),
                     fit: BoxFit.cover,
                   )
-                : null,
+                : const DecorationImage(
+                    image: AssetImage(AppImages.defaultMaleChildProfile),
+                    fit: BoxFit.cover,
+                  ),
           ),
-          child: widget.data.photoUrl == null
-              ? Icon(Icons.person, size: 40.sp, color: Colors.grey)
-              : null,
         ),
         SizedBox(height: 16.h),
         Text(
           'Konfirmasi Akses',
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontSize: 20.sp,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -150,7 +153,12 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
         Text(
           'Anda akan terhubung dengan profil berikut.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(fontSize: 14.sp, color: Colors.black54),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            fontSize: 14.sp,
+            color: Colors.black54,
+          ),
         ),
         SizedBox(height: 24.h),
         Container(
@@ -166,14 +174,17 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                 children: [
                   Text(
                     'Nama',
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       fontSize: 14.sp,
                       color: Colors.black54,
                     ),
                   ),
                   Text(
                     widget.data.fullName,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -187,14 +198,17 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                 children: [
                   Text(
                     'Usia',
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       fontSize: 14.sp,
                       color: Colors.black54,
                     ),
                   ),
                   Text(
                     widget.data.ageText,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -208,14 +222,17 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                 children: [
                   Text(
                     'Orang Tua',
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
+                      fontWeight: FontWeight.w500,
                       fontSize: 14.sp,
                       color: Colors.black54,
                     ),
                   ),
                   Text(
                     widget.data.motherName,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -241,9 +258,10 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                 ),
                 child: Text(
                   'Batal',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: const Color(0xFF00A735),
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -262,9 +280,10 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                 ),
                 child: Text(
                   'Terima Akses',
-                  style: GoogleFonts.outfit(
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -296,9 +315,10 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
         SizedBox(height: 24.h),
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
             fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             color: titleColor,
           ),
         ),
@@ -306,7 +326,12 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
         Text(
           description,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(fontSize: 14.sp, color: Colors.black54),
+          style: TextStyle(
+            fontFamily: 'PlusJakartaSans',
+            fontWeight: FontWeight.w500,
+            fontSize: 14.sp,
+            color: Colors.black54,
+          ),
         ),
         SizedBox(height: 32.h),
         SizedBox(
@@ -314,7 +339,7 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
           child: isPrimaryButton
               ? ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    context.pop();
                     context.goNamed(AppRoutes.homeCaregiver.name);
                   },
                   style: ElevatedButton.styleFrom(
@@ -326,15 +351,16 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                   ),
                   child: Text(
                     buttonText,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: Colors.white,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 )
               : OutlinedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    context.pop();
                     context.goNamed(AppRoutes.homeCaregiver.name);
                   },
                   style: OutlinedButton.styleFrom(
@@ -346,9 +372,10 @@ class _CheckinAccessBottomSheetState extends State<CheckinAccessBottomSheet> {
                   ),
                   child: Text(
                     buttonText,
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
+                      fontFamily: 'PlusJakartaSans',
                       color: const Color(0xFF00A735),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

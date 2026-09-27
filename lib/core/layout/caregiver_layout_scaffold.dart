@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:nusagizi/core/data/models/destination_navbar.dart';
+import 'package:nusagizi/core/layout/destination_navbar.dart';
 
 /// Notifier untuk mengontrol tab aktif pada bottom nav bar Caregiver secara global.
 final ValueNotifier<int> caregiverNavTabNotifier = ValueNotifier(0);
