@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nusagizi/core/config/assets/app_images.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/core/utils/image_helper.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
 
 class ChildDropdown extends StatefulWidget {
   final String? initialChildId;
@@ -22,11 +23,7 @@ class _ChildDropdownState extends State<ChildDropdown> {
   void initState() {
     super.initState();
     _selectedChildId = widget.initialChildId;
-  }
-
-  String _getAvatarForIndex(int index) {
-    if (index % 2 == 0) return AppImages.childHome1;
-    return AppImages.childHome1;
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
   }
 
   @override
@@ -73,9 +70,12 @@ class _ChildDropdownState extends State<ChildDropdown> {
                         children: [
                           CircleAvatar(
                             radius: 14.r,
-                            backgroundImage: AssetImage(
-                              _getAvatarForIndex(index),
-                            ),
+                            backgroundColor: Colors.grey.shade200,
+                            backgroundImage:
+                                ImageHelper.getSafeImageProvider(
+                                  child.imagePath,
+                                ) ??
+                                ImageHelper.getDefaultChildImage(child.gender),
                           ),
                           SizedBox(width: 16.w),
                           Text(

@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:nusagizi/core/widgets/headers/header_basic.dart';
 import 'package:nusagizi/core/constants/alarm_dummy_data.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/reminder_tile.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nusagizi/features/mother/profile/presentation/cubit/alarm_cubit.dart';
-import 'package:nusagizi/features/mother/profile/presentation/cubit/alarm_state.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_alarm_cubit.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_alarm_state.dart';
 
-class ReminderAlarmPage extends StatefulWidget {
-  const ReminderAlarmPage({super.key});
+class CaregiverReminderAlarmPage extends StatefulWidget {
+  const CaregiverReminderAlarmPage({super.key});
 
   @override
-  State<ReminderAlarmPage> createState() => _ReminderAlarmPageState();
+  State<CaregiverReminderAlarmPage> createState() =>
+      _CaregiverReminderAlarmPageState();
 }
 
-class _ReminderAlarmPageState extends State<ReminderAlarmPage> {
+class _CaregiverReminderAlarmPageState
+    extends State<CaregiverReminderAlarmPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AlarmCubit>().initializeIfEmpty();
+    context.read<CaregiverAlarmCubit>().initializeIfEmpty();
   }
 
   @override
@@ -36,7 +39,7 @@ class _ReminderAlarmPageState extends State<ReminderAlarmPage> {
             children: [
               SizedBox(height: 16.h),
               Expanded(
-                child: BlocBuilder<AlarmCubit, AlarmState>(
+                child: BlocBuilder<CaregiverAlarmCubit, CaregiverAlarmState>(
                   builder: (context, state) {
                     final alarms = state.alarms;
                     return ListView.builder(
@@ -55,7 +58,9 @@ class _ReminderAlarmPageState extends State<ReminderAlarmPage> {
                           isFirst: index == 0,
                           isLast: index == alarms.length - 1,
                           onChanged: (_) {
-                            context.read<AlarmCubit>().toggleAlarm(index);
+                            context.read<CaregiverAlarmCubit>().toggleAlarm(
+                              index,
+                            );
                           },
                         );
                       },

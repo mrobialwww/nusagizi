@@ -50,6 +50,7 @@ class _NoteMotherPageState extends State<NoteMotherPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     _lifecycleListener = AppLifecycleListener(
       onPause: () => _wasPaused = true,
       onResume: () {
@@ -62,9 +63,7 @@ class _NoteMotherPageState extends State<NoteMotherPage> {
     _routerDelegate = GoRouter.of(context).routerDelegate;
     _routerDelegate.addListener(_onRouteChanged);
 
-    _selectedMonth =
-        _months[DateTime.now().month -
-            1]; // Default to the current month dynamically
+    _selectedMonth = 'Semua Bulan';
     _notesCubit = sl<MedicalNotesCubit>();
     _fetchNotes();
   }
@@ -98,7 +97,9 @@ class _NoteMotherPageState extends State<NoteMotherPage> {
   void _fetchNotes() {
     _notesCubit.fetchMedicalNotes(
       status: 'active',
-      month: _months.indexOf(_selectedMonth) + 1,
+      month: _selectedMonth == 'Semua Bulan'
+          ? null
+          : _months.indexOf(_selectedMonth) + 1,
       childName: _selectedChild == 'Semua Anak' ? null : _selectedChild,
     );
   }
@@ -333,9 +334,7 @@ class _NoteMotherPageState extends State<NoteMotherPage> {
 
   Widget _buildFilters(List<ChildHeaderEntity> childrenList) {
     final childItems = ['Semua Anak', ...childrenList.map((e) => e.name)];
-
-    final currentMonthIndex = DateTime.now().month - 1;
-    final availableMonths = _months.sublist(currentMonthIndex);
+    final availableMonths = ['Semua Bulan', ..._months];
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),

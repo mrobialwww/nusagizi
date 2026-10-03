@@ -12,9 +12,8 @@ import 'package:nusagizi/features/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_state.dart';
 import 'package:nusagizi/features/auth/domain/entities/user_entity.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/core/services/onesignal_service.dart';
 
-// AUTH FEATURE - PRESENTATION LAYER
-// Cubit: mengatur state dan memanggil use case
 class AuthCubit extends Cubit<AuthState> {
   final LoginUsecase loginUseCase;
   final RegisterUsecase registerUseCase;
@@ -36,6 +35,20 @@ class AuthCubit extends Cubit<AuthState> {
     required this.resendOtpUseCase,
   }) : super(const AuthInitial());
 
+  /// Hook terpusat — terpicu TEPAT SATU KALI setiap kali state berubah.
+  /// Semua side-effect OneSignal dikelola di sini sehingga tidak tersebar.
+  @override
+  void onChange(Change<AuthState> change) {
+    super.onChange(change);
+    final next = change.nextState;
+
+    if (next is AuthAuthenticated) {
+      OneSignalService().login(next.user.id);
+    } else if (next is AuthUnauthenticated) {
+      OneSignalService().logout();
+    }
+  }
+
   Future<void> login({required String email, required String password}) async {
     emit(const AuthLoading());
 
@@ -53,10 +66,8 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Langkah 1+2: Signup akun baru di Auth0 + kirim OTP ke email.
-  ///
-  /// Jika berhasil, emit [AuthOtpPending] — sinyal untuk UI agar navigasi
-  /// ke layar verifikasi OTP. Password diteruskan via state agar tersedia
-  /// untuk login definitif di [verifyOtpAndLogin] (tidak pernah ditulis ke disk).
+  /// Jika berhasil, emit [AuthOtpPending] — sinyal untuk UI agar navigasi ke layar verifikasi OTP.
+  /// Password diteruskan via state agar tersedi untuk login definitif di [verifyOtpAndLogin] (tidak pernah ditulis ke disk).
   Future<void> startRegistration({
     required String username,
     required String email,
@@ -79,7 +90,6 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Langkah 3+4+5: Verifikasi OTP → konfirmasi email ke Gin → login definitif.
-  ///
   /// Jika berhasil, emit [AuthAuthenticated] — GoRouter akan redirect ke role-selection.
   Future<void> verifyOtpAndLogin({
     required String email,
@@ -103,9 +113,6 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Kirim ulang OTP ke email yang sama.
-  ///
-  /// Tidak emit [AuthLoading] agar UI OTP screen tidak hilang/reset.
-  /// Hanya emit [AuthError] jika gagal — state saat ini dipertahankan.
   Future<void> resendOtp({required String email}) async {
     final result = await resendOtpUseCase.call(email);
     result.fold(

@@ -53,12 +53,15 @@ import 'package:nusagizi/features/mother/nutrition/presentation/pages/shopping_l
 import 'package:nusagizi/features/mother/home/presentation/pages/notification_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/edit_profile_page.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/pages/caregiver_edit_profile_page.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/pages/caregiver_reminder_alarm_page.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/security_account_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/child_profile_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/child_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/add_edit_profile_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_cubit.dart';
+import 'package:nusagizi/features/mother/profile/presentation/cubit/alarm_cubit.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_alarm_cubit.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/reminder_alarm_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/access_management_page.dart';
 import 'package:nusagizi/features/mother/profile/presentation/pages/terms_and_conditions_page.dart';
@@ -145,6 +148,7 @@ enum AppRoutes {
   socialCaregiver,
   caregiverRecipeDetail,
   caregiverShoppingList,
+  caregiverReminderAlarm,
   accessHistory,
 }
 
@@ -740,7 +744,10 @@ class AppRouter {
                     path: 'reminder-alarm',
                     name: AppRoutes.reminderAlarm.name,
                     parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => const ReminderAlarmPage(),
+                    builder: (context, state) => BlocProvider(
+                      create: (_) => sl<AlarmCubit>(),
+                      child: const ReminderAlarmPage(),
+                    ),
                   ),
                   GoRoute(
                     path: 'access-management',
@@ -924,6 +931,15 @@ class AppRouter {
                         ],
                       ),
                     ],
+                  ),
+                  GoRoute(
+                    path: 'reminder-alarm',
+                    name: AppRoutes.caregiverReminderAlarm.name,
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => BlocProvider(
+                      create: (_) => sl<CaregiverAlarmCubit>(),
+                      child: const CaregiverReminderAlarmPage(),
+                    ),
                   ),
                 ],
               ),

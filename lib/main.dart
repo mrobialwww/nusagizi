@@ -5,8 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nusagizi/core/di/service_locator.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:nusagizi/router.dart';
+import 'package:nusagizi/core/widgets/notification_handler_wrapper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:nusagizi/core/services/onesignal_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -41,6 +43,15 @@ void main() async {
           ),
   );
 
+  // FIX: Clear cache saat debugging agar perubahan alarm_dummy_data.dart terbaca
+  await HydratedBloc.storage.clear();
+
+  // Setup OneSignal
+  OneSignalService().initialize("1f3f8347-97eb-4373-bcfc-8c83456a799a");
+
+  // Request Access permission for notification
+  OneSignalService().requestPermission();
+
   await initDependencies();
   runApp(const MyApp());
 }
@@ -69,6 +80,8 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 routerConfig: appRouter.router,
+                builder: (context, child) =>
+                    NotificationHandlerWrapper(child: child!),
               );
             },
           );

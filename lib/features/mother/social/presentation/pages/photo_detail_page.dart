@@ -366,7 +366,7 @@ class _PhotoDetailPageState extends State<PhotoDetailPage> {
                             );
                           },
                           icon: Icon(
-                            Icons.file_download_outlined,
+                            Icons.file_upload_outlined,
                             color: Colors.white70,
                             size: 30.w,
                           ),

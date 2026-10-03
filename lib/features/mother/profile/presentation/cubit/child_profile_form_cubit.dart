@@ -5,6 +5,7 @@ import 'package:nusagizi/features/mother/profile/domain/usecases/update_child_pr
 import 'package:nusagizi/features/mother/profile/domain/usecases/delete_child_profile_usecase.dart';
 import 'package:nusagizi/features/mother/growth/domain/usecases/add_growth_report_usecase.dart';
 import 'package:nusagizi/features/mother/growth/data/models/add_growth_report_model.dart';
+import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 
 part 'child_profile_form_state.dart';
 
@@ -13,12 +14,14 @@ class ChildProfileFormCubit extends Cubit<ChildProfileFormState> {
   final UpdateChildProfileUseCase updateChildProfileUseCase;
   final DeleteChildProfileUseCase deleteChildProfileUseCase;
   final AddGrowthReportUseCase addGrowthReportUseCase;
+  final ChildrenCacheCubit cacheCubit;
 
   ChildProfileFormCubit({
     required this.addChildProfileUseCase,
     required this.updateChildProfileUseCase,
     required this.deleteChildProfileUseCase,
     required this.addGrowthReportUseCase,
+    required this.cacheCubit,
   }) : super(ChildProfileFormInitial());
 
   Future<void> submitProfile(
@@ -46,9 +49,13 @@ class ChildProfileFormCubit extends Cubit<ChildProfileFormState> {
           growthResult.fold(
             (failure) =>
                 emit(ChildProfileFormFailure(message: failure.message)),
-            (_) => emit(ChildProfileFormSuccess(childId: childId)),
+            (_) {
+              cacheCubit.refresh();
+              emit(ChildProfileFormSuccess(childId: childId));
+            },
           );
         } else {
+          cacheCubit.refresh();
           emit(ChildProfileFormSuccess(childId: childId));
         }
       },
@@ -65,7 +72,10 @@ class ChildProfileFormCubit extends Cubit<ChildProfileFormState> {
 
     result.fold(
       (failure) => emit(ChildProfileFormFailure(message: failure.message)),
-      (_) => emit(ChildProfileFormSuccess(childId: childId)),
+      (_) {
+        cacheCubit.refresh();
+        emit(ChildProfileFormSuccess(childId: childId));
+      },
     );
   }
 
@@ -76,7 +86,10 @@ class ChildProfileFormCubit extends Cubit<ChildProfileFormState> {
 
     result.fold(
       (failure) => emit(ChildProfileFormFailure(message: failure.message)),
-      (_) => emit(ChildProfileFormDeleteSuccess(childId: childId)),
+      (_) {
+        cacheCubit.refresh();
+        emit(ChildProfileFormDeleteSuccess(childId: childId));
+      },
     );
   }
 }

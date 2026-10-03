@@ -490,7 +490,7 @@ class _AddOrEditChildProfileState extends State<AddOrEditChildProfile> {
     ).then((_) {
       isDialogClosed = true;
       if (context.mounted) {
-        if (isEdit) {
+        if (!widget.fromHome) {
           context.pop();
         } else {
           motherNavTabNotifier.value = 0;

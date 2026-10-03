@@ -5,7 +5,16 @@ class MidnightSyncCubit extends HydratedCubit<MidnightSyncEntity> {
   MidnightSyncCubit() : super(const MidnightSyncEntity());
 
   String get _today => DateTime.now().toIso8601String().substring(0, 10);
-  bool get needsGenerate => state.lastGenerateDate != _today;
+
+  bool get needsGenerate {
+    if (state.lastGenerateDate == null) return true;
+
+    final lastDate = DateTime.tryParse(state.lastGenerateDate!);
+    if (lastDate == null) return true;
+
+    final daysSince = DateTime.now().difference(lastDate).inDays;
+    return daysSince >= 7;
+  }
 
   // Mark that generate has been done today
   void markGeneratedToday() {

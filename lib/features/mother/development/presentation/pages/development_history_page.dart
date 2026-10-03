@@ -30,6 +30,7 @@ class _DevelopmentHistoryPageState extends State<DevelopmentHistoryPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     final cacheState = sl<ChildrenCacheCubit>().state;
     final childToLoad =
         widget.selectedChild ??

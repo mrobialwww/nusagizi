@@ -7,8 +7,8 @@ import 'package:nusagizi/features/caregiver/home/domain/usecases/get_caregiver_d
 import 'package:nusagizi/features/caregiver/home/domain/usecases/swap_caregiver_ingredient_usecase.dart';
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_shopping_list_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Auth Imports
+import 'package:nusagizi/features/mother/profile/presentation/cubit/alarm_cubit.dart';
+import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_alarm_cubit.dart';
 import 'package:nusagizi/features/auth/data/datasources/auth_service.dart';
 import 'package:nusagizi/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:nusagizi/features/auth/domain/repositories/auth_repository.dart';
@@ -21,16 +21,11 @@ import 'package:nusagizi/features/auth/domain/usecases/start_registration_usecas
 import 'package:nusagizi/features/auth/domain/usecases/verify_otp_and_login_usecase.dart';
 import 'package:nusagizi/features/auth/domain/usecases/resend_otp_usecase.dart';
 import 'package:nusagizi/features/auth/presentation/cubit/auth_cubit.dart';
-
-// Onboarding Imports
 import 'package:nusagizi/features/onboarding/data/datasources/onboarding_service.dart';
-
 import 'package:nusagizi/features/onboarding/data/repositories/onboarding_repository_impl.dart';
 import 'package:nusagizi/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:nusagizi/features/onboarding/domain/usecases/submit_role_usecase.dart';
 import 'package:nusagizi/features/onboarding/presentation/cubit/onboarding_cubit.dart';
-
-// Mother Home Imports
 import 'package:nusagizi/features/mother/home/data/datasources/mother_home_service.dart';
 import 'package:nusagizi/features/mother/home/data/repositories/mother_home_repository_impl.dart';
 import 'package:nusagizi/features/mother/home/domain/repositories/mother_home_repository.dart';
@@ -38,8 +33,6 @@ import 'package:nusagizi/features/mother/home/domain/usecases/get_children_summa
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/daily_focus_cubit.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/mother_home_cubit.dart';
-
-// Caregiver Home Imports
 import 'package:nusagizi/features/caregiver/home/data/datasources/caregiver_home_service.dart';
 import 'package:nusagizi/features/caregiver/home/data/repositories/caregiver_home_repository_impl.dart';
 import 'package:nusagizi/features/caregiver/home/domain/usecases/update_caregiver_recipe_completion_usecase.dart';
@@ -54,8 +47,6 @@ import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_re
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_children_cache_cubit.dart';
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_home_cubit.dart';
 import 'package:nusagizi/features/caregiver/home/presentation/cubit/caregiver_today_menu_cubit.dart';
-
-// Mother Profile Imports
 import 'package:nusagizi/features/mother/profile/data/datasources/mother_profile_service.dart';
 import 'package:nusagizi/features/mother/profile/data/repositories/mother_profile_repository_impl.dart';
 import 'package:nusagizi/features/mother/profile/domain/repositories/mother_profile_repository.dart';
@@ -81,25 +72,19 @@ import 'package:nusagizi/features/mother/profile/data/repositories/user_profile_
 import 'package:nusagizi/features/mother/profile/domain/usecases/get_user_profile_usecase.dart';
 import 'package:nusagizi/features/mother/profile/domain/usecases/update_user_profile_usecase.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/user_profile_cubit.dart';
-
-// Caregiver Profile Imports
 import 'package:nusagizi/features/caregiver/profile/data/datasources/caregiver_profile_service.dart';
 import 'package:nusagizi/features/caregiver/profile/data/repositories/caregiver_profile_repository_impl.dart';
 import 'package:nusagizi/features/caregiver/profile/domain/repositories/caregiver_profile_repository.dart';
 import 'package:nusagizi/features/caregiver/profile/domain/usecases/get_caregiver_profile_usecase.dart';
 import 'package:nusagizi/features/caregiver/profile/domain/usecases/update_caregiver_profile_usecase.dart';
 import 'package:nusagizi/features/caregiver/profile/presentation/cubit/caregiver_profile_cubit.dart';
-
-// Notification Imports
 import 'package:nusagizi/features/mother/home/data/datasources/notification_service.dart';
 import 'package:nusagizi/features/mother/home/data/repositories/notification_repository_impl.dart';
 import 'package:nusagizi/features/mother/home/domain/repositories/notification_repository.dart';
 import 'package:nusagizi/features/mother/home/domain/usecases/get_all_notifications_usecase.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/notification_cubit.dart';
-
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-
 import 'package:nusagizi/features/mother/profile/data/datasources/caregiver_engagement_service.dart';
 import 'package:nusagizi/features/mother/profile/data/repositories/caregiver_engagement_repository_impl.dart';
 import 'package:nusagizi/features/mother/profile/domain/repositories/caregiver_engagement_repository.dart';
@@ -107,8 +92,6 @@ import 'package:nusagizi/features/mother/profile/domain/usecases/get_active_care
 import 'package:nusagizi/features/mother/profile/domain/usecases/get_revoked_caregiver_engagements_usecase.dart';
 import 'package:nusagizi/features/mother/profile/domain/usecases/revoke_caregiver_engagement_usecase.dart';
 import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_engagement_cubit.dart';
-
-// Medical Notes Imports
 import 'package:nusagizi/features/mother/note/data/datasources/note_service.dart';
 import 'package:nusagizi/features/mother/note/data/repositories/note_repository_impl.dart';
 import 'package:nusagizi/features/mother/note/domain/repositories/note_repository.dart';
@@ -119,7 +102,6 @@ import 'package:nusagizi/features/mother/note/domain/usecases/edit_medical_note_
 import 'package:nusagizi/features/mother/note/presentation/cubit/medical_notes_cubit.dart';
 import 'package:nusagizi/features/mother/note/presentation/cubit/medical_note_detail_cubit.dart';
 import 'package:nusagizi/features/mother/note/presentation/cubit/add_edit_note_cubit.dart';
-// Latest Growth Report Imports
 import 'package:nusagizi/features/mother/growth/data/datasources/child_growth_service.dart';
 import 'package:nusagizi/features/mother/growth/data/repositories/growth_repository_impl.dart';
 import 'package:nusagizi/features/mother/growth/domain/repositories/growth_repository.dart';
@@ -128,8 +110,6 @@ import 'package:nusagizi/features/mother/growth/domain/usecases/get_growth_histo
 import 'package:nusagizi/features/mother/growth/presentation/cubit/latest_growth_report_cubit.dart';
 import 'package:nusagizi/features/mother/growth/domain/usecases/get_growth_analyses_usecase.dart';
 import 'package:nusagizi/features/mother/growth/presentation/cubit/growth_analyses_cubit.dart';
-
-// Development Imports
 import 'package:nusagizi/features/mother/development/data/datasources/child_development_service.dart';
 import 'package:nusagizi/features/mother/development/data/repositories/child_development_repository_impl.dart';
 import 'package:nusagizi/features/mother/development/domain/repositories/child_development_repository.dart';
@@ -148,8 +128,6 @@ import 'package:nusagizi/features/mother/development/presentation/cubit/kpsp_res
 import 'package:nusagizi/features/mother/development/presentation/cubit/kpsp_assessment_cubit.dart';
 import 'package:nusagizi/features/mother/development/presentation/cubit/development_profile_detail_cubit.dart';
 import 'package:nusagizi/features/mother/development/presentation/cubit/checklist_milestone_cubit.dart';
-
-// Nutrition Imports
 import 'package:nusagizi/features/mother/nutrition/data/datasources/child_nutrition_service.dart';
 import 'package:nusagizi/features/mother/nutrition/data/repositories/nutrition_repository_impl.dart';
 import 'package:nusagizi/features/mother/nutrition/domain/repositories/nutrition_repository.dart';
@@ -173,16 +151,12 @@ import 'package:nusagizi/features/mother/nutrition/domain/usecases/generate_menu
 import 'package:nusagizi/features/mother/nutrition/domain/usecases/reuse_recipe_usecase.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/menu_action_cubit.dart';
 import 'package:nusagizi/features/mother/nutrition/presentation/cubit/midnight_sync_cubit.dart';
-
-// Image Upload Imports
 import 'package:nusagizi/core/services/image_upload/data/datasources/image_api_service.dart';
 import 'package:nusagizi/core/services/image_upload/data/datasources/image_storage_service.dart';
 import 'package:nusagizi/core/services/image_upload/data/repositories/image_upload_repository_impl.dart';
 import 'package:nusagizi/core/services/image_upload/domain/repositories/image_upload_repository.dart';
 import 'package:nusagizi/core/services/image_upload/domain/usecases/upload_image_usecase.dart';
 import 'package:nusagizi/core/services/image_upload/presentation/cubit/image_upload_cubit.dart';
-
-// Social Mother Imports
 import 'package:nusagizi/features/mother/social/data/datasources/social_service.dart';
 import 'package:nusagizi/features/mother/social/data/repositories/social_repository_impl.dart';
 import 'package:nusagizi/features/mother/social/domain/repositories/social_repository.dart';
@@ -201,8 +175,6 @@ import 'package:nusagizi/features/mother/social/domain/usecases/review_child_pho
 import 'package:nusagizi/features/mother/social/presentation/cubit/review_child_photo_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/create_child_photo_cubit.dart';
 import 'package:nusagizi/features/mother/social/presentation/cubit/retake_photo_cubit.dart';
-
-// Caregiver Social Imports
 import 'package:nusagizi/features/caregiver/home/data/datasources/social_caregiver_remote_datasource.dart';
 import 'package:nusagizi/features/caregiver/home/data/repositories/social_caregiver_repository_impl.dart';
 import 'package:nusagizi/features/caregiver/home/domain/repositories/social_caregiver_repository.dart';
@@ -579,14 +551,9 @@ Future<void> initDependencies() async {
   );
 
   // Mother Home Cubits
-  sl.registerLazySingleton(() => ChildrenCacheCubit());
+  sl.registerLazySingleton(() => ChildrenCacheCubit(getChildrenUseCase: sl()));
   sl.registerLazySingleton(() => DailyFocusCubit());
-  sl.registerFactory(
-    () => MotherHomeCubit(
-      getChildrenSummaryUseCase: sl(),
-      cacheCubit: sl<ChildrenCacheCubit>(),
-    ),
-  );
+  sl.registerFactory(() => MotherHomeCubit(getChildrenSummaryUseCase: sl()));
 
   // Mother Profile (Caregiver Engagements)
   sl.registerFactory(
@@ -609,6 +576,7 @@ Future<void> initDependencies() async {
       updateChildProfileUseCase: sl(),
       deleteChildProfileUseCase: sl(),
       addGrowthReportUseCase: sl(),
+      cacheCubit: sl<ChildrenCacheCubit>(),
     ),
   );
   sl.registerFactory(() => ChildProfileCubit(getChildrenUseCase: sl()));
@@ -646,6 +614,10 @@ Future<void> initDependencies() async {
   sl.registerFactory(() => GrowthHistoryCubit(getGrowthHistoryUseCase: sl()));
   sl.registerFactory(() => AddGrowthReportCubit(addGrowthReportUseCase: sl()));
   sl.registerFactory(() => GrowthAnalysesCubit(sl()));
+
+  sl.registerFactory(() => AlarmCubit());
+
+  sl.registerFactory(() => CaregiverAlarmCubit());
 
   // Child Development Use Cases
   sl.registerLazySingleton(() => GetChildDevelopmentReportDetail(sl()));

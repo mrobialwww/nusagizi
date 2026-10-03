@@ -4,7 +4,7 @@ final List<Map<String, dynamic>> alarmDummyData = [
   {
     'title': 'Sarapan',
     'time': '07.00 - 08.00',
-    'isOn': true,
+    'isOn': false,
     'icon': Icons.wb_twilight,
     'iconColor': const Color(0xFFFF9800),
     'bgColor': const Color(0xFFFFF3E0),
@@ -20,7 +20,7 @@ final List<Map<String, dynamic>> alarmDummyData = [
   {
     'title': 'Makan Siang',
     'time': '12.00 - 13.00',
-    'isOn': true,
+    'isOn': false,
     'icon': Icons.wb_sunny,
     'iconColor': const Color(0xFFFFC107),
     'bgColor': const Color(0xFFFFF8E1),
@@ -35,8 +35,8 @@ final List<Map<String, dynamic>> alarmDummyData = [
   },
   {
     'title': 'Makan Malam',
-    'time': '18.00 - 19.00',
-    'isOn': true,
+    'time': '20.57 - 21.57',
+    'isOn': false,
     'icon': Icons.nights_stay,
     'iconColor': const Color(0xFF2196F3),
     'bgColor': const Color(0xFFE3F2FD),

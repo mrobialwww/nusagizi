@@ -49,6 +49,7 @@ class _GrowthPageState extends State<GrowthPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     _bbPageController = PageController();
     _routerDelegate = GoRouter.of(context).routerDelegate;
     _routerDelegate.addListener(_onRouteChanged);
@@ -275,12 +276,7 @@ class _GrowthPageState extends State<GrowthPage> {
                                 validChild.id,
                               ),
                               SizedBox(height: 16.h),
-                              StatusCard(
-                                accentColor: _green,
-                                profile: validChild,
-                                activeTab: _activeTab,
-                                bbSubPage: _bbSubPage,
-                              ),
+                              const StatusCard(),
                             ],
                           ),
                         ),

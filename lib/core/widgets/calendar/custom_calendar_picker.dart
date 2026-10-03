@@ -26,18 +26,6 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
     _currentMonth = DateTime(_selectedDate.year, _selectedDate.month);
   }
 
-  void _nextMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
-    });
-  }
-
-  void _prevMonth() {
-    setState(() {
-      _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1);
-    });
-  }
-
   String _getMonthName(int month) {
     const months = [
       'Januari',
@@ -182,31 +170,98 @@ class _CustomCalendarPickerState extends State<CustomCalendarPicker> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: _prevMonth,
-              child: Icon(
-                Icons.chevron_left,
-                color: Colors.black54,
-                size: 24.sp,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00B14F).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: _currentMonth.month,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: const Color(0xFF00B14F),
+                    size: 18.sp,
+                  ),
+                  isDense: true,
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  menuMaxHeight: 300.h,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF00B14F),
+                  ),
+                  items: List.generate(12, (index) {
+                    return DropdownMenuItem(
+                      value: index + 1,
+                      child: Text(_getMonthName(index + 1)),
+                    );
+                  }),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _currentMonth = DateTime(_currentMonth.year, val);
+                      });
+                    }
+                  },
+                ),
               ),
             ),
-            SizedBox(width: 24.w),
-            Text(
-              '${_getMonthName(_currentMonth.month)} ${_currentMonth.year}',
-              style: TextStyle(
-                fontFamily: 'PlusJakartaSans',
-                fontSize: 15.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+            SizedBox(width: 8.w),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00B14F).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20.r),
               ),
-            ),
-            SizedBox(width: 24.w),
-            GestureDetector(
-              onTap: _nextMonth,
-              child: Icon(
-                Icons.chevron_right,
-                color: Colors.black54,
-                size: 24.sp,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  value: _currentMonth.year,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: const Color(0xFF00B14F),
+                    size: 18.sp,
+                  ),
+                  isDense: true,
+                  dropdownColor: Colors.white,
+                  borderRadius: BorderRadius.circular(16.r),
+                  menuMaxHeight: 300.h,
+                  style: TextStyle(
+                    fontFamily: 'PlusJakartaSans',
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF00B14F),
+                  ),
+                  items: () {
+                    int startYear = 2000;
+                    int endYear = 2045;
+
+                    // Safety check to prevent Dropdown crash if initial date is outside 2000-2045
+                    if (_currentMonth.year < startYear)
+                      startYear = _currentMonth.year;
+                    if (_currentMonth.year > endYear)
+                      endYear = _currentMonth.year;
+
+                    final int yearCount = endYear - startYear + 1;
+                    return List.generate(yearCount, (index) {
+                      final year = startYear + index;
+                      return DropdownMenuItem(
+                        value: year,
+                        child: Text(year.toString()),
+                      );
+                    });
+                  }(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _currentMonth = DateTime(val, _currentMonth.month);
+                      });
+                    }
+                  },
+                ),
               ),
             ),
           ],
