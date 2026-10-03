@@ -58,6 +58,7 @@ class _SocialMotherPageState extends State<SocialMotherPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     _lifecycleListener = AppLifecycleListener(
       onInactive: () {
         if (_cameraController != null &&

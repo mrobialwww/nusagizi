@@ -304,7 +304,7 @@ class ChildNutritionServiceImpl implements ChildNutritionService {
     try {
       final response = await dio.post(
         '/menu/generate',
-        data: {'report_date': DateHelper.toApiDate(date)},
+        data: {'start_date': DateHelper.toApiDate(date)},
       );
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw const ServerException(message: 'Gagal merakit menu baru');

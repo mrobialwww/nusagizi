@@ -11,6 +11,7 @@ import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_en
 import 'package:nusagizi/features/mother/profile/presentation/cubit/caregiver_engagement_state.dart';
 import 'package:nusagizi/features/mother/profile/presentation/widgets/invite_access_bottom_sheet.dart';
 import 'package:nusagizi/features/mother/home/presentation/cubit/children_cache_cubit.dart';
+import 'package:nusagizi/core/di/service_locator.dart';
 
 class AccessManagementPage extends StatefulWidget {
   final String? initialChildId;
@@ -25,6 +26,7 @@ class _AccessManagementPageState extends State<AccessManagementPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     if (widget.initialChildId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _openInviteBottomSheet(widget.initialChildId!);

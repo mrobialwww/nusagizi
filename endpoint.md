@@ -423,7 +423,7 @@ Status code yang dipakai di seluruh dokumen (di tiap endpoint hanya subset yang 
 
 - **Query Params**: `-` (tidak ada)
 - **Request Body**: `-` (tidak ada)
-- **Response Body (200)**:
+- **Response Body [FIX] (200)**: (Dijamin selalu mengembalikan `[]` bukan `null` jika data kosong)
 
 ```json
 [
@@ -550,17 +550,17 @@ _(Semua indikator juga membutuhkan parameter Jenis Kelamin untuk memilih tabel)_
 }
 ```
 
-| Field                 | Type   | Keterangan                                                                                |
-| --------------------- | ------ | ----------------------------------------------------------------------------------------- |
-| id                    | UUID   |                                                                                           |
-| measured_at           | date   |                                                                                           |
-| weight_kg             | number |                                                                                           |
-| height_cm             | number |                                                                                           |
-| head_circumference_cm | number |                                                                                           |
-| status                | string | Hasil agregat terburuk dari 5 indikator WHO: `Normal`, `Berisiko`, `Gangguan Pertumbuhan` |
+| Field                 | Type   | Keterangan                                                                        |
+| --------------------- | ------ | --------------------------------------------------------------------------------- |
+| id                    | UUID   |                                                                                   |
+| measured_at           | date   |                                                                                   |
+| weight_kg             | number |                                                                                   |
+| height_cm             | number |                                                                                   |
+| head_circumference_cm | number |                                                                                   |
+| status                | string | Hasil agregat terburuk dari 5 indikator WHO: `Normal`, `Berisiko`, `Sangat Buruk` |
 
 - **Catatan [FIX v5]**: Field `status` dihitung on-the-fly menggunakan Z-Score WHO LMS dari 5 indikator sekaligus. Status yang dikembalikan adalah yang terburuk (_worst-case_) di antara semua indikator:
-    - **`Gangguan Pertumbuhan`**: Jika terdapat _minimal satu_ indikator dengan Z-Score < -3 atau > +3.
+    - **`Sangat Buruk`**: Jika terdapat _minimal satu_ indikator dengan Z-Score < -3 atau > +3.
     - **`Berisiko`**: Jika terdapat _minimal satu_ indikator dengan Z-Score berada di rentang [-3, -2) atau (2, 3].
     - **`Normal`**: Jika _semua_ indikator memiliki Z-Score di dalam rentang aman [-2, +2].
 
@@ -1079,7 +1079,7 @@ null
 
 - **Query Params**: `-` (tidak ada)
 - **Request Body**: `-` (tidak ada)
-- **Response Body (200)**:
+- **Response Body [FIX] (200)**: (Dijamin selalu mengembalikan `[]` bukan `null` jika data kosong)
 
 ```json
 [
@@ -1606,7 +1606,7 @@ null
 
 ```json
 {
-    "report_date": "2026-08-14"
+    "start_date": "2026-08-14"
 }
 ```
 
@@ -1615,19 +1615,24 @@ null
 ```json
 {
     "status": "created",
-    "message": "Menu berhasil di-generate"
+    "message": "7 hari menu berhasil di-generate"
 }
 ```
 
 - **Response Error**:
 
-| Status | Kasus                                                               |
-| ------ | ------------------------------------------------------------------- |
-| 400    | format body tidak valid / `report_date` tidak ada atau salah format |
-| 502    | Food Engine gagal memproses / timeout AI                            |
-| 500    | Gagal menyimpan ke database                                         |
+| Status | Kasus                                                              |
+| ------ | ------------------------------------------------------------------ |
+| 400    | format body tidak valid / `start_date` tidak ada atau salah format |
+| 502    | Food Engine gagal memproses / timeout AI                           |
+| 500    | Gagal menyimpan ke database                                        |
 
-- **Catatan**: Endpoint ini adalah sebuah _Command_ yang memicu server untuk mem-_fetch_ profil anak dari DB, merakit payload `all_child.json`, mengirimnya ke AI (Food Engine), dan menyimpan hasilnya ke database (strategi _Replace_ menu hari ini). Jika ada anak yang menu hari ininya berstatus `can_regenerate=false` (resep hasil reuse), backend otomatis akan men-skip anak tersebut secara aman dan melanjutkan generate menu untuk anak lainnya. Setelah menerima respons sukses (201) dari endpoint ini, _client_ (Flutter) bertugas memanggil ulang **Endpoint 29** (`GET /menu/today`) untuk mengambil data terbaru dan me-render UI.
+- **Catatan**: Endpoint ini adalah sebuah _Command_ asinkron (secara logika) yang memicu server untuk mem-_fetch_ profil anak, merakit payload `all_child.json`, mengirimnya ke AI (Food Engine), lalu AI membalas dengan **data menu untuk 7 hari**.
+  Backend akan melakukan iterasi 7 hari tersebut dengan mekanisme **Store and Replace** ke Database sebagai berikut:
+    1. Untuk setiap offset hari (0 hingga 6), backend menghitung target waktu penyimpanannya sebagai `target_date = start_date + offset hari`.
+    2. Backend lalu melakukan _Replace_: Jika sudah ada _record_ menu (di tabel `child_nutrition_reports`) untuk anak tersebut di tanggal `target_date` tersebut, menu lama akan dihapus dan ditimpa dengan hasil AI yang baru. Jika belum ada, maka dibuat baru (Insert).
+    3. **Pengecualian**: Jika ada menu lama di `target_date` tersebut yang memiliki status `can_regenerate=false` (yang berarti direuse/salinan dari hari sebelumnya oleh ibu), backend akan melewatinya (skip) dan menolak nge-_replace_ anak tersebut di hari bersangkutan demi menjaga riwayat menu yang telah dikustom.
+       Setelah menerima respons sukses (201), _client_ (Flutter) bertugas memanggil ulang endpoint `GET /menu/today` atau fitur riwayat 7 hari mingguan untuk merender tampilan terbaru.
 
 ### 40. [BARU] Get report menu by ID
 
@@ -1678,7 +1683,7 @@ null
 - **Path Params**: `-` (tidak ada)
 - **Query Params**: `-` (tidak ada)
 - **Request Body**: `-` (tidak ada)
-- **Response Body [FIX] (200)**: list contacts, di-join ke `mother_profiles` -> `users` untuk menampilkan nama/foto:
+- **Response Body [FIX] (200)**: list contacts, di-join ke `mother_profiles` -> `users` untuk menampilkan nama/foto (Dijamin selalu mengembalikan `[]` bukan `null` jika data kosong):
 
 ```json
 [
@@ -2089,11 +2094,11 @@ WHERE c.mother_profile_id = ?
 - **Path Params**: `-` (tidak ada)
 - **Query Params**:
 
-| Field      | Type    | Wajib              | Keterangan                                                                                                          |
-| ---------- | ------- | ------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| status     | enum    | Ya                 | `active` (default filter `valid_until >= now()`) atau `history`                                                     |
-| child_name | string  | Tidak **[FIX v5]** | Filter berdasarkan nama anak (exact match). Jika tidak dikirim, menampilkan semua anak.                             |
-| month      | integer | Tidak **[FIX v4]** | 1-12. Default: bulan berjalan. Filter berdasarkan **nomor bulan saja** (`EXTRACT(MONTH FROM valid_until) = month`). |
+| Field      | Type    | Wajib              | Keterangan                                                                                                         |
+| ---------- | ------- | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| status     | enum    | Ya                 | `active` (default filter `valid_until >= now()`) atau `history`                                                    |
+| child_name | string  | Tidak **[FIX v5]** | Filter berdasarkan nama anak (exact match). Jika tidak dikirim, menampilkan semua anak.                            |
+| month      | integer | Tidak **[FIX v4]** | 1-12. Default: bulan berjalan. Filter berdasarkan **nomor bulan saja** (`EXTRACT(MONTH FROM created_at) = month`). |
 
 - **Request Body**: `-` (tidak ada)
 - **Response Body (200)**: Array dari `medical_notes` aktif

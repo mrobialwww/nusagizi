@@ -223,7 +223,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             keyboardType: TextInputType.emailAddress,
                           ),
                           SizedBox(height: 20.h),
-                          _buildLabel('Nomor HP'),
+                          _buildLabel('Nomor HP', isRequired: false),
                           _buildTextField(
                             hint: '081 234 567 891',
                             controller: _phoneController,
@@ -314,7 +314,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, {bool isRequired = true}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 8.0.h),
       child: RichText(
@@ -326,12 +326,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
           ),
-          children: const [
-            TextSpan(
-              text: '*',
-              style: TextStyle(color: Colors.red),
-            ),
-          ],
+          children: isRequired
+              ? const [
+                  TextSpan(
+                    text: '*',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ]
+              : null,
         ),
       ),
     );

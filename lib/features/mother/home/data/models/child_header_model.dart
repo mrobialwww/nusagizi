@@ -1,4 +1,5 @@
 import 'package:nusagizi/features/mother/home/domain/entities/child_header_entity.dart';
+import 'package:nusagizi/features/mother/profile/domain/entities/child_profile_entity.dart';
 
 class ChildHeaderModel extends ChildHeaderEntity {
   const ChildHeaderModel({
@@ -8,6 +9,16 @@ class ChildHeaderModel extends ChildHeaderEntity {
     required super.imagePath,
     required super.gender,
   });
+
+  factory ChildHeaderModel.fromChildProfileEntity(ChildProfileEntity entity) {
+    return ChildHeaderModel(
+      id: entity.id,
+      name: entity.fullName,
+      age: entity.age,
+      imagePath: entity.photoUrl ?? '',
+      gender: entity.gender,
+    );
+  }
 
   factory ChildHeaderModel.fromJson(Map<String, dynamic> json) {
     return ChildHeaderModel(

@@ -44,7 +44,8 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
   @override
   void initState() {
     super.initState();
-    _selectedMonth = _months[DateTime.now().month - 1];
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
+    _selectedMonth = 'Semua Bulan';
     _notesCubit = sl<MedicalNotesCubit>();
     _fetchNotes();
   }
@@ -52,7 +53,9 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
   void _fetchNotes() {
     _notesCubit.fetchMedicalNotes(
       status: 'history',
-      month: _months.indexOf(_selectedMonth) + 1,
+      month: _selectedMonth == 'Semua Bulan'
+          ? null
+          : _months.indexOf(_selectedMonth) + 1,
       childName: _selectedChild == 'Semua Anak' ? null : _selectedChild,
     );
   }
@@ -191,7 +194,10 @@ class _NoteHistoryPageState extends State<NoteHistoryPage> {
 
     final currentMonthIndex = DateTime.now().month - 1;
     // Tampilkan dari Januari hingga bulan saat ini (inklusif)
-    final availableMonths = _months.sublist(0, currentMonthIndex + 1);
+    final availableMonths = [
+      'Semua Bulan',
+      ..._months.sublist(0, currentMonthIndex + 1),
+    ];
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.w),

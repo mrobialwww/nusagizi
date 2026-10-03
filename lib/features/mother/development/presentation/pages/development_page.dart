@@ -41,6 +41,7 @@ class _DevelopmentPageState extends State<DevelopmentPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     _routerDelegate = GoRouter.of(context).routerDelegate;
     _routerDelegate.addListener(_onRouteChanged);
 

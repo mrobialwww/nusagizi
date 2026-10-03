@@ -45,6 +45,7 @@ class _NutritionPageState extends State<NutritionPage> {
   @override
   void initState() {
     super.initState();
+    sl<ChildrenCacheCubit>().fetchIfEmpty();
     _lifecycleListener = AppLifecycleListener(
       onPause: () => _wasPaused = true,
       onResume: () {

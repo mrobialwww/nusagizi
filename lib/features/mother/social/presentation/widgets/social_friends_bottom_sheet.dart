@@ -99,7 +99,7 @@ class SocialFriendsBottomSheet extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.file_download_outlined,
+                      Icons.file_upload_outlined,
                       color: Colors.white70,
                       size: 20.sp,
                     ),

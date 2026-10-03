@@ -20,10 +20,10 @@ class AppImages {
       '${basePath}default_male_user_profile$format';
   static const String defaultUserProfile =
       '${basePath}default_female_user_profile$format';
-  static const String defaultFemaleChildProfile =
-      '${basePath}default_female_child_profile$format';
   static const String defaultMaleChildProfile =
       '${basePath}default_male_child_profile$format';
+  static const String defaultFemaleChildProfile =
+      '${basePath}default_female_child_profile$format';
   static const String defaultDailyMaleCapture =
       '${basePath}default_daily_male_capture.jpg';
   static const String defaultDailyFemaleCapture =

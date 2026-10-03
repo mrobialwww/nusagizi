@@ -157,6 +157,17 @@ class ProfileCaregiverPage extends StatelessWidget {
                           },
                         ),
                         ProfileMenuItem(
+                          icon: Icons.alarm,
+                          title: 'Jadwal & Pengingat',
+                          iconColor: const Color(0xFF00A735),
+                          iconBgColor: const Color(0xFFEAF7EE),
+                          onTap: () {
+                            context.pushNamed(
+                              AppRoutes.caregiverReminderAlarm.name,
+                            );
+                          },
+                        ),
+                        ProfileMenuItem(
                           icon: Icons.lock,
                           title: 'Keamanan Akun',
                           iconColor: const Color(0xFF00A735),
